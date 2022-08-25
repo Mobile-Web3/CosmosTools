@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mobileweb3.basic_kmm_sample.android">
+    package="com.mobileweb3.cosmostools.android">
 
     <application
-        android:name=".App"
+        android:name="com.mobileweb3.cosmos.tools.android.App"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".AppActivity"
+            android:name="com.mobileweb3.cosmos.tools.android.AppActivity"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>

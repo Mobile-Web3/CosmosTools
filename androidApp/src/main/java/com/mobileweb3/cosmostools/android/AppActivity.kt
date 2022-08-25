@@ -23,6 +23,8 @@ import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.mobileweb3.cosmostools.android.screens.main.MainScreen
+import com.mobileweb3.cosmostools.android.screens.navigation.BottomNavigation
+import com.mobileweb3.cosmostools.android.screens.navigation.NavigationGraph
 import com.mobileweb3.cosmostools.android.ui.AppTheme
 import com.mobileweb3.cosmostools.app.MainSideEffect
 import com.mobileweb3.cosmostools.app.MainStore
@@ -50,7 +52,7 @@ class AppActivity : ComponentActivity() {
                     val store: MainStore by inject()
                     val message = store.observeSideEffect()
                         .filterIsInstance<MainSideEffect.Message>()
-                        .collectAsState(MainSideEffect.Message("start message"))
+                        .collectAsState(null)
 
                     LaunchedEffect(message.value) {
                         message.value?.let {
@@ -71,6 +73,8 @@ class AppActivity : ComponentActivity() {
                             )
                         )
                     ) {
+                        val navController = rememberNavController()
+
                         Scaffold(
                             scaffoldState = scaffoldState,
                             snackbarHost = { hostState ->
@@ -83,17 +87,10 @@ class AppActivity : ComponentActivity() {
                                         )
                                     )
                                 )
-                            }
+                            },
+                            bottomBar = { BottomNavigation(navController = navController) }
                         ) {
-                            val navController = rememberNavController()
-
-                            NavHost(navController = navController, startDestination = "start") {
-                                composable("start") {
-                                    MainScreen(
-                                        store = store
-                                    )
-                                }
-                            }
+                            NavigationGraph(navController = navController, store)
                         }
                     }
                 }

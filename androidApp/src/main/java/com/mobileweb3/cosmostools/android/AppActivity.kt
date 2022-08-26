@@ -28,6 +28,7 @@ import com.mobileweb3.cosmostools.android.screens.navigation.NavigationGraph
 import com.mobileweb3.cosmostools.android.ui.AppTheme
 import com.mobileweb3.cosmostools.app.MainSideEffect
 import com.mobileweb3.cosmostools.app.MainStore
+import com.mobileweb3.cosmostools.wallet.WalletStore
 import kotlinx.coroutines.flow.filterIsInstance
 import org.koin.android.ext.android.inject
 
@@ -53,6 +54,8 @@ class AppActivity : ComponentActivity() {
                     val message = store.observeSideEffect()
                         .filterIsInstance<MainSideEffect.Message>()
                         .collectAsState(null)
+
+                    val walletStore: WalletStore by inject()
 
                     LaunchedEffect(message.value) {
                         message.value?.let {
@@ -90,7 +93,7 @@ class AppActivity : ComponentActivity() {
                             },
                             bottomBar = { BottomNavigation(navController = navController) }
                         ) {
-                            NavigationGraph(navController = navController, store)
+                            NavigationGraph(navController = navController, walletStore)
                         }
                     }
                 }

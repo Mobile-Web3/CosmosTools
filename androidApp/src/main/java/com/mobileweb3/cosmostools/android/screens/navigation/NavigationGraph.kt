@@ -15,7 +15,7 @@ fun NavigationGraph(
     navController: NavHostController,
     store: MainStore
 ) {
-    NavHost(navController, startDestination = BottomNavItem.Validators.route) {
+    NavHost(navController, startDestination = BottomNavItem.Wallet.route) {
         composable(BottomNavItem.Validators.route) {
             ValidatorsScreen()
         }

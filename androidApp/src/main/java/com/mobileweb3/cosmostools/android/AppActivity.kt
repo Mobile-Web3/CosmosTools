@@ -69,7 +69,7 @@ class AppActivity : ComponentActivity() {
                                 applyStart = true,
                                 applyTop = false,
                                 applyEnd = true,
-                                applyBottom = false
+                                applyBottom = true
                             )
                         )
                     ) {

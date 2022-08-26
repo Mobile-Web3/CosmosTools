@@ -20,7 +20,9 @@ fun BottomNavigation(navController: NavController) {
         BottomNavItem.Tools,
         BottomNavItem.Wallet,
     )
-    androidx.compose.material.BottomNavigation {
+    androidx.compose.material.BottomNavigation(
+        backgroundColor = Color.Black
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         items.forEach { item ->

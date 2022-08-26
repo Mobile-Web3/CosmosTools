@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.mobileweb3.cosmostools.android.screens.wallet.views
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +32,7 @@ fun ColumnScope.EmptyWalletView(
 
     AddWalletView(
         onCreateWalletClick = {
-
+            navController.navigate("create_wallet")
         },
         onMnemonicClick = {},
         onPrivateKeyClick = {}

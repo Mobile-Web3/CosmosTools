@@ -13,19 +13,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun BottomNavigation(navController: NavController) {
-    val items = listOf(
-        BottomNavItem.Validators,
-        BottomNavItem.Stats,
-        BottomNavItem.Tools,
-        BottomNavItem.Wallet,
-    )
+fun BottomNavigation(navController: NavController, bottomNavItems: List<BottomNavItem>) {
     androidx.compose.material.BottomNavigation(
         backgroundColor = Color.Black
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
-        items.forEach { item ->
+        bottomNavItems.forEach { item ->
             BottomNavigationItem(
                 icon = { Icon(painterResource(id = item.iconRes), contentDescription = item.title) },
                 label = { Text(text = item.title, fontSize = 14.sp) },

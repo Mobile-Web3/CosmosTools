@@ -30,5 +30,8 @@ fun NavigationGraph(
         composable(BottomNavItem.Wallet.route) {
             WalletScreen(navController, walletStore)
         }
+        composable("create_wallet") {
+            CreateWalletScreen(walletStore)
+        }
     }
 }

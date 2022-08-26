@@ -15,14 +15,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.mobileweb3.cosmostools.android.screens.main.MainScreen
+import com.mobileweb3.cosmostools.android.screens.navigation.BottomNavItem
 import com.mobileweb3.cosmostools.android.screens.navigation.BottomNavigation
 import com.mobileweb3.cosmostools.android.screens.navigation.NavigationGraph
 import com.mobileweb3.cosmostools.android.ui.AppTheme
@@ -65,6 +64,13 @@ class AppActivity : ComponentActivity() {
                         }
                     }
 
+                    val bottomNavItems = listOf(
+                        BottomNavItem.Validators,
+                        BottomNavItem.Stats,
+                        BottomNavItem.Tools,
+                        BottomNavItem.Wallet,
+                    )
+
                     Box(
                         Modifier.padding(
                             rememberInsetsPaddingValues(
@@ -77,6 +83,9 @@ class AppActivity : ComponentActivity() {
                         )
                     ) {
                         val navController = rememberNavController()
+
+                        val showBottomBar = navController
+                            .currentBackStackEntryAsState().value?.destination?.route in bottomNavItems.map { it.route }
 
                         Scaffold(
                             scaffoldState = scaffoldState,
@@ -91,7 +100,11 @@ class AppActivity : ComponentActivity() {
                                     )
                                 )
                             },
-                            bottomBar = { BottomNavigation(navController = navController) }
+                            bottomBar = {
+                                if (showBottomBar) {
+                                    BottomNavigation(navController = navController, bottomNavItems)
+                                }
+                            }
                         ) {
                             NavigationGraph(navController = navController, walletStore)
                         }

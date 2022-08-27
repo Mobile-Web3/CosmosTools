@@ -17,14 +17,15 @@ import kotlinx.coroutines.flow.StateFlow
 data class WalletState(
     val currentNetwork: Network?,
     val currentWallet: String?,
-    val createWalletState: CreateWalletState?
+    val createWalletState: CreateWalletState? = null,
+    val switchWalletState: SwitchWalletState? = null
 ) : State
 
 sealed class CreateWalletState(val title: String) {
 
     data class AddressSelection(
         val description: String,
-        val createWalletNetworks: List<CreateWalletNetwork>,
+        val createWalletNetworks: List<NetworkWithSelection>,
         val action: String,
         val createButtonEnabled: Boolean,
         val selectedCount: Int
@@ -36,9 +37,19 @@ sealed class CreateWalletState(val title: String) {
     ) : CreateWalletState("Created wallet")
 }
 
-data class CreateWalletNetwork(
+data class SwitchWalletState(
+    val networks: List<NetworkWithSelection>,
+    val wallets: List<WalletWithSelection>
+)
+
+data class NetworkWithSelection(
     var selected: Boolean,
     val network: Network
+)
+
+data class WalletWithSelection(
+    var selected: Boolean,
+    val wallet: String
 )
 
 sealed class WalletAction : Action {
@@ -51,7 +62,7 @@ sealed class WalletAction : Action {
     class SearchNetworkQueryChanged(val query: String) : WalletAction()
 
     class SelectNetworkForCreation(
-        val createWalletNetwork: CreateWalletNetwork,
+        val createWalletNetwork: NetworkWithSelection,
         val selected: Boolean
     ) : WalletAction()
 
@@ -60,6 +71,8 @@ sealed class WalletAction : Action {
     object UnselectAllNetworks : WalletAction()
 
     object ActionAfterNetworksSelected : WalletAction()
+
+    class SwitchNetwork(val network: NetworkWithSelection) : WalletAction()
 
 }
 
@@ -75,7 +88,8 @@ class WalletStore(
         WalletState(
             currentNetwork = interactor.getCurrentNetwork(),
             currentWallet = interactor.getCurrentWallet(),
-            createWalletState = null
+            createWalletState = null,
+            switchWalletState = null
         )
     )
     private val sideEffect = MutableSharedFlow<WalletSideEffect>()
@@ -86,6 +100,13 @@ class WalletStore(
 
     init {
         requestWalletInfo(state.value.currentWallet)
+
+        state.value = state.value.copy(
+            switchWalletState = SwitchWalletState(
+                networks = getInitSelectionNetworks(),
+                wallets = emptyList()
+            )
+        )
     }
 
     private fun requestWalletInfo(currentWallet: String?) {
@@ -178,6 +199,21 @@ class WalletStore(
             WalletAction.ActionAfterNetworksSelected -> {
 
             }
+            is WalletAction.SwitchNetwork -> {
+                resultNetworks.forEach {
+                    it.selected = it.network == action.network.network
+                }
+
+                interactor.setCurrentNetwork(action.network.network)
+
+                newState = oldState.copy(
+                    currentNetwork = interactor.getCurrentNetwork(),
+                    switchWalletState = SwitchWalletState(
+                        networks = resultNetworks,
+                        wallets = emptyList()
+                    )
+                )
+            }
         }
 
         if (newState != oldState) {
@@ -186,9 +222,9 @@ class WalletStore(
         }
     }
 
-    private fun getInitSelectionNetworks(): List<CreateWalletNetwork> {
+    private fun getInitSelectionNetworks(): List<NetworkWithSelection> {
         return mockNetworks.map {
-            CreateWalletNetwork(
+            NetworkWithSelection(
                 selected = it == state.value.currentNetwork,
                 network = it
             )
@@ -201,9 +237,7 @@ class WalletStore(
     ) {
         resultNetworks = getInitSelectionNetworks()
 
-        state.value = WalletState(
-            currentNetwork = interactor.getCurrentNetwork(),
-            currentWallet = interactor.getCurrentWallet(),
+        state.value = state.value.copy(
             createWalletState = CreateWalletState.AddressSelection(
                 description = description,
                 createWalletNetworks = resultNetworks,
@@ -214,7 +248,7 @@ class WalletStore(
         )
     }
 
-    private fun getNetworksByQuery(): List<CreateWalletNetwork> {
+    private fun getNetworksByQuery(): List<NetworkWithSelection> {
         return resultNetworks.filter {
             it.network.pretty_name.startsWith(currentSearchNetworkQuery, true)
         }

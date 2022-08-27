@@ -14,7 +14,6 @@ import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.EmptyWalletView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
-import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -29,8 +28,6 @@ fun WalletScreen(
             .fillMaxSize()
             .padding(top = 24.dp, bottom = 56.dp)
     ) {
-        Toolbar(title = "Wallet")
-
         if (state.value.currentWallet == null) {
             FillSpacer()
 
@@ -50,7 +47,7 @@ fun WalletScreen(
                     modifier = Modifier.width(100.dp),
                     selectedColor = MaterialTheme.colors.primary,
                     onNetworkClicked = {
-
+                        navController.navigate("switch")
                     }
                 )
             }

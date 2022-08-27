@@ -6,43 +6,40 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mobileweb3.cosmostools.android.ui.SelectedColor
 import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
-import com.mobileweb3.cosmostools.wallet.CreateWalletNetwork
+import com.mobileweb3.cosmostools.wallet.NetworkWithSelection
 
 @Composable
 fun SelectNetworksGrid(
-    networks: List<CreateWalletNetwork>?,
+    networks: List<NetworkWithSelection>?,
     modifier: Modifier = Modifier,
-    onNetworkClicked: (CreateWalletNetwork, Boolean) -> Unit,
+    columnsCount: Int,
+    onNetworkClicked: (NetworkWithSelection, Boolean) -> Unit,
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
+        columns = GridCells.Fixed(columnsCount),
         modifier = modifier,
     ) {
         items(networks?.toViewItems() ?: emptyList()) { item ->
             when (item) {
-                CreateWalletNetworkViewItem.Empty -> {
+                is CreateWalletNetworkViewItem.Empty -> {
 
                 }
                 is CreateWalletNetworkViewItem.Data -> {
-                    val selectedColor = if (item.createWalletNetwork.selected) {
+                    val selectedColor = if (item.networkWithSelection.selected) {
                         SelectedColor
                     } else {
                         MaterialTheme.colors.primary
                     }
                     NetworkCard(
-                        network = item.createWalletNetwork.network,
+                        network = item.networkWithSelection.network,
                         modifier = Modifier.padding(2.dp),
                         selectedColor = selectedColor,
                         onNetworkClicked = {
-                            onNetworkClicked.invoke(item.createWalletNetwork, !item.createWalletNetwork.selected)
+                            onNetworkClicked.invoke(item.networkWithSelection, !item.networkWithSelection.selected)
                         }
                     )
                 }
@@ -51,7 +48,7 @@ fun SelectNetworksGrid(
     }
 }
 
-private fun List<CreateWalletNetwork>.toViewItems(): List<CreateWalletNetworkViewItem> {
+private fun List<NetworkWithSelection>.toViewItems(): List<CreateWalletNetworkViewItem> {
     if (this.isEmpty()) {
         return listOf(CreateWalletNetworkViewItem.Empty)
     }

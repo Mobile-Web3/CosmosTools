@@ -41,6 +41,7 @@ fun ColumnScope.SelectNetworksContent(
 
     SelectNetworksGrid(
         networks = addressState.createWalletNetworks,
+        columnsCount = 3,
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
     ) { network, selected ->
         walletStore.dispatch(WalletAction.SelectNetworkForCreation(network, selected))

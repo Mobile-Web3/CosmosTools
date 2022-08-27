@@ -12,5 +12,9 @@ class WalletInteractor internal constructor(
     fun getCurrentNetwork(): Network =
         mockNetworks.find { it.pretty_name == (walletStorage.currentNetwork ?: "Cosmos Hub") }!!
 
+    fun setCurrentNetwork(network: Network) {
+        walletStorage.currentNetwork = network.pretty_name
+    }
+
     companion object
 }

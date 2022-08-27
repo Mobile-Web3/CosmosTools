@@ -8,6 +8,7 @@ import com.mobileweb3.cosmostools.android.screens.stats.StatsScreen
 import com.mobileweb3.cosmostools.android.screens.tools.ToolsScreen
 import com.mobileweb3.cosmostools.android.screens.validators.ValidatorsScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.CreateWalletScreen
+import com.mobileweb3.cosmostools.android.screens.wallet.SwitchNetworkWalletScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.WalletScreen
 import com.mobileweb3.cosmostools.app.MainStore
 import com.mobileweb3.cosmostools.wallet.WalletStore
@@ -32,6 +33,9 @@ fun NavigationGraph(
         }
         composable("create_wallet") {
             CreateWalletScreen(navController, walletStore)
+        }
+        composable("switch") {
+            SwitchNetworkWalletScreen(navController, walletStore)
         }
     }
 }

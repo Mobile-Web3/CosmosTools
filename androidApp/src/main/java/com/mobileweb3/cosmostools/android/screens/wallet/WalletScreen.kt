@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.EmptyWalletView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
+import com.mobileweb3.cosmostools.android.utils.enableScreenShot
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -22,6 +23,8 @@ fun WalletScreen(
     walletStore: WalletStore
 ) {
     val state = walletStore.observeState().collectAsState()
+
+    enableScreenShot()
 
     Column(
         modifier = Modifier

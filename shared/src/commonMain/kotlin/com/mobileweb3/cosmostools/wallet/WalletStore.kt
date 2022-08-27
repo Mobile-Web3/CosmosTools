@@ -214,7 +214,20 @@ class WalletStore(
                 )
             }
             WalletAction.ActionAfterNetworksSelected -> {
+                when (walletAction) {
+                    WalletAction.CreateWallet -> {
 
+                    }
+                    WalletAction.RestoreWalletByMnemonic -> {
+
+                    }
+                    WalletAction.RestoreWalletByPrivateKey -> {
+
+                    }
+                    else -> {
+                        //not happen
+                    }
+                }
             }
             WalletAction.OpenSwitchNetwork -> {
                 currentSearchNetworkQuery = ""

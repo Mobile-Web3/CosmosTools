@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -22,7 +23,7 @@ fun BottomNavigation(navController: NavController, bottomNavItems: List<BottomNa
         bottomNavItems.forEach { item ->
             BottomNavigationItem(
                 icon = { Icon(painterResource(id = item.iconRes), contentDescription = item.title) },
-                label = { Text(text = item.title, fontSize = 14.sp) },
+                label = { Text(text = item.title, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 selectedContentColor = MaterialTheme.colors.primary,
                 unselectedContentColor = Color.White,
                 alwaysShowLabel = true,

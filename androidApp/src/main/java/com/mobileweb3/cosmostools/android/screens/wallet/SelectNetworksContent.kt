@@ -59,7 +59,7 @@ fun ColumnScope.SelectNetworksContent(
         ) {
             Text(
                 text = "Unselect All",
-                style = MaterialTheme.typography.h6,
+                style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(4.dp)
             )
         }
@@ -73,7 +73,7 @@ fun ColumnScope.SelectNetworksContent(
         ) {
             Text(
                 text = "Select All",
-                style = MaterialTheme.typography.h6,
+                style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(4.dp)
             )
         }
@@ -88,7 +88,7 @@ fun ColumnScope.SelectNetworksContent(
         ) {
             Text(
                 text = addressState.action,
-                style = MaterialTheme.typography.h6,
+                style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(4.dp)
             )
         }

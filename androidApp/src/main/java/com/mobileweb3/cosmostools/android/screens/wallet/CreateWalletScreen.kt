@@ -10,8 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
-import com.mobileweb3.cosmostools.wallet.NetworkWithSelection
+import com.mobileweb3.cosmostools.android.utils.disableScreenShot
 import com.mobileweb3.cosmostools.wallet.CreateWalletState
+import com.mobileweb3.cosmostools.wallet.NetworkWithSelection
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -40,7 +41,7 @@ fun CreateWalletScreen(
                 )
             }
             is CreateWalletState.CreatedWallet -> {
-
+                disableScreenShot()
             }
             null -> {
                 //do nothing

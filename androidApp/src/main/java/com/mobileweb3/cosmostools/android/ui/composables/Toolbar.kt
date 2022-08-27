@@ -38,7 +38,7 @@ fun Toolbar(
         Text(
             text = title ?: "",
             color = MaterialTheme.colors.primary,
-            style = MaterialTheme.typography.h5
+            style = MaterialTheme.typography.h6
         )
 
         FillSpacer()

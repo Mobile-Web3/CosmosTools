@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
+import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -32,6 +33,7 @@ fun ColumnScope.EmptyWalletView(
 
     AddWalletView(
         onCreateWalletClick = {
+            walletStore.dispatch(WalletAction.CreateWallet)
             navController.navigate("create_wallet")
         },
         onMnemonicClick = {},

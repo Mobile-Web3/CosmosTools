@@ -19,11 +19,21 @@ data class WalletState(
     val createWalletState: CreateWalletState?
 ) : State
 
-data class CreateWalletState(
-    val createWalletNetworks: List<CreateWalletNetwork>,
-    val createdAddress: String? = null,
-    val mnemonic: List<String>? = null
-)
+sealed class CreateWalletState(val title: String) {
+
+    data class AddressSelection(
+        val description: String,
+        val createWalletNetworks: List<CreateWalletNetwork>,
+        val action: String,
+        val createButtonEnabled: Boolean,
+        val selectedCount: Int
+    ) : CreateWalletState("Select networks")
+
+    class CreatedWallet(
+        val createdAddress: String? = null,
+        val mnemonic: List<String>? = null
+    ) : CreateWalletState("Created wallet")
+}
 
 data class CreateWalletNetwork(
     var selected: Boolean,
@@ -31,12 +41,24 @@ data class CreateWalletNetwork(
 )
 
 sealed class WalletAction : Action {
-    class SearchNetworkQueryChanged(val query: String): WalletAction()
+    object CreateWallet : WalletAction()
+
+    object RestoreWalletByMnemonic : WalletAction()
+
+    object RestoreWalletByPrivateKey : WalletAction()
+
+    class SearchNetworkQueryChanged(val query: String) : WalletAction()
 
     class SelectNetworkForCreation(
         val createWalletNetwork: CreateWalletNetwork,
         val selected: Boolean
     ) : WalletAction()
+
+    object SelectAllNetworks : WalletAction()
+
+    object UnselectAllNetworks : WalletAction()
+
+    object ActionAfterNetworksSelected : WalletAction()
 
 }
 
@@ -48,18 +70,14 @@ class WalletStore(
     private val interactor: WalletInteractor
 ) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
-    private val resultNetworks = mockNetworks.map {
-        CreateWalletNetwork(
-            selected = false, // network == currentNetwork,
-            network = it
-        )
-    }
+    private var walletAction: WalletAction? = null
+    private var resultNetworks = getInitSelectionNetworks()
+    private var currentSearchNetworkQuery = ""
+
     private val state = MutableStateFlow(
         WalletState(
             currentWallet = interactor.getCurrentWallet(),
-            createWalletState = CreateWalletState(
-                createWalletNetworks = resultNetworks
-            )
+            createWalletState = null
         )
     )
     private val sideEffect = MutableSharedFlow<WalletSideEffect>()
@@ -72,6 +90,8 @@ class WalletStore(
         if (currentWallet == null) {
             return
         }
+
+        //todo request wallet info
     }
 
     override fun observeState(): StateFlow<WalletState> = state
@@ -86,18 +106,65 @@ class WalletStore(
         var newState = oldState
 
         when (action) {
+            WalletAction.CreateWallet -> {
+                walletAction = WalletAction.CreateWallet
+
+                initSelectNetworks(
+                    description = "Select networks for which addresses will be created from a single mnemonic:",
+                    action = "Create"
+                )
+            }
+            WalletAction.RestoreWalletByMnemonic -> {
+                walletAction = WalletAction.RestoreWalletByMnemonic
+            }
+            WalletAction.RestoreWalletByPrivateKey -> {
+                walletAction = WalletAction.RestoreWalletByPrivateKey
+            }
             is WalletAction.SearchNetworkQueryChanged -> {
+                currentSearchNetworkQuery = action.query
+
                 newState = oldState.copy(
-                    createWalletState = CreateWalletState(
-                        createWalletNetworks = resultNetworks.filter {
-                            it.network.pretty_name.startsWith(action.query, true)
-                        }
+                    createWalletState = (oldState.createWalletState as CreateWalletState.AddressSelection).copy(
+                        createWalletNetworks = getNetworksByQuery(),
+                        createButtonEnabled = resultNetworks.any { it.selected }
                     )
                 )
             }
             is WalletAction.SelectNetworkForCreation -> {
-                //state.value.createWalletState?.createWalletNetworks?.find { it == action.createWalletNetwork }?.selected = action.selected
                 resultNetworks.find { it == action.createWalletNetwork }?.selected = action.selected
+
+                newState = oldState.copy(
+                    createWalletState = (oldState.createWalletState as CreateWalletState.AddressSelection).copy(
+                        createWalletNetworks = getNetworksByQuery(),
+                        createButtonEnabled = resultNetworks.any { it.selected },
+                        selectedCount = getSelectedNetworksCount()
+                    )
+                )
+            }
+            is WalletAction.SelectAllNetworks -> {
+                resultNetworks.forEach { it.selected = true }
+
+                newState = oldState.copy(
+                    createWalletState = (oldState.createWalletState as CreateWalletState.AddressSelection).copy(
+                        createWalletNetworks = getNetworksByQuery(),
+                        createButtonEnabled = true,
+                        selectedCount = resultNetworks.size
+                    )
+                )
+            }
+            is WalletAction.UnselectAllNetworks -> {
+                resultNetworks.forEach { it.selected = false }
+
+                newState = oldState.copy(
+                    createWalletState = (oldState.createWalletState as CreateWalletState.AddressSelection).copy(
+                        createWalletNetworks = getNetworksByQuery(),
+                        createButtonEnabled = false,
+                        selectedCount = 0
+                    )
+                )
+            }
+            WalletAction.ActionAfterNetworksSelected -> {
+
             }
         }
 
@@ -105,6 +172,43 @@ class WalletStore(
             Napier.d(tag = "WalletStore", message = "NewState: $newState")
             state.value = newState
         }
+    }
+
+    private fun getInitSelectionNetworks(): List<CreateWalletNetwork> {
+        return mockNetworks.map {
+            CreateWalletNetwork(
+                selected = false, // network == currentNetwork,
+                network = it
+            )
+        }
+    }
+
+    private fun initSelectNetworks(
+        description: String,
+        action: String
+    ) {
+        resultNetworks = getInitSelectionNetworks()
+
+        state.value = WalletState(
+            currentWallet = interactor.getCurrentWallet(),
+            createWalletState = CreateWalletState.AddressSelection(
+                description = description,
+                createWalletNetworks = resultNetworks,
+                createButtonEnabled = resultNetworks.any { it.selected },
+                action = action,
+                selectedCount = 0 //1
+            )
+        )
+    }
+
+    private fun getNetworksByQuery(): List<CreateWalletNetwork> {
+        return resultNetworks.filter {
+            it.network.pretty_name.startsWith(currentSearchNetworkQuery, true)
+        }
+    }
+
+    private fun getSelectedNetworksCount(): Int {
+        return resultNetworks.filter { it.selected }.size
     }
 
 }

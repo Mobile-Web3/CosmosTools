@@ -1,6 +1,5 @@
 package com.mobileweb3.cosmostools.android.ui.composables
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Icon
@@ -13,13 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun Toolbar(
-    title: String,
+    title: String?,
     navController: NavHostController? = null
 ) {
     Row(
@@ -39,7 +36,7 @@ fun Toolbar(
         FillSpacer()
 
         Text(
-            text = title,
+            text = title ?: "",
             color = MaterialTheme.colors.primary,
             style = MaterialTheme.typography.h5
         )

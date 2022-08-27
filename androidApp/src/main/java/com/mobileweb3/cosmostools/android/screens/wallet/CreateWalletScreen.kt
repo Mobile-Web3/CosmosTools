@@ -3,16 +3,15 @@ package com.mobileweb3.cosmostools.android.screens.wallet
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mobileweb3.cosmostools.android.ui.composables.SearchTextField
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.wallet.CreateWalletNetwork
-import com.mobileweb3.cosmostools.wallet.WalletAction
+import com.mobileweb3.cosmostools.wallet.CreateWalletState
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -25,27 +24,27 @@ fun CreateWalletScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 24.dp)
+            .padding(top = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Toolbar(title = "Select Networks", navController = navHostController)
-
-        Text(
-            "Select networks for which addresses will be created from a single mnemonic:",
-            modifier = Modifier.padding(16.dp)
+        Toolbar(
+            title = state.value.createWalletState?.title,
+            navController = navHostController
         )
 
-        SearchTextField(
-            title = "Search network by title",
-            onSearchTextChanged = {
-                walletStore.dispatch(WalletAction.SearchNetworkQueryChanged(it))
+        when (state.value.createWalletState) {
+            is CreateWalletState.AddressSelection -> {
+                SelectNetworksContent(
+                    walletStore = walletStore,
+                    state = state
+                )
             }
-        )
+            is CreateWalletState.CreatedWallet -> {
 
-        SelectNetworksGrid(
-            networks = state.value.createWalletState?.createWalletNetworks,
-            modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
-        ) { network, selected ->
-            walletStore.dispatch(WalletAction.SelectNetworkForCreation(network, selected))
+            }
+            null -> {
+                //do nothing
+            }
         }
     }
 }

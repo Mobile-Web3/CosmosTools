@@ -32,10 +32,7 @@ fun SelectNetworksGrid(
 
                 }
                 is CreateWalletNetworkViewItem.Data -> {
-                    var selected by remember(item.createWalletNetwork.network.pretty_name) {
-                        mutableStateOf(item.createWalletNetwork.selected)
-                    }
-                    val selectedColor = if (selected) {
+                    val selectedColor = if (item.createWalletNetwork.selected) {
                         SelectedColor
                     } else {
                         MaterialTheme.colors.primary
@@ -45,8 +42,7 @@ fun SelectNetworksGrid(
                         modifier = Modifier.padding(2.dp),
                         selectedColor = selectedColor,
                         onNetworkClicked = {
-                            selected = !selected
-                            onNetworkClicked.invoke(item.createWalletNetwork, selected)
+                            onNetworkClicked.invoke(item.createWalletNetwork, !item.createWalletNetwork.selected)//selected)
                         }
                     )
                 }

@@ -17,7 +17,16 @@ class WalletStorage(
             settings[CURRENT_WALLET_ADDRESS] = wallet
         }
 
+    var currentNetwork: String?
+        get() {
+            return settings.getStringOrNull(CURRENT_NETWORK)
+        }
+        set(wallet) {
+            settings[CURRENT_NETWORK] = wallet
+        }
+
     companion object {
         private const val CURRENT_WALLET_ADDRESS = "CURRENT_WALLET_ADDRESS"
+        private const val CURRENT_NETWORK = "CURRENT_NETWORK"
     }
 }

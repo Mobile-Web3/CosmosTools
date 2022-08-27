@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 data class WalletState(
+    val currentNetwork: Network?,
     val currentWallet: String?,
     val createWalletState: CreateWalletState?
 ) : State
@@ -70,17 +71,18 @@ class WalletStore(
     private val interactor: WalletInteractor
 ) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
-    private var walletAction: WalletAction? = null
-    private var resultNetworks = getInitSelectionNetworks()
-    private var currentSearchNetworkQuery = ""
-
     private val state = MutableStateFlow(
         WalletState(
+            currentNetwork = interactor.getCurrentNetwork(),
             currentWallet = interactor.getCurrentWallet(),
             createWalletState = null
         )
     )
     private val sideEffect = MutableSharedFlow<WalletSideEffect>()
+
+    private var walletAction: WalletAction? = null
+    private var resultNetworks = getInitSelectionNetworks()
+    private var currentSearchNetworkQuery = ""
 
     init {
         requestWalletInfo(state.value.currentWallet)
@@ -187,7 +189,7 @@ class WalletStore(
     private fun getInitSelectionNetworks(): List<CreateWalletNetwork> {
         return mockNetworks.map {
             CreateWalletNetwork(
-                selected = false, // network == currentNetwork,
+                selected = it == state.value.currentNetwork,
                 network = it
             )
         }
@@ -200,13 +202,14 @@ class WalletStore(
         resultNetworks = getInitSelectionNetworks()
 
         state.value = WalletState(
+            currentNetwork = interactor.getCurrentNetwork(),
             currentWallet = interactor.getCurrentWallet(),
             createWalletState = CreateWalletState.AddressSelection(
                 description = description,
                 createWalletNetworks = resultNetworks,
                 createButtonEnabled = resultNetworks.any { it.selected },
                 action = action,
-                selectedCount = 0 //1
+                selectedCount = 1
             )
         )
     }

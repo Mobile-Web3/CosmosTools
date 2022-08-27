@@ -24,7 +24,7 @@ import com.mobileweb3.cosmostools.crypto.Network
 @Composable
 fun NetworkCard(
     network: Network,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     selectedColor: Color,
     onNetworkClicked: (Network) -> Unit
 ) {
@@ -41,7 +41,7 @@ fun NetworkCard(
             .clickable { onNetworkClicked(network) }
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             VerticalSpacer()

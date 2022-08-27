@@ -42,7 +42,7 @@ fun SelectNetworksGrid(
                         modifier = Modifier.padding(2.dp),
                         selectedColor = selectedColor,
                         onNetworkClicked = {
-                            onNetworkClicked.invoke(item.createWalletNetwork, !item.createWalletNetwork.selected)//selected)
+                            onNetworkClicked.invoke(item.createWalletNetwork, !item.createWalletNetwork.selected)
                         }
                     )
                 }

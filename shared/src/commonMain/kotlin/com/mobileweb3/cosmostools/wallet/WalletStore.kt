@@ -72,6 +72,8 @@ sealed class WalletAction : Action {
 
     object ActionAfterNetworksSelected : WalletAction()
 
+    object OpenSwitchNetwork : WalletAction()
+
     class SwitchNetwork(val network: NetworkWithSelection) : WalletAction()
 
 }
@@ -139,6 +141,8 @@ class WalletStore(
 
         when (action) {
             WalletAction.CreateWallet -> {
+                currentSearchNetworkQuery = ""
+
                 walletAction = WalletAction.CreateWallet
 
                 initSelectNetworks(
@@ -211,6 +215,11 @@ class WalletStore(
             }
             WalletAction.ActionAfterNetworksSelected -> {
 
+            }
+            WalletAction.OpenSwitchNetwork -> {
+                currentSearchNetworkQuery = ""
+
+                resultNetworks = getInitSelectionNetworks()
             }
             is WalletAction.SwitchNetwork -> {
                 resultNetworks.forEach {

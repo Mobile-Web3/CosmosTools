@@ -116,9 +116,19 @@ class WalletStore(
             }
             WalletAction.RestoreWalletByMnemonic -> {
                 walletAction = WalletAction.RestoreWalletByMnemonic
+
+                initSelectNetworks(
+                    description = "Select networks for which addresses will be restored from entered mnemonic:",
+                    action = "Restore"
+                )
             }
             WalletAction.RestoreWalletByPrivateKey -> {
                 walletAction = WalletAction.RestoreWalletByPrivateKey
+
+                initSelectNetworks(
+                    description = "Select networks for which addresses will be restored from private key:",
+                    action = "Restore"
+                )
             }
             is WalletAction.SearchNetworkQueryChanged -> {
                 currentSearchNetworkQuery = action.query

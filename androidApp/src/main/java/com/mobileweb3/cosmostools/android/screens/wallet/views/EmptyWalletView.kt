@@ -36,8 +36,14 @@ fun ColumnScope.EmptyWalletView(
             walletStore.dispatch(WalletAction.CreateWallet)
             navController.navigate("create_wallet")
         },
-        onMnemonicClick = {},
-        onPrivateKeyClick = {}
+        onMnemonicClick = {
+            walletStore.dispatch(WalletAction.RestoreWalletByMnemonic)
+            navController.navigate("create_wallet")
+        },
+        onPrivateKeyClick = {
+            walletStore.dispatch(WalletAction.RestoreWalletByPrivateKey)
+            navController.navigate("create_wallet")
+        }
     )
 
     FillSpacer()

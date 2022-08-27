@@ -6,7 +6,8 @@ import androidx.compose.material.darkColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val PrimaryColor = Color(0xff735095)
+val PrimaryColor = Color(0xff735095)
+val SelectedColor = Color(0xff4bb153)
 
 private val DarkColors = darkColors(
     primary = PrimaryColor,

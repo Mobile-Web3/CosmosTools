@@ -31,7 +31,7 @@ fun NavigationGraph(
             WalletScreen(navController, walletStore)
         }
         composable("create_wallet") {
-            CreateWalletScreen(walletStore)
+            CreateWalletScreen(navController, walletStore)
         }
     }
 }

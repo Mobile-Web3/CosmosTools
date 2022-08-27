@@ -38,7 +38,7 @@ fun SwitchNetworkWalletScreen(
         SearchTextField(
             title = "Search network by title",
             onSearchTextChanged = {
-                //walletStore.dispatch(WalletAction.SearchNetworkQueryChanged(it))
+                walletStore.dispatch(WalletAction.SearchNetworkQueryChanged(it))
             }
         )
 

@@ -101,7 +101,16 @@ class WalletStore(
     init {
         requestWalletInfo(state.value.currentWallet)
 
+        resultNetworks = getInitSelectionNetworks()
+
         state.value = state.value.copy(
+            createWalletState = CreateWalletState.AddressSelection(
+                description = "",
+                createWalletNetworks = resultNetworks,
+                createButtonEnabled = resultNetworks.any { it.selected },
+                action = "",
+                selectedCount = 1
+            ),
             switchWalletState = SwitchWalletState(
                 networks = getInitSelectionNetworks(),
                 wallets = emptyList()
@@ -160,6 +169,10 @@ class WalletStore(
                     createWalletState = (oldState.createWalletState as CreateWalletState.AddressSelection).copy(
                         createWalletNetworks = getNetworksByQuery(),
                         createButtonEnabled = resultNetworks.any { it.selected }
+                    ),
+                    switchWalletState = SwitchWalletState(
+                        networks = getNetworksByQuery(),
+                        wallets = emptyList()
                     )
                 )
             }
@@ -209,7 +222,7 @@ class WalletStore(
                 newState = oldState.copy(
                     currentNetwork = interactor.getCurrentNetwork(),
                     switchWalletState = SwitchWalletState(
-                        networks = resultNetworks,
+                        networks = getNetworksByQuery(),
                         wallets = emptyList()
                     )
                 )

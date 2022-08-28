@@ -32,7 +32,7 @@ fun SelectNetworksGrid(
             NetworkCard(
                 network = item.network,
                 modifier = Modifier.padding(2.dp),
-                selectedColor = selectedColor,
+                borderColor = selectedColor,
                 onNetworkClicked = {
                     onNetworkClicked.invoke(item, !item.selected)
                 }

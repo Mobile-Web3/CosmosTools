@@ -8,6 +8,7 @@ data class WalletState(
     val currentWallet: String?,
     val addressSelectionState: AddressSelectionState? = null,
     val generatedMnemonicState: GeneratedMnemonicState? = null,
+    val deriveWalletState: DeriveWalletState? = null,
     val switchWalletState: SwitchWalletState? = null
 ) : State
 
@@ -32,9 +33,16 @@ data class MnemonicResult(
     val mnemonic: List<String>
 )
 
-data class Address(
+data class DeriveWalletState(
+    val generating: Boolean,
+    val derivationHDPath: Int,
+    val resultAddresses: List<CreatedAddress>
+)
+
+data class CreatedAddress(
     val network: Network,
     val address: String,
+    val derivationPath: String,
     val balance: String
 )
 

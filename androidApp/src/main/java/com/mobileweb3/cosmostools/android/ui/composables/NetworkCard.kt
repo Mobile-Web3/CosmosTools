@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -24,21 +23,22 @@ import com.mobileweb3.cosmostools.crypto.Network
 @Composable
 fun NetworkCard(
     network: Network,
+    clickable: Boolean = true,
     modifier: Modifier = Modifier,
-    selectedColor: Color,
-    onNetworkClicked: (Network) -> Unit
+    borderColor: Color,
+    onNetworkClicked: ((Network) -> Unit)?
 ) {
     var palette by remember { mutableStateOf<Palette?>(null) }
 
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .border(width = 2.dp, color = selectedColor, shape = RoundedCornerShape(10.dp))
+            .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(10.dp))
             .background(
                 brush = getGradientBrush(palette, network.getLogo()),
                 shape = RoundedCornerShape(10.dp)
             )
-            .clickable { onNetworkClicked(network) }
+            .clickable(clickable) { onNetworkClicked?.invoke(network) }
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -57,7 +57,7 @@ fun NetworkCard(
             NetworkTitle(
                 network = network,
                 modifier = Modifier.fillMaxWidth(),
-                backgroundColor = selectedColor
+                backgroundColor = borderColor
             )
         }
     }

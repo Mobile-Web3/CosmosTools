@@ -1,5 +1,6 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -20,7 +21,7 @@ import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
-import com.mobileweb3.cosmostools.android.utils.enableScreenShot
+import com.mobileweb3.cosmostools.android.utils.enableScreenshot
 import com.mobileweb3.cosmostools.wallet.AddressSelectionState
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
@@ -32,7 +33,7 @@ fun SelectNetworksScreen(
 ) {
     val state = walletStore.observeState().collectAsState()
 
-    enableScreenShot()
+    enableScreenshot()
 
     Column(
         modifier = Modifier
@@ -84,7 +85,8 @@ fun ColumnScope.SelectNetworksContent(
     FillSpacer()
 
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround
     ) {
         Button(
             onClick = {
@@ -98,8 +100,6 @@ fun ColumnScope.SelectNetworksContent(
             )
         }
 
-        FillSpacer()
-
         Button(
             onClick = {
                 walletStore.dispatch(WalletAction.SelectAllNetworks)
@@ -111,8 +111,6 @@ fun ColumnScope.SelectNetworksContent(
                 modifier = Modifier.padding(4.dp)
             )
         }
-
-        FillSpacer()
 
         Button(
             enabled = addressState.actionButtonEnabled,

@@ -3,8 +3,11 @@ package com.mobileweb3.cosmostools.wallet
 import com.mobileweb3.cosmostools.app.Action
 import com.mobileweb3.cosmostools.app.Effect
 import com.mobileweb3.cosmostools.app.Store
+import com.mobileweb3.cosmostools.crypto.Address
 import com.mobileweb3.cosmostools.crypto.Entropy
 import com.mobileweb3.cosmostools.crypto.Mnemonic
+import com.mobileweb3.cosmostools.crypto.Network
+import com.mobileweb3.cosmostools.crypto.Utils
 import com.mobileweb3.cosmostools.crypto.mockNetworks
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
@@ -13,29 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-
-
-//sealed class CreateWalletState(open val title: String) {
-//
-//    data class AddressSelection(
-//        val description: String,
-//        val createWalletNetworks: List<NetworkWithSelection>,
-//        val action: String,
-//        val createButtonEnabled: Boolean,
-//        val selectedCount: Int
-//    ) : CreateWalletState("Select networks")
-//
-//    class CreatedMnemonic(
-//        val mnemonicResult: MnemonicResult
-//    ) : CreateWalletState("Mnemonic Detail")
-//
-//    class DeriveWallets(
-//        override val title: String,
-//        val derivationPath: Int,
-//        val createdAddresses: List<Address>? = null,
-//    ) : CreateWalletState(title)
-//}
+import kotlinx.coroutines.launch
 
 sealed class WalletAction : Action {
     object CreateWallet : WalletAction()
@@ -58,6 +39,8 @@ sealed class WalletAction : Action {
     object ActionAfterNetworksSelected : WalletAction()
 
     object DeriveWallet : WalletAction()
+
+    class HDPathChanged(val hdPath: Int) : WalletAction()
 
     object OpenSwitchNetwork : WalletAction()
 
@@ -212,23 +195,51 @@ class WalletStore(
                 }
             }
             is WalletAction.MnemonicTitleChanged -> {
-                state.value = state.value.copy(
-                    generatedMnemonicState = state.value.generatedMnemonicState?.copy(
+                newState = oldState.copy(
+                    generatedMnemonicState = oldState.generatedMnemonicState?.copy(
                         resultMnemonicTitle = action.newTitle
                     )
                 )
             }
             WalletAction.DeriveWallet -> {
-                //                val newAddresses = createAddresses(
-                //                    resultNetworks.filter { it.selected }.map { it.network },
-                //                    mnemonicResult
-                //                )
-                //
-                //                newState = oldState.copy(
-                //                    createWalletState = CreateWalletState.CreatedMnemonic(
-                //                        createdAddresses = newAddresses
-                //                    )
-                //                )
+                val createdAddresses = createAddresses(
+                    networks = resultNetworks.filter { it.selected }.map { it.network },
+                    mnemonic = oldState.generatedMnemonicState!!.mnemonicResult,
+                    hdPath = 0
+                )
+
+                newState = oldState.copy(
+                    deriveWalletState = DeriveWalletState(
+                        generating = false,
+                        derivationHDPath = 0,
+                        resultAddresses = createdAddresses
+                    )
+                )
+            }
+            is WalletAction.HDPathChanged -> {
+                newState = oldState.copy(
+                    deriveWalletState = DeriveWalletState(
+                        generating = true,
+                        derivationHDPath = action.hdPath,
+                        resultAddresses = emptyList()
+                    )
+                )
+
+                launch {
+                    val createdAddresses = createAddresses(
+                        networks = resultNetworks.filter { it.selected }.map { it.network },
+                        mnemonic = oldState.generatedMnemonicState!!.mnemonicResult,
+                        hdPath = action.hdPath
+                    )
+
+                    state.tryEmit(state.value.copy(
+                        deriveWalletState = DeriveWalletState(
+                            generating = false,
+                            derivationHDPath = action.hdPath,
+                            resultAddresses = createdAddresses
+                        )
+                    ))
+                }
             }
             WalletAction.OpenSwitchNetwork -> {
                 resultNetworks = getInitSelectionNetworks()
@@ -271,22 +282,27 @@ class WalletStore(
         )
     }
 
-    //    private fun createAddresses(networks: List<Network>, mnemonic: MnemonicResult): List<Address> {
-    //        return networks.map {
-    //            val createdAddress = Address.createAddressFromEntropyByNetwork(
-    //                network = state.value.selectedNetwork,
-    //                entropy = Utils.byteArrayToHexString(entropy),
-    //                path = 0,
-    //                customPath = 0
-    //            )
-    //
-    //            Address(
-    //                network = it,
-    //                address = createdAddress,
-    //                balance = "0.000000 ${it.assets[0].symbol}"
-    //            )
-    //        }
-    //    }
+    private fun createAddresses(
+        networks: List<Network>,
+        mnemonic: MnemonicResult,
+        hdPath: Int
+    ): List<CreatedAddress> {
+        return networks.map {
+            val createdAddress = Address.createAddressFromEntropyByNetwork(
+                network = it,
+                entropy = Utils.byteArrayToHexString(mnemonic.entropy),
+                path = hdPath,
+                customPath = 0
+            )
+
+            CreatedAddress(
+                network = it,
+                address = createdAddress,
+                balance = "0.000000 ${it.assets[0].symbol}",
+                derivationPath = "m/44/${it.slip44}/0/0/$hdPath"
+            )
+        }
+    }
 
     private fun getInitSelectionNetworks(): List<NetworkWithSelection> {
         return mockNetworks.map {

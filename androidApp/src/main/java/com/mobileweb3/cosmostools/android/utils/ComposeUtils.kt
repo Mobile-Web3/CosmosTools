@@ -19,11 +19,11 @@ fun Context.getActivity(): Activity? {
 }
 
 @Composable
-fun disableScreenShot() {
+fun disableScreenshot() {
     LocalContext.current.getActivity()?.window?.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
 }
 
 @Composable
-fun enableScreenShot() {
+fun enableScreenshot() {
     LocalContext.current.getActivity()?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
 }

@@ -27,7 +27,7 @@ fun EmptyWalletView(
     AddWalletView(
         onCreateWalletClick = {
             walletStore.dispatch(WalletAction.CreateWallet)
-            navController.navigate("create_wallet")
+            navController.navigate("select_networks")
         },
         onMnemonicClick = {
             walletStore.dispatch(WalletAction.RestoreWalletByMnemonic)

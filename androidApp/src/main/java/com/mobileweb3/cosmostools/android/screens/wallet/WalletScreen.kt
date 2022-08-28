@@ -15,6 +15,7 @@ import com.mobileweb3.cosmostools.android.screens.wallet.views.EmptyWalletView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
 import com.mobileweb3.cosmostools.android.utils.enableScreenShot
+import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -50,6 +51,7 @@ fun WalletScreen(
                     modifier = Modifier.width(100.dp),
                     selectedColor = MaterialTheme.colors.primary,
                     onNetworkClicked = {
+                        walletStore.dispatch(WalletAction.OpenSwitchNetwork)
                         navController.navigate("switch")
                     }
                 )

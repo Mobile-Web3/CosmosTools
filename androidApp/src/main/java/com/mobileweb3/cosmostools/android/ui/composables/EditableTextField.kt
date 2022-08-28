@@ -18,11 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SearchTextField(
+fun EditableTextField(
     title: String,
-    onSearchTextChanged: (String) -> Unit
+    initText: String = "",
+    onTextChanged: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(initText) }
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
@@ -36,8 +37,8 @@ fun SearchTextField(
             if (text.isNotEmpty()) {
                 IconButton(
                     onClick = {
-                        text = ""
-                        onSearchTextChanged.invoke("")
+                        text = initText
+                        onTextChanged.invoke(initText)
                     }
                 ) {
                     Icon(
@@ -50,7 +51,7 @@ fun SearchTextField(
         },
         onValueChange = {
             text = it
-            onSearchTextChanged.invoke(it)
+            onTextChanged.invoke(it)
         },
         maxLines = 1
     )

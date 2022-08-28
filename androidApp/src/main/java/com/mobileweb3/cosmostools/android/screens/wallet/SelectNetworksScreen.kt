@@ -1,5 +1,6 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,38 +10,71 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.mobileweb3.cosmostools.android.screens.wallet.views.SelectNetworksGrid
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
-import com.mobileweb3.cosmostools.android.ui.composables.SearchTextField
+import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
+import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
-import com.mobileweb3.cosmostools.wallet.CreateWalletState
+import com.mobileweb3.cosmostools.android.utils.enableScreenShot
+import com.mobileweb3.cosmostools.wallet.AddressSelectionState
 import com.mobileweb3.cosmostools.wallet.WalletAction
-import com.mobileweb3.cosmostools.wallet.WalletState
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
-fun ColumnScope.SelectNetworksContent(
-    walletStore: WalletStore,
-    state: State<WalletState>
+fun SelectNetworksScreen(
+    navController: NavHostController,
+    walletStore: WalletStore
 ) {
-    val addressState = state.value.createWalletState as CreateWalletState.AddressSelection
+    val state = walletStore.observeState().collectAsState()
 
+    enableScreenShot()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Toolbar(
+            title = "Select Networks",
+            navController = navController
+        )
+
+        if (state.value.addressSelectionState != null) {
+            SelectNetworksContent(
+                navController = navController,
+                walletStore = walletStore,
+                addressState = state.value.addressSelectionState!!
+            )
+        }
+    }
+}
+
+@Composable
+fun ColumnScope.SelectNetworksContent(
+    navController: NavHostController,
+    walletStore: WalletStore,
+    addressState: AddressSelectionState
+) {
     Text(
         text = addressState.description,
         modifier = Modifier.padding(16.dp)
     )
 
-    SearchTextField(
+    EditableTextField(
         title = "Search network by title",
-        onSearchTextChanged = {
+        onTextChanged = {
             walletStore.dispatch(WalletAction.SearchNetworkQueryChanged(it))
         }
     )
 
     SelectNetworksGrid(
-        networks = addressState.createWalletNetworks,
+        networks = addressState.displayedNetworks,
         columnsCount = 3,
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
     ) { network, selected ->
@@ -81,9 +115,10 @@ fun ColumnScope.SelectNetworksContent(
         FillSpacer()
 
         Button(
-            enabled = addressState.createWalletNetworks.any { it.selected },
+            enabled = addressState.actionButtonEnabled,
             onClick = {
                 walletStore.dispatch(WalletAction.ActionAfterNetworksSelected)
+                navController.navigate(addressState.nextRoute)
             }
         ) {
             Text(

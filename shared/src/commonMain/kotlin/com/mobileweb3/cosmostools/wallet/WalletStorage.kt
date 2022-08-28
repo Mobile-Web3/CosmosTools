@@ -25,8 +25,17 @@ class WalletStorage(
             settings[CURRENT_NETWORK] = wallet
         }
 
+    val mnemonicCounter: Int
+        get() {
+            val mnemonicCounter = settings.getInt(MNEMONIC_COUNTER, 1)
+            settings.putInt(MNEMONIC_COUNTER, mnemonicCounter + 1)
+            return mnemonicCounter
+        }
+
     companion object {
         private const val CURRENT_WALLET_ADDRESS = "CURRENT_WALLET_ADDRESS"
         private const val CURRENT_NETWORK = "CURRENT_NETWORK"
+
+        private const val MNEMONIC_COUNTER = "MNEMONIC_COUNTER"
     }
 }

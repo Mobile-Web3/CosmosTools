@@ -17,17 +17,26 @@ import androidx.navigation.NavHostController
 @Composable
 fun Toolbar(
     title: String?,
-    navController: NavHostController? = null
+    navController: NavHostController? = null,
+    backToRoute: String? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (navController != null) {
-            IconButton(onClick = { navController.navigateUp() }) {
+            IconButton(
+                onClick = {
+                    if (backToRoute == null) {
+                        navController.popBackStack()
+                    } else {
+                        navController.popBackStack(backToRoute, false)
+                    }
+                }
+            ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
-                    tint = MaterialTheme.colors.primary,
+                    tint = Color.White,
                     contentDescription = "Back"
                 )
             }
@@ -37,7 +46,7 @@ fun Toolbar(
 
         Text(
             text = title ?: "",
-            color = MaterialTheme.colors.primary,
+            color = Color.White,
             style = MaterialTheme.typography.h6
         )
 

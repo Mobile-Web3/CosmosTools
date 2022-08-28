@@ -16,5 +16,7 @@ class WalletInteractor internal constructor(
         walletStorage.currentNetwork = network.pretty_name
     }
 
+    fun getMnemonicCounter(): Int = walletStorage.mnemonicCounter
+
     companion object
 }

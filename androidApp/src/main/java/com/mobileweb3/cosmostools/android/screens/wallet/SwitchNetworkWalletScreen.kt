@@ -12,7 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mobileweb3.cosmostools.android.ui.composables.SearchTextField
+import com.mobileweb3.cosmostools.android.screens.wallet.views.SelectNetworksGrid
+import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
@@ -35,9 +36,9 @@ fun SwitchNetworkWalletScreen(
             navController = navHostController
         )
 
-        SearchTextField(
+        EditableTextField(
             title = "Search network by title",
-            onSearchTextChanged = {
+            onTextChanged = {
                 walletStore.dispatch(WalletAction.SearchNetworkQueryChanged(it))
             }
         )

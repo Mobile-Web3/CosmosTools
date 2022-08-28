@@ -1,6 +1,7 @@
 package com.mobileweb3.cosmostools.android.screens.wallet.views
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
 
@@ -29,16 +31,16 @@ fun MnemonicGrid(words: List<String>) {
                     .height(40.dp)
                     .fillMaxWidth()
                     .padding(2.dp)
+                    .border(2.dp, Color.White, RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colors.primary, RoundedCornerShape(10.dp)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                HorizontalSpacer(dp = 2.dp)
+                HorizontalSpacer(dp = 4.dp)
 
                 Text(text = "${index + 1}. ")
 
-                Text(text = item)
+                Text(text = item, color = Color.White)
             }
-
         }
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicView
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.utils.disableScreenShot
 import com.mobileweb3.cosmostools.wallet.CreateWalletState
@@ -40,9 +41,12 @@ fun CreateWalletScreen(
                     state = state
                 )
             }
-            is CreateWalletState.CreatedWallet -> {
+            is CreateWalletState.CreatedMnemonic -> {
                 disableScreenShot()
+
+                MnemonicView((state.value.createWalletState as CreateWalletState.CreatedMnemonic).mnemonicResult)
             }
+            is CreateWalletState.DeriveWallets -> TODO()
             null -> {
                 //do nothing
             }

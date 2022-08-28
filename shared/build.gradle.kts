@@ -49,6 +49,8 @@ kotlin {
             dependencies {
                 //Network
                 implementation(libs.ktor.client.okhttp)
+
+                implementation("org.bitcoinj:bitcoinj-core:0.15.2")
             }
         }
 

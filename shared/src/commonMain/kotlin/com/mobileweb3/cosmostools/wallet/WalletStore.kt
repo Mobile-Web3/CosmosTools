@@ -4,6 +4,8 @@ import com.mobileweb3.cosmostools.app.Action
 import com.mobileweb3.cosmostools.app.Effect
 import com.mobileweb3.cosmostools.app.State
 import com.mobileweb3.cosmostools.app.Store
+import com.mobileweb3.cosmostools.crypto.Entropy
+import com.mobileweb3.cosmostools.crypto.Mnemonic
 import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.mockNetworks
 import io.github.aakira.napier.Napier
@@ -21,7 +23,7 @@ data class WalletState(
     val switchWalletState: SwitchWalletState? = null
 ) : State
 
-sealed class CreateWalletState(val title: String) {
+sealed class CreateWalletState(open val title: String) {
 
     data class AddressSelection(
         val description: String,
@@ -31,11 +33,27 @@ sealed class CreateWalletState(val title: String) {
         val selectedCount: Int
     ) : CreateWalletState("Select networks")
 
-    class CreatedWallet(
-        val createdAddress: String? = null,
-        val mnemonic: List<String>? = null
-    ) : CreateWalletState("Created wallet")
+    class CreatedMnemonic(
+        val mnemonicResult: MnemonicResult
+    ) : CreateWalletState("Mnemonic Detail")
+
+    class DeriveWallets(
+        override val title: String,
+        val derivationPath: Int,
+        val createdAddresses: List<Address>? = null,
+    ) : CreateWalletState(title)
 }
+
+data class MnemonicResult(
+    val entropy: ByteArray,
+    val mnemonic: List<String>
+)
+
+data class Address(
+    val network: Network,
+    val address: String,
+    val balance: String
+)
 
 data class SwitchWalletState(
     val networks: List<NetworkWithSelection>,
@@ -71,6 +89,8 @@ sealed class WalletAction : Action {
     object UnselectAllNetworks : WalletAction()
 
     object ActionAfterNetworksSelected : WalletAction()
+
+    object DeriveWallets : WalletAction()
 
     object OpenSwitchNetwork : WalletAction()
 
@@ -216,7 +236,13 @@ class WalletStore(
             WalletAction.ActionAfterNetworksSelected -> {
                 when (walletAction) {
                     WalletAction.CreateWallet -> {
+                        val mnemonicResult = createMnemonic()
 
+                        newState = oldState.copy(
+                            createWalletState = CreateWalletState.CreatedMnemonic(
+                                mnemonicResult = mnemonicResult
+                            )
+                        )
                     }
                     WalletAction.RestoreWalletByMnemonic -> {
 
@@ -228,6 +254,18 @@ class WalletStore(
                         //not happen
                     }
                 }
+            }
+            WalletAction.DeriveWallets -> {
+//                val newAddresses = createAddresses(
+//                    resultNetworks.filter { it.selected }.map { it.network },
+//                    mnemonicResult
+//                )
+//
+//                newState = oldState.copy(
+//                    createWalletState = CreateWalletState.CreatedMnemonic(
+//                        createdAddresses = newAddresses
+//                    )
+//                )
             }
             WalletAction.OpenSwitchNetwork -> {
                 currentSearchNetworkQuery = ""
@@ -256,6 +294,31 @@ class WalletStore(
             state.value = newState
         }
     }
+
+    private fun createMnemonic(): MnemonicResult {
+        val entropy = Entropy.getEntropy()
+        return MnemonicResult(
+            entropy = entropy,
+            mnemonic = Mnemonic.getRandomMnemonic(entropy)
+        )
+    }
+
+//    private fun createAddresses(networks: List<Network>, mnemonic: MnemonicResult): List<Address> {
+//        return networks.map {
+//            val createdAddress = Address.createAddressFromEntropyByNetwork(
+//                network = state.value.selectedNetwork,
+//                entropy = Utils.byteArrayToHexString(entropy),
+//                path = 0,
+//                customPath = 0
+//            )
+//
+//            Address(
+//                network = it,
+//                address = createdAddress,
+//                balance = "0.000000 ${it.assets[0].symbol}"
+//            )
+//        }
+//    }
 
     private fun getInitSelectionNetworks(): List<NetworkWithSelection> {
         return mockNetworks.map {

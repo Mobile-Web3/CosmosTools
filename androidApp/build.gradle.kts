@@ -66,6 +66,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
+    packagingOptions {
+        exclude("lib/x86_64/darwin/libscrypt.dylib")
+        exclude("lib/x86_64/freebsd/libscrypt.so")
+        exclude("lib/x86_64/linux/libscrypt.so")
+    }
+
     dependencies {
         implementation(project(":shared"))
         //desugar utils

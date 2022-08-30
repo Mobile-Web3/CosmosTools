@@ -31,6 +31,7 @@ import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
+import com.mobileweb3.cosmostools.wallet.displayedAddress
 
 @Composable
 fun DeriveWalletScreen(
@@ -84,6 +85,7 @@ fun DeriveWalletScreen(
                                 network = createdAddress.network,
                                 clickable = false,
                                 borderColor = PrimaryColor,
+                                onPaletteChanged = null,
                                 onNetworkClicked = null
                             )
 
@@ -93,7 +95,7 @@ fun DeriveWalletScreen(
                                 VerticalSpacer()
 
                                 Text(
-                                    text = "${createdAddress.address.take(12)}...${createdAddress.address.takeLast(6)}",
+                                    text = createdAddress.address.displayedAddress(),
                                     maxLines = 1,
                                     fontWeight = FontWeight.Bold
                                 )

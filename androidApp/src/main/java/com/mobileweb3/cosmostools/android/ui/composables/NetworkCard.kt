@@ -26,6 +26,7 @@ fun NetworkCard(
     clickable: Boolean = true,
     modifier: Modifier = Modifier,
     borderColor: Color,
+    onPaletteChanged: ((Palette) -> Unit)?,
     onNetworkClicked: ((Network) -> Unit)?
 ) {
     var palette by remember { mutableStateOf<Palette?>(null) }
@@ -49,7 +50,10 @@ fun NetworkCard(
             Avatar(
                 url = network.getLogo(),
                 widthHeightDp = 50.dp,
-                onPaletteChanged = { palette = it }
+                onPaletteChanged = {
+                    palette = it
+                    onPaletteChanged?.invoke(it)
+                }
             )
 
             VerticalSpacer()

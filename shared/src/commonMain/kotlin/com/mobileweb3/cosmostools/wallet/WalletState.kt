@@ -47,6 +47,10 @@ data class CreatedAddress(
     val balance: String
 )
 
+fun String.displayedAddress(): String {
+    return "${take(12)}...${takeLast(6)}"
+}
+
 data class SwitchWalletState(
     val networks: List<NetworkWithSelection>,
     val wallets: List<WalletWithSelection>,

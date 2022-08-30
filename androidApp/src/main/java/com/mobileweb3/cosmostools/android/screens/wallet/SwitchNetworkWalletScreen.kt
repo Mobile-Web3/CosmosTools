@@ -75,7 +75,7 @@ fun SwitchNetworkWalletScreen(
                     .weight(1f)
                     .padding(end = 16.dp),
                 onAccountClicked = { account, selected ->
-
+                    walletStore.dispatch(WalletAction.SwitchAccount(account))
                 }
             )
         }

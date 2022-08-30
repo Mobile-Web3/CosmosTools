@@ -12,17 +12,17 @@ class WalletStorage(
     private val json: Json
 ) {
 
-    var currentAccount: Account?
-        get() {
-            return try {
-                json.decodeFromString(Account.serializer(), settings.getStringOrNull(CURRENT_ACCOUNT) ?: "")
-            } catch (ex: Exception) {
-                return null
-            }
-        }
-        set(account) {
-            settings[CURRENT_ACCOUNT] = json.encodeToString(Account.serializer(), account!!)
-        }
+//    var currentAccount: Account?
+//        get() {
+//            return try {
+//                json.decodeFromString(Account.serializer(), settings.getStringOrNull(CURRENT_ACCOUNT) ?: "")
+//            } catch (ex: Exception) {
+//                return null
+//            }
+//        }
+//        set(account) {
+//            settings[CURRENT_ACCOUNT] = json.encodeToString(Account.serializer(), account!!)
+//        }
 
     var currentNetwork: String?
         get() {
@@ -86,13 +86,13 @@ class WalletStorage(
         accountsDiskCache = accountsMemCache
     }
 
-    suspend fun getAllAccounts(): List<Account> = accountsMemCache.values.toList()
+    fun getAllAccounts(): List<Account> = accountsMemCache.values.toList()
 
-    suspend fun getSelectedAccountInNetwork(network: Network): Long? {
+    fun getSelectedAccountInNetwork(network: Network): Long? {
         return settings.getLongOrNull(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network.pretty_name)
     }
 
-    suspend fun setSelectedAccountInNetwork(network: Network, id: Long) {
+    fun setSelectedAccountInNetwork(network: Network, id: Long) {
         settings.putLong(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network.pretty_name, id)
     }
 

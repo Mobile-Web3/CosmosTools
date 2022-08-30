@@ -55,6 +55,8 @@ sealed class WalletAction : Action {
 
     class SwitchNetwork(val network: NetworkWithSelection) : WalletAction()
 
+    class SwitchAccount(val account: Account) : WalletAction()
+
 }
 
 sealed class WalletSideEffect : Effect {
@@ -68,7 +70,7 @@ class WalletStore(
     private val state = MutableStateFlow(
         WalletState(
             currentNetwork = interactor.getCurrentNetwork(),
-            currentAccount = interactor.getCurrentAccount(),
+            currentAccount = interactor.getSelectedAccount(),
             addressSelectionState = null,
             switchWalletState = null
         )
@@ -293,11 +295,11 @@ class WalletStore(
                         interactor.saveAccount(newAccount, createdAddress.network)
 
                         if (interactor.getCurrentNetwork() == createdAddress.network) {
-                            interactor.setCurrentAccount(newAccount)
+                            interactor.setSelectedAccount(newAccount.id, createdAddress.network)
 
                             state.tryEmit(
                                 state.value.copy(
-                                    currentAccount = interactor.getCurrentAccount()
+                                    currentAccount = interactor.getSelectedAccount()
                                 )
                             )
                         }
@@ -324,7 +326,8 @@ class WalletStore(
                 interactor.setCurrentNetwork(action.network.network)
 
                 newState = oldState.copy(
-                    currentNetwork = interactor.getCurrentNetwork(),
+                    currentNetwork = action.network.network,
+                    currentAccount = interactor.getSelectedAccount(action.network.network),
                     switchWalletState = oldState.switchWalletState?.copy(
                         networks = getNetworksByQuery(oldState.switchWalletState.searchQuery),
                         accounts = emptyList()
@@ -332,6 +335,17 @@ class WalletStore(
                 )
 
                 updateSwitchWallets(action.network.network)
+            }
+            is WalletAction.SwitchAccount -> {
+                state.value.currentNetwork?.let {
+                    interactor.setSelectedAccount(action.account.id, it)
+
+                    state.tryEmit(state.value.copy(
+                        currentAccount = action.account
+                    ))
+
+                    updateSwitchWallets(it)
+                }
             }
         }
 

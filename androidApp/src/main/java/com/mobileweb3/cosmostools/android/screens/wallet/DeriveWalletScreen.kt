@@ -1,7 +1,5 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
-import android.text.TextUtils
-import android.widget.TextView
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,9 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.DerivationPathSelectView
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
@@ -104,7 +100,7 @@ fun DeriveWalletScreen(
 
                                 VerticalSpacer()
 
-                                Text(text = createdAddress.derivationPath)
+                                Text(text = createdAddress.fullDerivationPath)
 
                                 VerticalSpacer()
 
@@ -123,7 +119,8 @@ fun DeriveWalletScreen(
             ) {
                 Button(
                     onClick = {
-
+                        walletStore.dispatch(WalletAction.SaveGeneratedAddressesButtonClicked)
+                        navController.popBackStack("wallet", false)
                     }
                 ) {
                     Text(

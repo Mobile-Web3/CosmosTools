@@ -3,12 +3,17 @@ package com.mobileweb3.cosmostools.wallet
 import com.mobileweb3.cosmostools.app.Action
 import com.mobileweb3.cosmostools.app.Effect
 import com.mobileweb3.cosmostools.app.Store
+import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.crypto.Address
+import com.mobileweb3.cosmostools.crypto.EncryptHelper
+import com.mobileweb3.cosmostools.crypto.EncryptHelper.getEncData
+import com.mobileweb3.cosmostools.crypto.EncryptHelper.getIvData
 import com.mobileweb3.cosmostools.crypto.Entropy
 import com.mobileweb3.cosmostools.crypto.Mnemonic
 import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.Utils
 import com.mobileweb3.cosmostools.crypto.mockNetworks
+import com.mobileweb3.cosmostools.shared.System
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,15 +43,17 @@ sealed class WalletAction : Action {
 
     object ActionAfterNetworksSelected : WalletAction()
 
+    class MnemonicTitleChanged(val newTitle: String) : WalletAction()
+
     object DeriveWallet : WalletAction()
 
     class HDPathChanged(val hdPath: Int) : WalletAction()
 
+    object SaveGeneratedAddressesButtonClicked : WalletAction()
+
     object OpenSwitchNetwork : WalletAction()
 
     class SwitchNetwork(val network: NetworkWithSelection) : WalletAction()
-
-    class MnemonicTitleChanged(val newTitle: String) : WalletAction()
 
 }
 
@@ -241,6 +248,49 @@ class WalletStore(
                     ))
                 }
             }
+            WalletAction.SaveGeneratedAddressesButtonClicked -> {
+                val mnemonicState = state.value.generatedMnemonicState
+                val addressesToSave = state.value.deriveWalletState?.resultAddresses
+
+                if (mnemonicState == null || addressesToSave == null) {
+                    return
+                }
+
+                launch {
+                    addressesToSave.forEach { createdAddress ->
+                        val newAccount = Account.newInstance(id = interactor.getIdForNewAccount()).apply {
+                            val encryptResult = EncryptHelper.encrypt(
+                                alias = "MNEMONIC_KEY" + this.uuid,
+                                resource = Utils.byteArrayToHexString(mnemonicState.mnemonicResult.entropy),
+                                withAuth = false
+                            )
+
+                            resource = encryptResult.getEncData()
+                            spec = encryptResult.getIvData()
+                            address = createdAddress.address
+                            network = createdAddress.network.pretty_name
+                            hasPrivateKey = true
+                            fromMnemonic = true
+                            fullDerivationPath = createdAddress.fullDerivationPath
+                            derivationHDPath = createdAddress.derivationHDPath
+                            mnemonicSize = 24
+                            importTime = System.getCurrentMillis()
+                            //TODO check customPath from other networks
+                            customPath = 0
+                        }
+
+                        interactor.saveAccount(newAccount)
+
+                        if (interactor.getCurrentNetwork() == createdAddress.network) {
+                            interactor.setCurrentWallet(createdAddress.address)
+
+                            state.tryEmit(state.value.copy(
+                                currentWallet = interactor.getCurrentWallet()
+                            ))
+                        }
+                    }
+                }
+            }
             WalletAction.OpenSwitchNetwork -> {
                 resultNetworks = getInitSelectionNetworks()
 
@@ -299,7 +349,8 @@ class WalletStore(
                 network = it,
                 address = createdAddress,
                 balance = "0.000000 ${it.assets[0].symbol}",
-                derivationPath = "m/44/${it.slip44}/0/0/$hdPath"
+                derivationHDPath = hdPath,
+                fullDerivationPath = "m/44/${it.slip44}/0/0/$hdPath"
             )
         }
     }

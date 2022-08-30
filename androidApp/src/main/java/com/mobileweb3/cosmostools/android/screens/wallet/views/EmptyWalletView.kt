@@ -24,18 +24,5 @@ fun EmptyWalletView(
         modifier = Modifier.fillMaxWidth()
     )
 
-    AddWalletView(
-        onCreateWalletClick = {
-            walletStore.dispatch(WalletAction.CreateWallet)
-            navController.navigate("select_networks")
-        },
-        onMnemonicClick = {
-            walletStore.dispatch(WalletAction.RestoreWalletByMnemonic)
-            navController.navigate("create_wallet")
-        },
-        onPrivateKeyClick = {
-            walletStore.dispatch(WalletAction.RestoreWalletByPrivateKey)
-            navController.navigate("create_wallet")
-        }
-    )
+    AddWalletView(walletStore, navController)
 }

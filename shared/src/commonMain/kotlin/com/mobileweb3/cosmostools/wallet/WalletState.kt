@@ -42,7 +42,8 @@ data class DeriveWalletState(
 data class CreatedAddress(
     val network: Network,
     val address: String,
-    val derivationPath: String,
+    val derivationHDPath: Int,
+    val fullDerivationPath: String,
     val balance: String
 )
 

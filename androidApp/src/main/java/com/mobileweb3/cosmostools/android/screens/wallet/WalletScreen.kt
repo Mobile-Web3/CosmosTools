@@ -6,14 +6,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.mobileweb3.cosmostools.android.screens.wallet.views.AddWalletView
 import com.mobileweb3.cosmostools.android.screens.wallet.views.EmptyWalletView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
+import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
@@ -36,6 +39,12 @@ fun WalletScreen(
             FillSpacer()
 
             EmptyWalletView(walletStore, navController)
+        } else {
+            AddWalletView(walletStore, navController)
+
+            VerticalSpacer(16.dp)
+
+            Text(text = "Current wallet: ${state.value.currentWallet}")
         }
 
         FillSpacer()

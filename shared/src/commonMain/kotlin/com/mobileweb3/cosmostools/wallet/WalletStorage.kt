@@ -11,12 +11,16 @@ class WalletStorage(
     private val json: Json
 ) {
 
-    var currentWallet: String?
+    var currentAccount: Account?
         get() {
-            return settings.getStringOrNull(CURRENT_WALLET_ADDRESS)
+            return try {
+                json.decodeFromString(Account.serializer(), settings.getStringOrNull(CURRENT_ACCOUNT) ?: "")
+            } catch (ex: Exception) {
+                return null
+            }
         }
-        set(wallet) {
-            settings[CURRENT_WALLET_ADDRESS] = wallet
+        set(account) {
+            settings[CURRENT_ACCOUNT] = json.encodeToString(Account.serializer(), account!!)
         }
 
     var currentNetwork: String?
@@ -84,7 +88,7 @@ class WalletStorage(
     suspend fun getAllAccounts(): List<Account> = memCache.values.toList()
 
     companion object {
-        private const val CURRENT_WALLET_ADDRESS = "CURRENT_WALLET_ADDRESS"
+        private const val CURRENT_ACCOUNT = "CURRENT_ACCOUNT"
         private const val CURRENT_NETWORK = "CURRENT_NETWORK"
 
         private const val MNEMONIC_COUNTER = "MNEMONIC_COUNTER"

@@ -15,6 +15,7 @@ data class Account(
     var resource: String? = null,
     var spec: String? = null,
     var fromMnemonic: Boolean? = null,
+    var mnemonicTitle: String? = null,
     var derivationHDPath: Int? = null,
     var fullDerivationPath: String? = null,
     val isValidator: Boolean? = null,

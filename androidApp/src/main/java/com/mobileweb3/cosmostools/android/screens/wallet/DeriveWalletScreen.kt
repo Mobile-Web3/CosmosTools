@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.DerivationPathSelectView
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
+import com.mobileweb3.cosmostools.android.ui.composables.AccountAddress
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
@@ -94,11 +95,7 @@ fun DeriveWalletScreen(
                             Column {
                                 VerticalSpacer()
 
-                                Text(
-                                    text = createdAddress.address.displayedAddress(),
-                                    maxLines = 1,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                AccountAddress(createdAddress.address)
 
                                 VerticalSpacer()
 

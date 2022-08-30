@@ -68,7 +68,7 @@ class WalletStore(
     private val state = MutableStateFlow(
         WalletState(
             currentNetwork = interactor.getCurrentNetwork(),
-            currentWallet = interactor.getCurrentWallet(),
+            currentAccount = interactor.getCurrentAccount(),
             addressSelectionState = null,
             switchWalletState = null
         )
@@ -79,11 +79,11 @@ class WalletStore(
     private var resultNetworks = getInitSelectionNetworks()
 
     init {
-        requestWalletInfo(state.value.currentWallet)
+        requestWalletInfo(state.value.currentAccount)
     }
 
-    private fun requestWalletInfo(currentWallet: String?) {
-        if (currentWallet == null) {
+    private fun requestWalletInfo(currentAccount: Account?) {
+        if (currentAccount == null) {
             return
         }
 
@@ -130,18 +130,26 @@ class WalletStore(
                 )
             }
             is WalletAction.SearchNetworkQueryChanged -> {
+                val networksByQuery = getNetworksByQuery(action.query)
+
                 newState = oldState.copy(
                     addressSelectionState = oldState.addressSelectionState?.copy(
-                        displayedNetworks = getNetworksByQuery(action.query),
+                        displayedNetworks = networksByQuery,
                         actionButtonEnabled = resultNetworks.any { it.selected },
                         searchQuery = action.query
                     ),
                     switchWalletState = SwitchWalletState(
-                        networks = getNetworksByQuery(action.query),
-                        wallets = emptyList(),
+                        networks = networksByQuery,
+                        accounts = emptyList(),
                         searchQuery = action.query
-                    ),
+                    )
                 )
+
+                if (networksByQuery.none { it.network == interactor.getCurrentNetwork()}) {
+                    if (networksByQuery.isNotEmpty()) {
+                        updateSwitchWallets(networksByQuery[0].network)
+                    }
+                }
             }
             is WalletAction.SelectNetworkForCreation -> {
                 resultNetworks.find { it == action.createWalletNetwork }?.selected = action.selected
@@ -239,13 +247,15 @@ class WalletStore(
                         hdPath = action.hdPath
                     )
 
-                    state.tryEmit(state.value.copy(
-                        deriveWalletState = DeriveWalletState(
-                            generating = false,
-                            derivationHDPath = action.hdPath,
-                            resultAddresses = createdAddresses
+                    state.tryEmit(
+                        state.value.copy(
+                            deriveWalletState = DeriveWalletState(
+                                generating = false,
+                                derivationHDPath = action.hdPath,
+                                resultAddresses = createdAddresses
+                            )
                         )
-                    ))
+                    )
                 }
             }
             WalletAction.SaveGeneratedAddressesButtonClicked -> {
@@ -271,6 +281,7 @@ class WalletStore(
                             network = createdAddress.network.pretty_name
                             hasPrivateKey = true
                             fromMnemonic = true
+                            mnemonicTitle = mnemonicState.resultMnemonicTitle
                             fullDerivationPath = createdAddress.fullDerivationPath
                             derivationHDPath = createdAddress.derivationHDPath
                             mnemonicSize = 24
@@ -282,11 +293,13 @@ class WalletStore(
                         interactor.saveAccount(newAccount)
 
                         if (interactor.getCurrentNetwork() == createdAddress.network) {
-                            interactor.setCurrentWallet(createdAddress.address)
+                            interactor.setCurrentAccount(newAccount)
 
-                            state.tryEmit(state.value.copy(
-                                currentWallet = interactor.getCurrentWallet()
-                            ))
+                            state.tryEmit(
+                                state.value.copy(
+                                    currentAccount = interactor.getCurrentAccount()
+                                )
+                            )
                         }
                     }
                 }
@@ -297,9 +310,11 @@ class WalletStore(
                 newState = oldState.copy(
                     switchWalletState = SwitchWalletState(
                         networks = resultNetworks,
-                        wallets = emptyList()
+                        accounts = emptyList()
                     )
                 )
+
+                updateSwitchWallets(interactor.getCurrentNetwork())
             }
             is WalletAction.SwitchNetwork -> {
                 resultNetworks.forEach {
@@ -312,9 +327,11 @@ class WalletStore(
                     currentNetwork = interactor.getCurrentNetwork(),
                     switchWalletState = oldState.switchWalletState?.copy(
                         networks = getNetworksByQuery(oldState.switchWalletState.searchQuery),
-                        wallets = emptyList()
+                        accounts = emptyList()
                     )
                 )
+
+                updateSwitchWallets(action.network.network)
             }
         }
 
@@ -361,6 +378,23 @@ class WalletStore(
                 selected = it == state.value.currentNetwork,
                 network = it
             )
+        }
+    }
+
+    private fun updateSwitchWallets(network: Network) {
+        launch {
+            val accounts = interactor.getAllAccounts(network).map {
+                AccountWithSelection(
+                    selected = false,
+                    account = it
+                )
+            }
+
+            state.tryEmit(state.value.copy(
+                switchWalletState = state.value.switchWalletState?.copy(
+                    accounts = accounts
+                )
+            ))
         }
     }
 

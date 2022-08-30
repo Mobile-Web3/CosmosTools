@@ -13,18 +13,14 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.palette.graphics.Palette
 import com.mobileweb3.cosmostools.android.screens.wallet.views.AddWalletView
 import com.mobileweb3.cosmostools.android.screens.wallet.views.EmptyWalletView
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
+import com.mobileweb3.cosmostools.android.ui.composables.AccountCard
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
@@ -40,7 +36,6 @@ fun WalletScreen(
     walletStore: WalletStore
 ) {
     val state = walletStore.observeState().collectAsState()
-    var palette by remember { mutableStateOf<Palette?>(null) }
 
     enableScreenshot()
 
@@ -49,7 +44,7 @@ fun WalletScreen(
             .fillMaxSize()
             .padding(top = 24.dp, bottom = 56.dp)
     ) {
-        if (state.value.currentWallet == null) {
+        if (state.value.currentAccount == null) {
             FillSpacer()
 
             EmptyWalletView(walletStore, navController)
@@ -58,26 +53,15 @@ fun WalletScreen(
 
             VerticalSpacer()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .border(width = 2.dp, color = PrimaryColor, shape = RoundedCornerShape(10.dp))
-                    .background(
-                        brush = getGradientBrush(palette, state.value.currentNetwork?.getLogo()),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-            ) {
-                VerticalSpacer()
+            AccountCard(
+                account = state.value.currentAccount!!,
+                clickable = false,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                borderColor = PrimaryColor,
+                onAccountClicked = {
 
-                Text(
-                    text = "${state.value.currentWallet?.displayedAddress()}",
-                    modifier = Modifier.padding(16.dp)
-                )
-
-                VerticalSpacer()
-            }
-
+                }
+            )
 
         }
 
@@ -93,7 +77,7 @@ fun WalletScreen(
                     network = state.value.currentNetwork!!,
                     modifier = Modifier.width(100.dp),
                     borderColor = MaterialTheme.colors.primary,
-                    onPaletteChanged = { palette = it },
+                    onPaletteChanged = null,
                     onNetworkClicked = {
                         walletStore.dispatch(WalletAction.OpenSwitchNetwork)
                         navController.navigate("switch")

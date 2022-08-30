@@ -1,11 +1,12 @@
 package com.mobileweb3.cosmostools.wallet
 
 import com.mobileweb3.cosmostools.app.State
+import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.crypto.Network
 
 data class WalletState(
     val currentNetwork: Network?,
-    val currentWallet: String?,
+    val currentAccount: Account?,
     val addressSelectionState: AddressSelectionState? = null,
     val generatedMnemonicState: GeneratedMnemonicState? = null,
     val deriveWalletState: DeriveWalletState? = null,
@@ -53,7 +54,7 @@ fun String.displayedAddress(): String {
 
 data class SwitchWalletState(
     val networks: List<NetworkWithSelection>,
-    val wallets: List<WalletWithSelection>,
+    val accounts: List<AccountWithSelection>,
     val searchQuery: String = ""
 )
 
@@ -62,7 +63,7 @@ data class NetworkWithSelection(
     val network: Network
 )
 
-data class WalletWithSelection(
+data class AccountWithSelection(
     var selected: Boolean,
-    val wallet: String
+    val account: Account
 )

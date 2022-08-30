@@ -8,10 +8,10 @@ class WalletInteractor internal constructor(
     private val walletStorage: WalletStorage
 ) {
 
-    fun getCurrentWallet(): String? = walletStorage.currentWallet
+    fun getCurrentAccount(): Account? = walletStorage.currentAccount
 
-    fun setCurrentWallet(address: String) {
-        walletStorage.currentWallet = address
+    fun setCurrentAccount(account: Account) {
+        walletStorage.currentAccount = account
     }
 
     fun getCurrentNetwork(): Network =

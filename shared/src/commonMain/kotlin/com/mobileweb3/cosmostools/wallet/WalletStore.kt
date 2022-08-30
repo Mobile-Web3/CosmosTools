@@ -290,7 +290,7 @@ class WalletStore(
                             customPath = 0
                         }
 
-                        interactor.saveAccount(newAccount)
+                        interactor.saveAccount(newAccount, createdAddress.network)
 
                         if (interactor.getCurrentNetwork() == createdAddress.network) {
                             interactor.setCurrentAccount(newAccount)
@@ -383,9 +383,11 @@ class WalletStore(
 
     private fun updateSwitchWallets(network: Network) {
         launch {
+            val selectedAccountId = interactor.getSelectedAccount(network)
+
             val accounts = interactor.getAllAccounts(network).map {
                 AccountWithSelection(
-                    selected = false,
+                    selected = it.id == selectedAccountId?.id,
                     account = it
                 )
             }

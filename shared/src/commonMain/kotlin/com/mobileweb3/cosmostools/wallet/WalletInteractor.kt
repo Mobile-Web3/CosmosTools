@@ -29,7 +29,22 @@ class WalletInteractor internal constructor(
         return walletStorage.getAllAccounts().filter { it.network == network.pretty_name }
     }
 
-    suspend fun saveAccount(account: Account) = walletStorage.saveAccount(account)
+    suspend fun getSelectedAccount(network: Network): Account? {
+        return walletStorage
+            .getAllAccounts()
+            .find { it.id == walletStorage.getSelectedAccountInNetwork(network) }
+    }
+
+    suspend fun setSelectedAccount(accountId: Long, network: Network) {
+        walletStorage.setSelectedAccountInNetwork(network, accountId)
+    }
+
+    suspend fun saveAccount(account: Account, network: Network) {
+        if (walletStorage.getSelectedAccountInNetwork(network) == null) {
+            walletStorage.setSelectedAccountInNetwork(network, account.id)
+        }
+        walletStorage.saveAccount(account)
+    }
 
     suspend fun deleteAccount(id: Long) = walletStorage.deleteAccount(id)
 

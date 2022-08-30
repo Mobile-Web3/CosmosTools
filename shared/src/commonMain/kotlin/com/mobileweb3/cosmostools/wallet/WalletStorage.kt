@@ -1,6 +1,7 @@
 package com.mobileweb3.cosmostools.wallet
 
 import com.mobileweb3.cosmostools.core.entity.Account
+import com.mobileweb3.cosmostools.crypto.Network
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import kotlinx.serialization.builtins.ListSerializer
@@ -38,7 +39,7 @@ class WalletStorage(
             return mnemonicCounter
         }
 
-    private var diskCache: Map<Long, Account>
+    private var accountsDiskCache: Map<Long, Account>
         get() {
             return settings.getStringOrNull(KEY_ACCOUNT_CACHE)?.let { str ->
                 json.decodeFromString(ListSerializer(Account.serializer()), str).associateBy { it.id }
@@ -49,7 +50,7 @@ class WalletStorage(
             settings[KEY_ACCOUNT_CACHE] =
                 json.encodeToString(ListSerializer(Account.serializer()), list)
         }
-    private val memCache: MutableMap<Long, Account> by lazy { diskCache.toMutableMap() }
+    private val accountsMemCache: MutableMap<Long, Account> by lazy { accountsDiskCache.toMutableMap() }
 
     val nextAccountId: Long
         get() {
@@ -65,29 +66,38 @@ class WalletStorage(
             settings[KEY_LAST_ACCOUNT_ID_CACHE] = id
         }
 
-    suspend fun getAccount(id: Long): Account? = memCache[id]
+    suspend fun getAccount(id: Long): Account? = accountsMemCache[id]
 
     suspend fun saveAccount(account: Account) {
-        memCache[account.id] = account
-        diskCache = memCache
+        accountsMemCache[account.id] = account
+        accountsDiskCache = accountsMemCache
     }
 
     suspend fun saveAccounts(accounts: List<Account>) {
         accounts.forEach {
-            memCache[it.id] = it
+            accountsMemCache[it.id] = it
         }
 
-        diskCache = memCache
+        accountsDiskCache = accountsMemCache
     }
 
     suspend fun deleteAccount(id: Long) {
-        memCache.remove(id)
-        diskCache = memCache
+        accountsMemCache.remove(id)
+        accountsDiskCache = accountsMemCache
     }
 
-    suspend fun getAllAccounts(): List<Account> = memCache.values.toList()
+    suspend fun getAllAccounts(): List<Account> = accountsMemCache.values.toList()
+
+    suspend fun getSelectedAccountInNetwork(network: Network): Long? {
+        return settings.getLongOrNull(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network.pretty_name)
+    }
+
+    suspend fun setSelectedAccountInNetwork(network: Network, id: Long) {
+        settings.putLong(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network.pretty_name, id)
+    }
 
     companion object {
+
         private const val CURRENT_ACCOUNT = "CURRENT_ACCOUNT"
         private const val CURRENT_NETWORK = "CURRENT_NETWORK"
 
@@ -96,5 +106,6 @@ class WalletStorage(
         private const val KEY_ACCOUNT_CACHE = "KEY_ACCOUNT_CACHE"
         private const val KEY_ACCOUNT_ID_CACHE = "KEY_ACCOUNT_ID_CACHE"
         private const val KEY_LAST_ACCOUNT_ID_CACHE = "KEY_LAST_ACCOUNT_ID_CACHE"
+        private const val KEY_SELECTED_ACCOUNT_NETWORK_CACHE = "KEY_SELECTED_ACCOUNT_NETWORK_CACHE"
     }
 }

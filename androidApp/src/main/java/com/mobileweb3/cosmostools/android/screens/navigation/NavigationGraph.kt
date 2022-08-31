@@ -9,6 +9,8 @@ import com.mobileweb3.cosmostools.android.screens.tools.ToolsScreen
 import com.mobileweb3.cosmostools.android.screens.validators.ValidatorsScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.DeriveWalletScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.GeneratedMnemonicScreen
+import com.mobileweb3.cosmostools.android.screens.wallet.RestoreMnemonicScreen
+import com.mobileweb3.cosmostools.android.screens.wallet.RestorePrivateKeyScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.SelectNetworksScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.SwitchNetworkWalletScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.WalletScreen
@@ -40,6 +42,12 @@ fun NavigationGraph(
         }
         composable("derive_wallet") {
             DeriveWalletScreen(navController, walletStore)
+        }
+        composable("restore_mnemonic") {
+            RestoreMnemonicScreen(navController, walletStore)
+        }
+        composable("restore_private_key") {
+            RestorePrivateKeyScreen(navController, walletStore)
         }
         composable("switch") {
             SwitchNetworkWalletScreen(navController, walletStore)

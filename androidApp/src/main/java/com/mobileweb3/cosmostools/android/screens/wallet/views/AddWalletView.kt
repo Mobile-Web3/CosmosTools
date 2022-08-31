@@ -26,7 +26,7 @@ fun AddWalletView(
             title = "Mnemonic",
             onClick = {
                 walletStore.dispatch(WalletAction.RestoreWalletByMnemonic)
-                navController.navigate("create_wallet")
+                navController.navigate("select_networks")
             },
             modifier = Modifier.weight(1f)
         )
@@ -35,7 +35,7 @@ fun AddWalletView(
             title = "Private Key",
             onClick = {
                 walletStore.dispatch(WalletAction.RestoreWalletByPrivateKey)
-                navController.navigate("create_wallet")
+                navController.navigate("select_networks")
             },
             modifier = Modifier.weight(1f)
         )

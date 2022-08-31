@@ -119,7 +119,7 @@ class WalletStore(
                 initSelectNetworks(
                     description = "Select networks for which addresses will be restored from entered mnemonic:",
                     action = "Restore",
-                    nextRoute = ""
+                    nextRoute = "restore_mnemonic"
                 )
             }
             WalletAction.RestoreWalletByPrivateKey -> {
@@ -128,7 +128,7 @@ class WalletStore(
                 initSelectNetworks(
                     description = "Select networks for which addresses will be restored from private key:",
                     action = "Restore",
-                    nextRoute = ""
+                    nextRoute = "restore_private_key"
                 )
             }
             is WalletAction.SearchNetworkQueryChanged -> {

@@ -9,6 +9,7 @@ data class WalletState(
     val currentAccount: Account?,
     val addressSelectionState: AddressSelectionState? = null,
     val generatedMnemonicState: GeneratedMnemonicState? = null,
+    val restoreMnemonicState: RestoreMnemonicState? = null,
     val deriveWalletState: DeriveWalletState? = null,
     val switchWalletState: SwitchWalletState? = null
 ) : State
@@ -27,6 +28,13 @@ data class GeneratedMnemonicState(
     val generatedMnemonicTitle: String,
     val resultMnemonicTitle: String,
     val mnemonicResult: MnemonicResult
+)
+
+data class RestoreMnemonicState(
+    val update: Boolean,
+    val generatedMnemonicTitle: String,
+    val resultMnemonicTitle: String,
+    val enteredMnemonic: MutableList<String>
 )
 
 data class MnemonicResult(

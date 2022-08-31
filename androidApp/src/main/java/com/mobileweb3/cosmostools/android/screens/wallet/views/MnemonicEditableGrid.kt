@@ -1,0 +1,69 @@
+package com.mobileweb3.cosmostools.android.screens.wallet.views
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
+import com.mobileweb3.cosmostools.wallet.WalletAction
+import com.mobileweb3.cosmostools.wallet.WalletStore
+
+@Composable
+fun MnemonicEditableGrid(
+    walletStore: WalletStore,
+) {
+    val state = walletStore.observeState().collectAsState()
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.padding(8.dp),
+    ) {
+        itemsIndexed(state.value.restoreMnemonicState?.enteredMnemonic ?: mutableListOf()) { index, item ->
+            Row(
+                modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .border(2.dp, Color.White, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colors.primary, RoundedCornerShape(10.dp)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HorizontalSpacer(dp = 4.dp)
+
+                Text(text = "${index + 1}. ")
+
+                BasicTextField(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    value = item,
+                    onValueChange = {
+                        walletStore.dispatch(WalletAction.MnemonicWordEdited(index, it.trim()))
+                    },
+                    maxLines = 1,
+                    singleLine = true,
+                    cursorBrush = SolidColor(Color.White),
+                    textStyle = TextStyle(
+                        color = Color.White
+                    )
+                )
+            }
+        }
+    }
+}

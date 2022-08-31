@@ -32,7 +32,7 @@ sealed class WalletAction : Action {
 
     class SearchNetworkQueryChanged(val query: String) : WalletAction()
 
-    class SelectNetworkForCreation(
+    class SelectNetworkForCreationOrRestore(
         val createWalletNetwork: NetworkWithSelection,
         val selected: Boolean
     ) : WalletAction()
@@ -44,6 +44,12 @@ sealed class WalletAction : Action {
     object ActionAfterNetworksSelected : WalletAction()
 
     class MnemonicTitleChanged(val newTitle: String) : WalletAction()
+
+    object ClearMnemonic : WalletAction()
+
+    class PasteMnemonicFromClipboard(val text: String) : WalletAction()
+
+    class MnemonicWordEdited(val index: Int, val newText: String) : WalletAction()
 
     object DeriveWallet : WalletAction()
 
@@ -63,6 +69,11 @@ sealed class WalletSideEffect : Effect {
     data class Message(val text: String) : WalletSideEffect()
 }
 
+private val initMnemonic = listOf(
+    "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", "", ""
+)
 class WalletStore(
     private val interactor: WalletInteractor
 ) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
@@ -147,13 +158,13 @@ class WalletStore(
                     )
                 )
 
-                if (networksByQuery.none { it.network == interactor.getCurrentNetwork()}) {
+                if (networksByQuery.none { it.network == interactor.getCurrentNetwork() }) {
                     if (networksByQuery.isNotEmpty()) {
                         updateSwitchWallets(networksByQuery[0].network)
                     }
                 }
             }
-            is WalletAction.SelectNetworkForCreation -> {
+            is WalletAction.SelectNetworkForCreationOrRestore -> {
                 resultNetworks.find { it == action.createWalletNetwork }?.selected = action.selected
 
                 newState = oldState.copy(
@@ -201,7 +212,16 @@ class WalletStore(
                         )
                     }
                     WalletAction.RestoreWalletByMnemonic -> {
+                        val mnemonicTitle = "Mnemonic ${interactor.getMnemonicCounter()}"
 
+                        newState = oldState.copy(
+                            restoreMnemonicState = RestoreMnemonicState(
+                                update = true,
+                                generatedMnemonicTitle = mnemonicTitle,
+                                resultMnemonicTitle = mnemonicTitle,
+                                enteredMnemonic = initMnemonic.toMutableList()
+                            )
+                        )
                     }
                     WalletAction.RestoreWalletByPrivateKey -> {
 
@@ -215,6 +235,44 @@ class WalletStore(
                 newState = oldState.copy(
                     generatedMnemonicState = oldState.generatedMnemonicState?.copy(
                         resultMnemonicTitle = action.newTitle
+                    ),
+                    restoreMnemonicState = oldState.restoreMnemonicState?.copy(
+                        update = !oldState.restoreMnemonicState.update,
+                        resultMnemonicTitle = action.newTitle
+                    )
+                )
+            }
+            is WalletAction.ClearMnemonic -> {
+                newState = oldState.copy(
+                    restoreMnemonicState = oldState.restoreMnemonicState?.copy(
+                        update = !oldState.restoreMnemonicState.update,
+                        enteredMnemonic = initMnemonic.toMutableList()
+                    )
+                )
+
+                newState
+            }
+            is WalletAction.PasteMnemonicFromClipboard -> {
+                val mnemonicFromText = action.text.split(" ")
+
+                newState = oldState.copy(
+                    restoreMnemonicState = oldState.restoreMnemonicState?.copy(
+                        update = !oldState.restoreMnemonicState.update,
+                        enteredMnemonic = mnemonicFromText.take(24).toMutableList().apply {
+                            while (this.count() != 24) {
+                                add("")
+                            }
+                        }
+                    )
+                )
+            }
+            is WalletAction.MnemonicWordEdited -> {
+                newState = oldState.copy(
+                    restoreMnemonicState = oldState.restoreMnemonicState?.copy(
+                        update = !oldState.restoreMnemonicState.update,
+                        enteredMnemonic = oldState.restoreMnemonicState.enteredMnemonic.apply {
+                            this[action.index] = action.newText
+                        }
                     )
                 )
             }
@@ -340,9 +398,11 @@ class WalletStore(
                 state.value.currentNetwork?.let {
                     interactor.setSelectedAccount(action.account.id, it)
 
-                    state.tryEmit(state.value.copy(
-                        currentAccount = action.account
-                    ))
+                    state.tryEmit(
+                        state.value.copy(
+                            currentAccount = action.account
+                        )
+                    )
 
                     updateSwitchWallets(it)
                 }
@@ -406,11 +466,13 @@ class WalletStore(
                 )
             }
 
-            state.tryEmit(state.value.copy(
-                switchWalletState = state.value.switchWalletState?.copy(
-                    accounts = accounts
+            state.tryEmit(
+                state.value.copy(
+                    switchWalletState = state.value.switchWalletState?.copy(
+                        accounts = accounts
+                    )
                 )
-            ))
+            )
         }
     }
 

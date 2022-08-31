@@ -32,7 +32,6 @@ import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
-import com.mobileweb3.cosmostools.wallet.displayedAddress
 
 @Composable
 fun DeriveWalletScreen(
@@ -50,7 +49,7 @@ fun DeriveWalletScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Toolbar(
-            title = state.value.generatedMnemonicState?.resultMnemonicTitle,
+            title = state.value.deriveWalletState?.mnemonicTitle,
             navController = navController
         )
 

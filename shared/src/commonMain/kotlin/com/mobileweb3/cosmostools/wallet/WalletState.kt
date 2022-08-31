@@ -46,7 +46,9 @@ data class MnemonicResult(
 data class DeriveWalletState(
     val generating: Boolean,
     val derivationHDPath: Int,
-    val resultAddresses: List<CreatedAddress>
+    val resultAddresses: List<CreatedAddress>,
+    val mnemonicTitle: String?,
+    val mnemonicResult: MnemonicResult
 )
 
 data class CreatedAddress(

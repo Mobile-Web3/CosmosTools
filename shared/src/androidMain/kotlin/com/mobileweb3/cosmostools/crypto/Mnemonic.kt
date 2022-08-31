@@ -17,7 +17,7 @@ actual object Mnemonic {
         }
     }
 
-    actual fun toEntropy(mnemonic: List<String>): ByteArray? {
+    actual fun toEntropy(mnemonic: List<String>?): ByteArray? {
         return try {
             MnemonicCode().toEntropy(mnemonic)
         } catch (e: Exception) {

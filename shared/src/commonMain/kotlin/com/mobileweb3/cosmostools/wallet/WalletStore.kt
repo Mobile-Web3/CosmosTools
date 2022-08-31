@@ -219,7 +219,8 @@ class WalletStore(
                                 update = true,
                                 generatedMnemonicTitle = mnemonicTitle,
                                 resultMnemonicTitle = mnemonicTitle,
-                                enteredMnemonic = initMnemonic.toMutableList()
+                                enteredMnemonic = initMnemonic.toMutableList(),
+                                deriveWalletEnabled = false
                             )
                         )
                     }
@@ -246,11 +247,10 @@ class WalletStore(
                 newState = oldState.copy(
                     restoreMnemonicState = oldState.restoreMnemonicState?.copy(
                         update = !oldState.restoreMnemonicState.update,
-                        enteredMnemonic = initMnemonic.toMutableList()
+                        enteredMnemonic = initMnemonic.toMutableList(),
+                        deriveWalletEnabled = false
                     )
                 )
-
-                newState
             }
             is WalletAction.PasteMnemonicFromClipboard -> {
                 val mnemonicFromText = action.text.split(" ")
@@ -262,17 +262,21 @@ class WalletStore(
                             while (this.count() != 24) {
                                 add("")
                             }
-                        }
+                        },
+                        deriveWalletEnabled = Mnemonic.isValidMnemonic(mnemonicFromText)
                     )
                 )
             }
             is WalletAction.MnemonicWordEdited -> {
+                val newEnteredMnemonic = oldState.restoreMnemonicState?.enteredMnemonic?.apply {
+                    this[action.index] = action.newText
+                } ?: listOf()
+
                 newState = oldState.copy(
                     restoreMnemonicState = oldState.restoreMnemonicState?.copy(
                         update = !oldState.restoreMnemonicState.update,
-                        enteredMnemonic = oldState.restoreMnemonicState.enteredMnemonic.apply {
-                            this[action.index] = action.newText
-                        }
+                        enteredMnemonic = newEnteredMnemonic.toMutableList(),
+                        deriveWalletEnabled = Mnemonic.isValidMnemonic(newEnteredMnemonic)
                     )
                 )
             }

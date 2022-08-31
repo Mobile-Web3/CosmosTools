@@ -34,8 +34,6 @@ fun RestoreMnemonicScreen(
     val state = walletStore.observeState().collectAsState()
     val clipboardManager = LocalClipboardManager.current
 
-    //var pastedText = remember { mutableStateOf("") }
-
     disableScreenshot()
 
     Column(
@@ -103,6 +101,7 @@ fun RestoreMnemonicScreen(
             }
 
             Button(
+                enabled = state.value.restoreMnemonicState?.deriveWalletEnabled ?: false,
                 onClick = {
                     walletStore.dispatch(WalletAction.DeriveWallet)
                     navController.navigate("derive_wallet")

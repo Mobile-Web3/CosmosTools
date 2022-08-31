@@ -34,7 +34,8 @@ data class RestoreMnemonicState(
     val update: Boolean,
     val generatedMnemonicTitle: String,
     val resultMnemonicTitle: String,
-    val enteredMnemonic: MutableList<String>
+    val enteredMnemonic: MutableList<String>,
+    val deriveWalletEnabled: Boolean
 )
 
 data class MnemonicResult(

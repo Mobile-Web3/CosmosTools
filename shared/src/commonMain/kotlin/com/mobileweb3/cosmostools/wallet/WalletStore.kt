@@ -209,7 +209,8 @@ class WalletStore(
                                 generatedMnemonicTitle = mnemonicTitle,
                                 resultMnemonicTitle = mnemonicTitle,
                                 mnemonicResult = mnemonicResult
-                            )
+                            ),
+                            deriveWalletState = null
                         )
                     }
                     WalletAction.RestoreWalletByMnemonic -> {
@@ -222,11 +223,18 @@ class WalletStore(
                                 resultMnemonicTitle = mnemonicTitle,
                                 enteredMnemonic = initMnemonic.toMutableList(),
                                 deriveWalletEnabled = false
-                            )
+                            ),
+                            deriveWalletState = null
                         )
                     }
                     WalletAction.RestoreWalletByPrivateKey -> {
-
+                        newState = oldState.copy(
+                            restorePrivateKeyState = RestorePrivateKeyState(
+                                enteredPrivateKey = "",
+                                nextEnabled = false
+                            ),
+                            deriveWalletState = null
+                        )
                     }
                     else -> {
                         //not happen
@@ -296,11 +304,12 @@ class WalletStore(
                         oldState.generatedMnemonicState?.mnemonicResult
                     }
                     WalletAction.RestoreWalletByMnemonic -> {
-                        val entropy = Mnemonic.toEntropy(oldState.restoreMnemonicState?.enteredMnemonic)
-                        if (entropy != null || oldState.restoreMnemonicState?.enteredMnemonic == null) {
+                        val enteredMnemonic = oldState.restoreMnemonicState?.enteredMnemonic?.filter { it.isNotEmpty() }
+                        val entropy = Mnemonic.toEntropy(enteredMnemonic)
+                        if (entropy != null || enteredMnemonic == null) {
                             MnemonicResult(
                                 entropy = entropy!!,
-                                mnemonic = oldState.restoreMnemonicState!!.enteredMnemonic
+                                mnemonic = enteredMnemonic!!
                             )
                         } else {
                             null

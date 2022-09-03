@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.DerivationPathSelectView
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
+import com.mobileweb3.cosmostools.android.ui.SelectedColor
 import com.mobileweb3.cosmostools.android.ui.composables.AccountAddress
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
@@ -30,6 +31,7 @@ import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
+import com.mobileweb3.cosmostools.wallet.CreateAddressMethod
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -49,16 +51,18 @@ fun DeriveWalletScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Toolbar(
-            title = state.value.deriveWalletState?.mnemonicTitle,
+            title = state.value.deriveWalletState?.title,
             navController = navController
         )
 
-        DerivationPathSelectView(
-            hdPath = state.value.deriveWalletState?.derivationHDPath,
-            onPathSelected = {
-                walletStore.dispatch(WalletAction.HDPathChanged(it))
-            }
-        )
+        if (state.value.deriveWalletState?.createAddressMethod is CreateAddressMethod.FromMnemonic) {
+            DerivationPathSelectView(
+                hdPath = state.value.deriveWalletState?.derivationHDPath,
+                onPathSelected = {
+                    walletStore.dispatch(WalletAction.HDPathChanged(it))
+                }
+            )
+        }
 
         if (state.value.deriveWalletState?.generating == true) {
             Text(
@@ -92,17 +96,44 @@ fun DeriveWalletScreen(
                             HorizontalSpacer()
 
                             Column {
+                                when (deriveWalletState.createAddressMethod) {
+                                    is CreateAddressMethod.FromMnemonic -> {
+                                        VerticalSpacer()
+
+                                        AccountAddress(createdAddress.address)
+
+                                        if (createdAddress.fullDerivationPath != null) {
+                                            VerticalSpacer()
+
+                                            Text(text = createdAddress.fullDerivationPath!!)
+                                        }
+
+                                        VerticalSpacer()
+
+                                        Text(text = createdAddress.balance)
+                                    }
+                                    is CreateAddressMethod.FromPrivateKey -> {
+                                        VerticalSpacer()
+
+                                        AccountAddress(createdAddress.address)
+
+                                        VerticalSpacer()
+
+                                        Text(text = createdAddress.balance)
+                                    }
+                                }
+
                                 VerticalSpacer()
 
-                                AccountAddress(createdAddress.address)
-
-                                VerticalSpacer()
-
-                                Text(text = createdAddress.fullDerivationPath)
-
-                                VerticalSpacer()
-
-                                Text(text = createdAddress.balance)
+                                val importedStatus = if (createdAddress.imported) {
+                                    "Imported"
+                                } else {
+                                    "New Address"
+                                }
+                                Text(
+                                    text = importedStatus,
+                                    color = SelectedColor
+                                )
                             }
                         }
                     }

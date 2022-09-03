@@ -63,10 +63,11 @@ fun AccountCard(
                 maxLines = 1
             )
 
-            VerticalSpacer(4.dp)
+            if (account.fullDerivationPath != null) {
+                VerticalSpacer(4.dp)
 
-            Text(text = account.fullDerivationPath ?: "")
-
+                Text(text = account.fullDerivationPath ?: "")
+            }
             VerticalSpacer()
         }
     }

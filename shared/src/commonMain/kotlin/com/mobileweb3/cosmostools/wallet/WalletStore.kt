@@ -11,6 +11,7 @@ import com.mobileweb3.cosmostools.crypto.EncryptHelper.getIvData
 import com.mobileweb3.cosmostools.crypto.Entropy
 import com.mobileweb3.cosmostools.crypto.Mnemonic
 import com.mobileweb3.cosmostools.crypto.Network
+import com.mobileweb3.cosmostools.crypto.PrivateKey
 import com.mobileweb3.cosmostools.crypto.Utils
 import com.mobileweb3.cosmostools.crypto.mockNetworks
 import com.mobileweb3.cosmostools.shared.System
@@ -50,6 +51,14 @@ sealed class WalletAction : Action {
     class PasteMnemonicFromClipboard(val text: String) : WalletAction()
 
     class MnemonicWordEdited(val index: Int, val newText: String) : WalletAction()
+
+    class PrivateKeyTitleEdited(val newTitle: String) : WalletAction()
+
+    class PastePrivateKeyFromClipboard(val text: String) : WalletAction()
+
+    class PrivateKeyEdited(val newPrivateKey: String) : WalletAction()
+
+    object RestoreFromPrivateKey : WalletAction()
 
     object DeriveWallet : WalletAction()
 
@@ -228,10 +237,14 @@ class WalletStore(
                         )
                     }
                     WalletAction.RestoreWalletByPrivateKey -> {
+                        val privateKeyTitle = "Private key ${interactor.getPrivateKeyCounter()}"
+
                         newState = oldState.copy(
                             restorePrivateKeyState = RestorePrivateKeyState(
+                                generatedPrivateKeyTitle = privateKeyTitle,
+                                resultPrivateKeyTitle = privateKeyTitle,
                                 enteredPrivateKey = "",
-                                nextEnabled = false
+                                privateKeyIsValid = false
                             ),
                             deriveWalletState = null
                         )
@@ -289,6 +302,69 @@ class WalletStore(
                     )
                 )
             }
+            is WalletAction.PrivateKeyTitleEdited -> {
+                val oldRestorePrivateKeyState = oldState.restorePrivateKeyState
+
+                newState = oldState.copy(
+                    restorePrivateKeyState = oldRestorePrivateKeyState?.copy(
+                        resultPrivateKeyTitle = action.newTitle,
+                        privateKeyIsValid = PrivateKey.isValid(oldRestorePrivateKeyState.enteredPrivateKey)
+                    )
+                )
+            }
+            is WalletAction.PastePrivateKeyFromClipboard -> {
+                newState = oldState.copy(
+                    restorePrivateKeyState = oldState.restorePrivateKeyState?.copy(
+                        enteredPrivateKey = action.text,
+                        privateKeyIsValid = PrivateKey.isValid(action.text)
+                    )
+                )
+            }
+            is WalletAction.PrivateKeyEdited -> {
+                newState = oldState.copy(
+                    restorePrivateKeyState = oldState.restorePrivateKeyState?.copy(
+                        enteredPrivateKey = action.newPrivateKey,
+                        privateKeyIsValid = PrivateKey.isValid(action.newPrivateKey)
+                    )
+                )
+            }
+            is WalletAction.RestoreFromPrivateKey -> {
+                val selectedNetworks = resultNetworks.filter { it.selected }.map { it.network }
+                var privateKey = state.value.restorePrivateKeyState?.enteredPrivateKey
+                val privateKeyTitle = state.value.restorePrivateKeyState!!.resultPrivateKeyTitle
+
+                if (privateKey != null) {
+                    if (privateKey.lowercase().startsWith("0x")) {
+                        privateKey = privateKey.substring(2)
+                    }
+
+                    val createAddressMethod = CreateAddressMethod.FromPrivateKey(
+                        privateKey = privateKey,
+                        privateKeyTitle = privateKeyTitle
+                    )
+
+                    val allAddresses = interactor.getAllAccounts()
+                    val addresses = selectedNetworks.map { network ->
+                        createAddressMethod.create(network)
+                    }.map {
+                        it.imported = allAddresses.any { account ->
+                            account.address == it.address
+                        }
+
+                        it
+                    }
+
+                    newState = oldState.copy(
+                        deriveWalletState = DeriveWalletState(
+                            generating = false,
+                            derivationHDPath = null,
+                            resultAddresses = addresses,
+                            title = privateKeyTitle,
+                            createAddressMethod = createAddressMethod
+                        )
+                    )
+                }
+            }
             WalletAction.DeriveWallet -> {
                 val mnemonicTitle = when (walletAction) {
                     WalletAction.CreateWallet -> {
@@ -319,10 +395,15 @@ class WalletStore(
                 }
 
                 mnemonicResult?.let { safeMnemonicResult ->
+                    val createAddressMethod = CreateAddressMethod.FromMnemonic(
+                        mnemonicResult = safeMnemonicResult,
+                        mnemonicTitle = mnemonicTitle!!,
+                        hdPath = 0
+                    )
+
                     val createdAddresses = createAddresses(
                         networks = resultNetworks.filter { it.selected }.map { it.network },
-                        mnemonic = safeMnemonicResult,
-                        hdPath = 0
+                        createAddressMethod = createAddressMethod
                     )
 
                     //todo load balances from addresses
@@ -331,8 +412,8 @@ class WalletStore(
                             generating = false,
                             derivationHDPath = 0,
                             resultAddresses = createdAddresses,
-                            mnemonicTitle = mnemonicTitle,
-                            mnemonicResult = safeMnemonicResult
+                            title = mnemonicTitle,
+                            createAddressMethod = createAddressMethod
                         )
                     )
                 }
@@ -349,8 +430,11 @@ class WalletStore(
                 launch {
                     val createdAddresses = createAddresses(
                         networks = resultNetworks.filter { it.selected }.map { it.network },
-                        mnemonic = oldState.generatedMnemonicState!!.mnemonicResult,
-                        hdPath = action.hdPath
+                        createAddressMethod = CreateAddressMethod.FromMnemonic(
+                            mnemonicResult = oldState.generatedMnemonicState!!.mnemonicResult,
+                            mnemonicTitle = oldState.generatedMnemonicState.resultMnemonicTitle,
+                            hdPath = action.hdPath
+                        )
                     )
 
                     state.tryEmit(
@@ -365,39 +449,26 @@ class WalletStore(
                 }
             }
             WalletAction.SaveGeneratedAddressesButtonClicked -> {
-                val mnemonicResult = state.value.deriveWalletState?.mnemonicResult
+                val createAddressMethod = state.value.deriveWalletState?.createAddressMethod
                 val addressesToSave = state.value.deriveWalletState?.resultAddresses
-                val mnemonicTitleFromState = state.value.deriveWalletState?.mnemonicTitle
+                val mnemonicTitleFromState = state.value.deriveWalletState?.title
 
-                if (mnemonicResult == null || addressesToSave == null || mnemonicTitleFromState == null) {
+                if (createAddressMethod == null || addressesToSave == null || mnemonicTitleFromState == null) {
                     return
                 }
 
                 launch {
                     addressesToSave.forEach { createdAddress ->
-                        val newAccount = Account.newInstance(id = interactor.getIdForNewAccount()).apply {
-                            val encryptResult = EncryptHelper.encrypt(
-                                alias = "MNEMONIC_KEY" + this.uuid,
-                                resource = Utils.byteArrayToHexString(mnemonicResult.entropy),
-                                withAuth = false
-                            )
-
-                            resource = encryptResult.getEncData()
-                            spec = encryptResult.getIvData()
-                            address = createdAddress.address
-                            network = createdAddress.network.pretty_name
-                            hasPrivateKey = true
-                            fromMnemonic = true
-                            mnemonicTitle = mnemonicTitleFromState
-                            fullDerivationPath = createdAddress.fullDerivationPath
-                            derivationHDPath = createdAddress.derivationHDPath
-                            mnemonicSize = 24
-                            importTime = System.getCurrentMillis()
-                            //TODO check customPath from other networks
-                            customPath = 0
+                        if (createdAddress.imported) {
+                            return@forEach
                         }
 
-                        val addressesFromNetwork = interactor.getAllAccounts(createdAddress.network)
+                        val newAccount = createAddressMethod.applyAccount(
+                            createdAddress = createdAddress,
+                            account = Account.newInstance(id = interactor.getIdForNewAccount())
+                        )
+
+                        val addressesFromNetwork = interactor.getAllAccountsByNetwork(createdAddress.network)
                         if (addressesFromNetwork.isEmpty()) {
                             interactor.setSelectedAccount(newAccount.id, createdAddress.network)
                         }
@@ -477,24 +548,16 @@ class WalletStore(
 
     private fun createAddresses(
         networks: List<Network>,
-        mnemonic: MnemonicResult,
-        hdPath: Int
-    ): List<CreatedAddress> {
-        return networks.map {
-            val createdAddress = Address.createAddressFromEntropyByNetwork(
-                network = it,
-                entropy = Utils.byteArrayToHexString(mnemonic.entropy),
-                path = hdPath,
-                customPath = 0
-            )
+        createAddressMethod: CreateAddressMethod
+    ): List<CreatedOrRestoredAddress> {
+        val allAccounts = interactor.getAllAccounts()
 
-            CreatedAddress(
-                network = it,
-                address = createdAddress,
-                balance = "0.000000 ${it.assets[0].symbol}",
-                derivationHDPath = hdPath,
-                fullDerivationPath = "m/44/${it.slip44}/0/0/$hdPath"
-            )
+        return networks.map { network ->
+            val createdAddress = createAddressMethod.create(network)
+            val addressImported = allAccounts.any { it.address == createdAddress.address }
+            createdAddress.imported = addressImported
+
+            return@map createdAddress
         }
     }
 
@@ -511,7 +574,7 @@ class WalletStore(
         launch {
             val selectedAccountId = interactor.getSelectedAccount(network)
 
-            val accounts = interactor.getAllAccounts(network).map {
+            val accounts = interactor.getAllAccountsByNetwork(network).map {
                 AccountWithSelection(
                     selected = it.id == selectedAccountId?.id,
                     account = it

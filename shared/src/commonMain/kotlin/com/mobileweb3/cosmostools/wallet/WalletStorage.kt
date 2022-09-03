@@ -39,6 +39,13 @@ class WalletStorage(
             return mnemonicCounter
         }
 
+    val privateKeyCounter: Int
+        get() {
+            val privateKeyCounter = settings.getInt(PRIVATE_KEY_COUNTER, 1)
+            settings.putInt(PRIVATE_KEY_COUNTER, privateKeyCounter + 1)
+            return privateKeyCounter
+        }
+
     private var accountsDiskCache: Map<Long, Account>
         get() {
             return settings.getStringOrNull(KEY_ACCOUNT_CACHE)?.let { str ->
@@ -102,6 +109,7 @@ class WalletStorage(
         private const val CURRENT_NETWORK = "CURRENT_NETWORK"
 
         private const val MNEMONIC_COUNTER = "MNEMONIC_COUNTER"
+        private const val PRIVATE_KEY_COUNTER = "PRIVATE_KEY_COUNTER"
 
         private const val KEY_ACCOUNT_CACHE = "KEY_ACCOUNT_CACHE"
         private const val KEY_ACCOUNT_ID_CACHE = "KEY_ACCOUNT_ID_CACHE"

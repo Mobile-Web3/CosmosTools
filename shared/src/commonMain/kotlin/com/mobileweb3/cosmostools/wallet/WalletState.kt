@@ -10,6 +10,7 @@ data class WalletState(
     val addressSelectionState: AddressSelectionState? = null,
     val generatedMnemonicState: GeneratedMnemonicState? = null,
     val restoreMnemonicState: RestoreMnemonicState? = null,
+    val restorePrivateKeyState: RestorePrivateKeyState? = null,
     val deriveWalletState: DeriveWalletState? = null,
     val switchWalletState: SwitchWalletState? = null
 ) : State
@@ -38,6 +39,13 @@ data class RestoreMnemonicState(
     val deriveWalletEnabled: Boolean
 )
 
+data class RestorePrivateKeyState(
+    val generatedPrivateKeyTitle: String,
+    val resultPrivateKeyTitle: String,
+    val enteredPrivateKey: String,
+    val privateKeyIsValid: Boolean
+)
+
 data class MnemonicResult(
     val entropy: ByteArray,
     val mnemonic: List<String>
@@ -45,18 +53,19 @@ data class MnemonicResult(
 
 data class DeriveWalletState(
     val generating: Boolean,
-    val derivationHDPath: Int,
-    val resultAddresses: List<CreatedAddress>,
-    val mnemonicTitle: String?,
-    val mnemonicResult: MnemonicResult
+    val derivationHDPath: Int?,
+    val resultAddresses: List<CreatedOrRestoredAddress>,
+    val title: String?,
+    val createAddressMethod: CreateAddressMethod
 )
 
-data class CreatedAddress(
+data class CreatedOrRestoredAddress(
     val network: Network,
     val address: String,
-    val derivationHDPath: Int,
-    val fullDerivationPath: String,
-    val balance: String
+    val derivationHDPath: Int?,
+    val fullDerivationPath: String?,
+    val balance: String,
+    var imported: Boolean
 )
 
 fun String.displayedAddress(): String {

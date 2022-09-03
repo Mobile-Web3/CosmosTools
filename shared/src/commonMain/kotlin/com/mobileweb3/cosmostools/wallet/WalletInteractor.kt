@@ -17,9 +17,15 @@ class WalletInteractor internal constructor(
 
     fun getMnemonicCounter(): Int = walletStorage.mnemonicCounter
 
+    fun getPrivateKeyCounter(): Int = walletStorage.privateKeyCounter
+
     fun getIdForNewAccount(): Long = walletStorage.nextAccountId
 
-    fun getAllAccounts(network: Network): List<Account> {
+    fun getAllAccounts(): List<Account> {
+        return walletStorage.getAllAccounts()
+    }
+
+    fun getAllAccountsByNetwork(network: Network): List<Account> {
         return walletStorage.getAllAccounts().filter { it.network == network.pretty_name }
     }
 

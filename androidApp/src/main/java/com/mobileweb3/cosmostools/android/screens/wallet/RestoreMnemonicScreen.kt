@@ -71,10 +71,7 @@ fun RestoreMnemonicScreen(
         ) {
             Button(
                 onClick = {
-                    val textFromClipboard = clipboardManager.getText()?.toString()
-                    textFromClipboard?.let {
-                        walletStore.dispatch(WalletAction.ClearMnemonic)
-                    }
+                    walletStore.dispatch(WalletAction.ClearMnemonic)
                 }
             ) {
                 Text(
@@ -88,7 +85,6 @@ fun RestoreMnemonicScreen(
                 onClick = {
                     val textFromClipboard = clipboardManager.getText()?.toString()
                     textFromClipboard?.let {
-                        //pastedText = it
                         walletStore.dispatch(WalletAction.PasteMnemonicFromClipboard(it))
                     }
                 }

@@ -98,5 +98,7 @@ android {
         implementation(libs.work.runtime.ktx)
         //Glide
         implementation(libs.landscapist.glide)
+
+        implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     }
 }

@@ -1,5 +1,6 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
+import com.journeyapps.barcodescanner.ScanOptions.QR_CODE
 import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
 import com.mobileweb3.cosmostools.android.ui.composables.EditableTextFieldWithoutRemember
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
@@ -50,9 +54,10 @@ fun RestorePrivateKeyScreen(
             walletStore.dispatch(WalletAction.PrivateKeyTitleEdited(it))
         }
 
-        VerticalSpacer()
+        VerticalSpacer(16.dp)
 
         Text(
+            modifier = Modifier.padding(start = 16.dp),
             text = "Please enter your private key.\n" +
                     "The private key is a 66-digit string starting with 0x",
             style = MaterialTheme.typography.body1
@@ -68,13 +73,23 @@ fun RestorePrivateKeyScreen(
 
         FillSpacer()
 
+        val scanLauncher = rememberLauncherForActivityResult(
+            contract = ScanContract(),
+            onResult = { result ->
+                walletStore.dispatch(WalletAction.PrivateKeyEdited(result.contents))
+            }
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Button(
                 onClick = {
-                    //todo scan
+                    scanLauncher.launch(
+                        ScanOptions()
+                            .setOrientationLocked(true)
+                            .setDesiredBarcodeFormats(QR_CODE)
+                    )
                 }
             ) {
                 Text(

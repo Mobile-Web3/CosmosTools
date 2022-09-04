@@ -12,7 +12,8 @@ data class WalletState(
     val restoreMnemonicState: RestoreMnemonicState? = null,
     val restorePrivateKeyState: RestorePrivateKeyState? = null,
     val deriveWalletState: DeriveWalletState? = null,
-    val switchWalletState: SwitchWalletState? = null
+    val switchWalletState: SwitchWalletState? = null,
+    val pinState: PinState
 ) : State
 
 data class AddressSelectionState(
@@ -70,7 +71,7 @@ data class CreatedOrRestoredAddress(
 
 sealed class ImportedStatus(val text: String, val backgroundColor: Long, val textColor: Long) {
     object NewAddress : ImportedStatus("New", 0xffEEFBF0, 0xff37CC6F)
-    object ImportedAddress : ImportedStatus("Imported",0xffEBF7FF, 0xff02B1FF)
+    object ImportedAddress : ImportedStatus("Imported", 0xffEBF7FF, 0xff02B1FF)
 }
 
 fun String.displayedAddress(): String {
@@ -92,3 +93,36 @@ data class AccountWithSelection(
     var selected: Boolean,
     val account: Account
 )
+
+data class PinState(
+    val userHasPin: Boolean,
+    val pinPurpose: PinPurpose,
+    val enterState: PinCodeEnterState
+)
+
+sealed class PinPurpose(
+    val title: String,
+    open val nextRoute: String,
+    open val message: String
+) {
+    data class Set(
+        val firstPin: String = "",
+        val confirmPin: String = "",
+        val firstPinFilled: Boolean = false,
+        override val nextRoute : String,
+        override val message: String = "Do not use simple sequences.\nNo way to recover this, please remember!"
+    ) : PinPurpose("Set PIN", nextRoute, message)
+
+    data class Check(
+        val enteredPin: String = "",
+        override val nextRoute: String
+    ) : PinPurpose("Confirm PIN", nextRoute, "Please enter your PIN to continue")
+}
+
+sealed class PinCodeEnterState {
+    object WaitingForEnter : PinCodeEnterState()
+
+    object Error : PinCodeEnterState()
+
+    object Success : PinCodeEnterState()
+}

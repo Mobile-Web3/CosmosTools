@@ -57,7 +57,6 @@ fun RestorePrivateKeyScreen(
         VerticalSpacer(16.dp)
 
         Text(
-            modifier = Modifier.padding(start = 16.dp),
             text = "Please enter your private key.\n" +
                     "The private key is a 66-digit string starting with 0x",
             style = MaterialTheme.typography.body1

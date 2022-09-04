@@ -12,17 +12,13 @@ class WalletStorage(
     private val json: Json
 ) {
 
-//    var currentAccount: Account?
-//        get() {
-//            return try {
-//                json.decodeFromString(Account.serializer(), settings.getStringOrNull(CURRENT_ACCOUNT) ?: "")
-//            } catch (ex: Exception) {
-//                return null
-//            }
-//        }
-//        set(account) {
-//            settings[CURRENT_ACCOUNT] = json.encodeToString(Account.serializer(), account!!)
-//        }
+    var userPinCode: String?
+        get() {
+            return settings.getStringOrNull(USER_PIN_CODE)
+        }
+        set(wallet) {
+            settings[USER_PIN_CODE] = wallet
+        }
 
     var currentNetwork: String?
         get() {
@@ -65,13 +61,6 @@ class WalletStorage(
             settings.putLong(KEY_ACCOUNT_ID_CACHE, idFromSettings + 1)
             return idFromSettings
         }
-    var activeAccountId: Long
-        get() {
-            return settings.getLong(KEY_LAST_ACCOUNT_ID_CACHE, 0)
-        }
-        set(id) {
-            settings[KEY_LAST_ACCOUNT_ID_CACHE] = id
-        }
 
     suspend fun getAccount(id: Long): Account? = accountsMemCache[id]
 
@@ -104,6 +93,7 @@ class WalletStorage(
     }
 
     companion object {
+        private const val USER_PIN_CODE = "USER_PIN_CODE"
 
         private const val CURRENT_ACCOUNT = "CURRENT_ACCOUNT"
         private const val CURRENT_NETWORK = "CURRENT_NETWORK"

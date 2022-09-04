@@ -4,17 +4,11 @@ import com.mobileweb3.cosmostools.app.Action
 import com.mobileweb3.cosmostools.app.Effect
 import com.mobileweb3.cosmostools.app.Store
 import com.mobileweb3.cosmostools.core.entity.Account
-import com.mobileweb3.cosmostools.crypto.Address
-import com.mobileweb3.cosmostools.crypto.EncryptHelper
-import com.mobileweb3.cosmostools.crypto.EncryptHelper.getEncData
-import com.mobileweb3.cosmostools.crypto.EncryptHelper.getIvData
 import com.mobileweb3.cosmostools.crypto.Entropy
 import com.mobileweb3.cosmostools.crypto.Mnemonic
 import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.PrivateKey
-import com.mobileweb3.cosmostools.crypto.Utils
 import com.mobileweb3.cosmostools.crypto.mockNetworks
-import com.mobileweb3.cosmostools.shared.System
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -72,6 +66,10 @@ sealed class WalletAction : Action {
 
     class SwitchAccount(val account: Account) : WalletAction()
 
+    class PinCodeNewSymbol(val enteredNumber: Int) : WalletAction()
+
+    object PinCodeDeleteSymbol : WalletAction()
+
 }
 
 sealed class WalletSideEffect : Effect {
@@ -84,6 +82,7 @@ private val initMnemonic = listOf(
     "", "", "", "", "", "", "", ""
 )
 
+const val PIN_CODE_LENGTH = 4
 class WalletStore(
     private val interactor: WalletInteractor
 ) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
@@ -93,7 +92,12 @@ class WalletStore(
             currentNetwork = interactor.getCurrentNetwork(),
             currentAccount = interactor.getSelectedAccount(),
             addressSelectionState = null,
-            switchWalletState = null
+            switchWalletState = null,
+            pinState = PinState(
+                userHasPin = false,
+                pinPurpose = PinPurpose.Set(nextRoute = ""),
+                enterState = PinCodeEnterState.WaitingForEnter
+            )
         )
     )
     private val sideEffect = MutableSharedFlow<WalletSideEffect>()
@@ -103,6 +107,23 @@ class WalletStore(
 
     init {
         requestWalletInfo(state.value.currentAccount)
+
+        refreshPinCodeState("")
+    }
+
+    private fun refreshPinCodeState(nextRoute: String) {
+        val userHasPinCode = interactor.userHasPinCode()
+
+        state.tryEmit(state.value.copy(
+            pinState = state.value.pinState.copy(
+                pinPurpose = if (userHasPinCode) {
+                    PinPurpose.Check(nextRoute = nextRoute)
+                } else {
+                    PinPurpose.Set(nextRoute = nextRoute)
+                },
+                enterState = PinCodeEnterState.WaitingForEnter
+            )
+        ))
     }
 
     private fun requestWalletInfo(currentAccount: Account?) {
@@ -126,6 +147,8 @@ class WalletStore(
 
         when (action) {
             WalletAction.CreateWallet -> {
+                refreshPinCodeState("select_networks")
+
                 walletAction = WalletAction.CreateWallet
 
                 initSelectNetworks(
@@ -135,6 +158,8 @@ class WalletStore(
                 )
             }
             WalletAction.RestoreWalletByMnemonic -> {
+                refreshPinCodeState("select_networks")
+
                 walletAction = WalletAction.RestoreWalletByMnemonic
 
                 initSelectNetworks(
@@ -144,6 +169,8 @@ class WalletStore(
                 )
             }
             WalletAction.RestoreWalletByPrivateKey -> {
+                refreshPinCodeState("select_networks")
+
                 walletAction = WalletAction.RestoreWalletByPrivateKey
 
                 initSelectNetworks(
@@ -524,6 +551,66 @@ class WalletStore(
                     updateSwitchWallets(it)
                 }
             }
+            is WalletAction.PinCodeDeleteSymbol -> {
+                //todo
+            }
+            is WalletAction.PinCodeNewSymbol -> {
+                val newPinCodeState = when (val pinCodePurpose = oldState.pinState.pinPurpose) {
+                    is PinPurpose.Set -> {
+                        if (pinCodePurpose.firstPinFilled) {
+                            val newConfirmEnteredPinCode = pinCodePurpose.confirmPin + action.enteredNumber
+
+                            if (newConfirmEnteredPinCode.length != PIN_CODE_LENGTH) {
+                                oldState.pinState.copy(
+                                    pinPurpose = pinCodePurpose.copy(
+                                        confirmPin = newConfirmEnteredPinCode
+                                    )
+                                )
+                            } else {
+                                if (newConfirmEnteredPinCode == pinCodePurpose.firstPin) {
+                                    oldState.pinState.copy(
+                                        pinPurpose = pinCodePurpose.copy(
+                                            confirmPin = newConfirmEnteredPinCode
+                                        ),
+                                        enterState = PinCodeEnterState.Success
+                                    )
+
+                                    //interactor.savePinCode(newConfirmEnteredPinCode)
+                                } else {
+                                    oldState.pinState.copy(
+                                        pinPurpose = pinCodePurpose.copy(
+                                            firstPin = "",
+                                            confirmPin = "",
+                                            firstPinFilled = false,
+                                            message = "PINs are not equal!\nStart again please."
+                                        ),
+                                        enterState = PinCodeEnterState.Error
+                                    )
+                                }
+                            }
+                        } else {
+                            val newFirstEnteredPinCode = pinCodePurpose.firstPin + action.enteredNumber
+                            oldState.pinState.copy(
+                                pinPurpose = pinCodePurpose.copy(
+                                    firstPin = newFirstEnteredPinCode,
+                                    firstPinFilled = newFirstEnteredPinCode.length == PIN_CODE_LENGTH,
+                                    message = if (newFirstEnteredPinCode.length == PIN_CODE_LENGTH) {
+                                        "Repeat entered PIN\n"
+                                    } else {
+                                        "Do not use simple sequences.\nNo way to recover this, please remember!"
+                                    }
+                                ),
+                                enterState = PinCodeEnterState.WaitingForEnter
+                            )
+                        }
+                    }
+                    is PinPurpose.Check -> TODO()
+                }
+
+                newState = oldState.copy(
+                    pinState = newPinCodeState
+                )
+            }
         }
 
         if (newState != oldState) {
@@ -588,7 +675,7 @@ class WalletStore(
     ) {
         resultNetworks = getInitSelectionNetworks()
 
-        state.value = state.value.copy(
+        state.tryEmit(state.value.copy(
             addressSelectionState = AddressSelectionState(
                 description = description,
                 displayedNetworks = resultNetworks,
@@ -597,7 +684,7 @@ class WalletStore(
                 selectedCount = 1,
                 nextRoute = nextRoute
             )
-        )
+        ))
     }
 
     private fun getNetworksByQuery(query: String?): List<NetworkWithSelection> {

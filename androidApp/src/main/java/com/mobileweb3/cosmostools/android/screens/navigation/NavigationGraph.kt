@@ -9,6 +9,7 @@ import com.mobileweb3.cosmostools.android.screens.tools.ToolsScreen
 import com.mobileweb3.cosmostools.android.screens.validators.ValidatorsScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.DeriveWalletScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.GeneratedMnemonicScreen
+import com.mobileweb3.cosmostools.android.screens.wallet.PinCodeScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.RestoreMnemonicScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.RestorePrivateKeyScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.SelectNetworksScreen
@@ -51,6 +52,9 @@ fun NavigationGraph(
         }
         composable("switch") {
             SwitchNetworkWalletScreen(navController, walletStore)
+        }
+        composable("pin_code") {
+            PinCodeScreen(navController, walletStore)
         }
     }
 }

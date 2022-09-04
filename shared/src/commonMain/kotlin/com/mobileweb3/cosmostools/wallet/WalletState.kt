@@ -65,8 +65,13 @@ data class CreatedOrRestoredAddress(
     val derivationHDPath: Int?,
     val fullDerivationPath: String?,
     val balance: String,
-    var imported: Boolean
+    val importedStatus: ImportedStatus
 )
+
+sealed class ImportedStatus(val text: String, val backgroundColor: Long, val textColor: Long) {
+    object NewAddress : ImportedStatus("New", 0xffEEFBF0, 0xff37CC6F)
+    object ImportedAddress : ImportedStatus("Imported",0xffEBF7FF, 0xff02B1FF)
+}
 
 fun String.displayedAddress(): String {
     return "${take(12)}...${takeLast(6)}"

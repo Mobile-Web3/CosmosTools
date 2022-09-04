@@ -345,13 +345,7 @@ class WalletStore(
 
                     val allAddresses = interactor.getAllAccounts()
                     val addresses = selectedNetworks.map { network ->
-                        createAddressMethod.create(network)
-                    }.map {
-                        it.imported = allAddresses.any { account ->
-                            account.address == it.address
-                        }
-
-                        it
+                        createAddressMethod.create(network, allAddresses)
                     }
 
                     newState = oldState.copy(
@@ -459,7 +453,7 @@ class WalletStore(
 
                 launch {
                     addressesToSave.forEach { createdAddress ->
-                        if (createdAddress.imported) {
+                        if (createdAddress.importedStatus is ImportedStatus.ImportedAddress) {
                             return@forEach
                         }
 
@@ -553,11 +547,7 @@ class WalletStore(
         val allAccounts = interactor.getAllAccounts()
 
         return networks.map { network ->
-            val createdAddress = createAddressMethod.create(network)
-            val addressImported = allAccounts.any { it.address == createdAddress.address }
-            createdAddress.imported = addressImported
-
-            return@map createdAddress
+            createAddressMethod.create(network, allAccounts)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,12 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.DerivationPathSelectView
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
-import com.mobileweb3.cosmostools.android.ui.SelectedColor
 import com.mobileweb3.cosmostools.android.ui.composables.AccountAddress
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
@@ -96,44 +97,41 @@ fun DeriveWalletScreen(
                             HorizontalSpacer()
 
                             Column {
-                                when (deriveWalletState.createAddressMethod) {
-                                    is CreateAddressMethod.FromMnemonic -> {
-                                        VerticalSpacer()
-
-                                        AccountAddress(createdAddress.address)
-
-                                        if (createdAddress.fullDerivationPath != null) {
-                                            VerticalSpacer()
-
-                                            Text(text = createdAddress.fullDerivationPath!!)
-                                        }
-
-                                        VerticalSpacer()
-
-                                        Text(text = createdAddress.balance)
-                                    }
-                                    is CreateAddressMethod.FromPrivateKey -> {
-                                        VerticalSpacer()
-
-                                        AccountAddress(createdAddress.address)
-
-                                        VerticalSpacer()
-
-                                        Text(text = createdAddress.balance)
-                                    }
-                                }
-
                                 VerticalSpacer()
 
-                                val importedStatus = if (createdAddress.imported) {
-                                    "Imported"
-                                } else {
-                                    "New Address"
+                                AccountAddress(createdAddress.address)
+
+                                if (deriveWalletState.createAddressMethod is CreateAddressMethod.FromMnemonic
+                                    && createdAddress.fullDerivationPath != null
+                                ) {
+                                    VerticalSpacer()
+
+                                    Text(text = createdAddress.fullDerivationPath!!)
+
                                 }
-                                Text(
-                                    text = importedStatus,
-                                    color = SelectedColor
-                                )
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = 4.dp, bottom = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = createdAddress.balance)
+
+                                    FillSpacer()
+
+                                    Text(
+                                        text = createdAddress.importedStatus.text,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(createdAddress.importedStatus.textColor),
+                                        modifier = Modifier
+                                            .background(
+                                                color = Color(createdAddress.importedStatus.backgroundColor),
+                                                shape = RoundedCornerShape(100.dp)
+                                            )
+                                            .padding(8.dp)
+                                    )
+                                }
                             }
                         }
                     }

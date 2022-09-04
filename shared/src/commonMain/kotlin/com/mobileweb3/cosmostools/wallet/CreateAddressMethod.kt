@@ -12,7 +12,7 @@ import com.mobileweb3.cosmostools.shared.System
 
 sealed class CreateAddressMethod {
 
-    abstract fun create(network: Network): CreatedOrRestoredAddress
+    abstract fun create(network: Network, allAccounts: List<Account>): CreatedOrRestoredAddress
 
     abstract fun applyAccount(
         createdAddress: CreatedOrRestoredAddress,
@@ -25,7 +25,7 @@ sealed class CreateAddressMethod {
         private val hdPath: Int
     ) : CreateAddressMethod() {
 
-        override fun create(network: Network): CreatedOrRestoredAddress {
+        override fun create(network: Network, allAccounts: List<Account>): CreatedOrRestoredAddress {
             val address = Address.createAddressFromEntropyByNetwork(
                 network = network,
                 entropy = Utils.byteArrayToHexString(mnemonicResult.entropy),
@@ -39,7 +39,11 @@ sealed class CreateAddressMethod {
                 balance = "0.000000 ${network.assets[0].symbol}",
                 derivationHDPath = hdPath,
                 fullDerivationPath = "m/44/${network.slip44}/0/0/$hdPath",
-                imported = false
+                importedStatus = if (allAccounts.any { it.address == address }) {
+                    ImportedStatus.ImportedAddress
+                } else {
+                    ImportedStatus.NewAddress
+                }
             )
         }
 
@@ -76,7 +80,7 @@ sealed class CreateAddressMethod {
         private val privateKeyTitle: String
     ) : CreateAddressMethod() {
 
-        override fun create(network: Network): CreatedOrRestoredAddress {
+        override fun create(network: Network, allAccounts: List<Account>): CreatedOrRestoredAddress {
             val address = Address.getDpAddress(network, PrivateKey.generatePubHexFromPrivate(privateKey))
 
             return CreatedOrRestoredAddress(
@@ -85,7 +89,11 @@ sealed class CreateAddressMethod {
                 balance = "0.000000 ${network.assets[0].symbol}",
                 derivationHDPath = -1,
                 fullDerivationPath = "-1",
-                imported = false
+                importedStatus = if (allAccounts.any { it.address == address }) {
+                    ImportedStatus.ImportedAddress
+                } else {
+                    ImportedStatus.NewAddress
+                }
             )
         }
 

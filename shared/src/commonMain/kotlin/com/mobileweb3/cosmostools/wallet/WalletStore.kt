@@ -428,13 +428,13 @@ class WalletStore(
                 )
 
                 launch {
+                    val createAddressMethod = (oldState.deriveWalletState!!.createAddressMethod as CreateAddressMethod.FromMnemonic).copy(
+                        hdPath = action.hdPath
+                    )
+
                     val createdAddresses = createAddresses(
                         networks = resultNetworks.filter { it.selected }.map { it.network },
-                        createAddressMethod = CreateAddressMethod.FromMnemonic(
-                            mnemonicResult = oldState.generatedMnemonicState!!.mnemonicResult,
-                            mnemonicTitle = oldState.generatedMnemonicState.resultMnemonicTitle,
-                            hdPath = action.hdPath
-                        )
+                        createAddressMethod = createAddressMethod
                     )
 
                     state.tryEmit(

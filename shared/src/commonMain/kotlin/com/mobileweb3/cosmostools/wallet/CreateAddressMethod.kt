@@ -19,7 +19,7 @@ sealed class CreateAddressMethod {
         account: Account
     ): Account
 
-    class FromMnemonic(
+    data class FromMnemonic(
         private val mnemonicResult: MnemonicResult,
         private val mnemonicTitle: String,
         private val hdPath: Int

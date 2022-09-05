@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
 import com.mobileweb3.cosmostools.core.entity.Account
@@ -78,6 +79,8 @@ fun AccountCard(
         }
 
         if (showOptions) {
+            val uriHandler = LocalUriHandler.current
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -99,7 +102,7 @@ fun AccountCard(
                     VerticalSpacer(2.dp)
 
                     AccountIconView(AccountIcon.Explorer) {
-
+                        uriHandler.openUri(accountNetwork.getAddressExplorerLink(account.address))
                     }
                 }
             }

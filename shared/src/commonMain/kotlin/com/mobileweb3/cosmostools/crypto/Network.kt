@@ -18,6 +18,10 @@ data class Network(
     fun getLogo(): String? {
         return assets[0].logo_URIs?.png ?: assets[0].logo_URIs?.svg//logo_URIs?.png ?: logo_URIs?.svg
     }
+
+    fun getAddressExplorerLink(address: String?): String {
+        return explorers?.first { it.account_page != null }?.account_page + "/" + address
+    }
 }
 
 data class NetworkFees(

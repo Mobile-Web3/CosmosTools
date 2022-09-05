@@ -8,7 +8,7 @@ class WalletInteractor internal constructor(
     private val walletStorage: WalletStorage
 ) {
 
-    fun userHasPinCode(): Boolean = !getPinCode().isNullOrEmpty()
+    fun userHasPin(): Boolean = !getPinCode().isNullOrEmpty()
 
     fun getPinCode(): String? = walletStorage.userPin
 

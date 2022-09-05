@@ -24,7 +24,7 @@ import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.EnterPinCode
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
-import com.mobileweb3.cosmostools.wallet.PinCodeEnterState
+import com.mobileweb3.cosmostools.wallet.PinEnterState
 import com.mobileweb3.cosmostools.wallet.PinPurpose
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
@@ -51,7 +51,7 @@ fun PinCodeScreen(
         Row {
             FillSpacer()
 
-            if (pinCodeState.enterState is PinCodeEnterState.Success) {
+            if (pinCodeState.enterState is PinEnterState.Success) {
                 if (navController.currentBackStackEntry?.destination?.route == "pin_code") {
                     navController.popBackStack()
                     navController.navigate(pinCodeState.pinPurpose.nextRoute)

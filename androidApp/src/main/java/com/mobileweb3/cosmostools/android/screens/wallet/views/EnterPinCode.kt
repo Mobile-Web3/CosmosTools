@@ -20,7 +20,7 @@ import com.mobileweb3.cosmostools.android.ui.PrimaryColor
 import com.mobileweb3.cosmostools.android.ui.PrimaryColorAlpha50
 import com.mobileweb3.cosmostools.android.ui.WarningColor
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
-import com.mobileweb3.cosmostools.wallet.PinCodeEnterState
+import com.mobileweb3.cosmostools.wallet.PinEnterState
 import com.mobileweb3.cosmostools.wallet.PinState
 
 @Composable
@@ -46,7 +46,7 @@ fun EnterPinCode(
         Text(
             text = pinState.pinPurpose.message,
             textAlign = TextAlign.Center,
-            color = if (pinState.enterState is PinCodeEnterState.Error) {
+            color = if (pinState.enterState is PinEnterState.Error) {
                 WarningColor
             } else {
                 Color.White

@@ -97,7 +97,7 @@ class WalletStore(
             pinState = PinState(
                 userHasPin = false,
                 pinPurpose = PinPurpose.Set(nextRoute = ""),
-                enterState = PinCodeEnterState.WaitingForEnter
+                enterState = PinEnterState.WaitingForEnter
             )
         )
     )
@@ -109,20 +109,21 @@ class WalletStore(
     init {
         requestWalletInfo(state.value.currentAccount)
 
-        refreshPinCodeState("")
+        refreshPinState("")
     }
 
-    private fun refreshPinCodeState(nextRoute: String) {
-        val userHasPinCode = interactor.userHasPinCode()
+    private fun refreshPinState(nextRoute: String) {
+        val userHasPin = interactor.userHasPin()
 
         state.tryEmit(state.value.copy(
             pinState = state.value.pinState.copy(
-                pinPurpose = if (userHasPinCode) {
+                userHasPin = userHasPin,
+                pinPurpose = if (userHasPin) {
                     PinPurpose.Check(nextRoute = nextRoute)
                 } else {
                     PinPurpose.Set(nextRoute = nextRoute)
                 },
-                enterState = PinCodeEnterState.WaitingForEnter
+                enterState = PinEnterState.WaitingForEnter
             )
         ))
     }
@@ -148,7 +149,7 @@ class WalletStore(
 
         when (action) {
             WalletAction.CreateWallet -> {
-                refreshPinCodeState("select_networks")
+                refreshPinState("select_networks")
 
                 walletAction = WalletAction.CreateWallet
 
@@ -159,7 +160,7 @@ class WalletStore(
                 )
             }
             WalletAction.RestoreWalletByMnemonic -> {
-                refreshPinCodeState("select_networks")
+                refreshPinState("select_networks")
 
                 walletAction = WalletAction.RestoreWalletByMnemonic
 
@@ -170,7 +171,7 @@ class WalletStore(
                 )
             }
             WalletAction.RestoreWalletByPrivateKey -> {
-                refreshPinCodeState("select_networks")
+                refreshPinState("select_networks")
 
                 walletAction = WalletAction.RestoreWalletByPrivateKey
 
@@ -602,7 +603,7 @@ class WalletStore(
                                         pinPurpose = pinPurpose.copy(
                                             confirmPin = newConfirmEnteredPinCode
                                         ),
-                                        enterState = PinCodeEnterState.Success
+                                        enterState = PinEnterState.Success
                                     )
                                 } else {
                                     oldState.pinState.copy(
@@ -612,7 +613,7 @@ class WalletStore(
                                             firstPinFilled = false,
                                             message = "PINs are not equal!\nStart again please."
                                         ),
-                                        enterState = PinCodeEnterState.Error
+                                        enterState = PinEnterState.Error
                                     )
                                 }
                             }
@@ -628,7 +629,7 @@ class WalletStore(
                                         "Do not use simple sequences.\nNo way to recover this, please remember!"
                                     }
                                 ),
-                                enterState = PinCodeEnterState.WaitingForEnter
+                                enterState = PinEnterState.WaitingForEnter
                             )
                         }
                     }
@@ -639,7 +640,7 @@ class WalletStore(
                             val userPin = interactor.getPinCode()
                             if (EncryptHelper.verifyPin(newEnteredPin, userPin ?: "")) {
                                 oldState.pinState.copy(
-                                    enterState = PinCodeEnterState.Success
+                                    enterState = PinEnterState.Success
                                 )
                             } else {
                                 oldState.pinState.copy(
@@ -647,7 +648,7 @@ class WalletStore(
                                         enteredPin = "",
                                         message = "Entered PIN is not correct!\nTry again."
                                     ),
-                                    enterState = PinCodeEnterState.Error
+                                    enterState = PinEnterState.Error
                                 )
                             }
                         } else {
@@ -656,7 +657,7 @@ class WalletStore(
                                     enteredPin = newEnteredPin,
                                     message = "Please enter your PIN to continue\n"
                                 ),
-                                enterState = PinCodeEnterState.WaitingForEnter
+                                enterState = PinEnterState.WaitingForEnter
                             )
                         }
                     }

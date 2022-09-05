@@ -97,7 +97,7 @@ data class AccountWithSelection(
 data class PinState(
     val userHasPin: Boolean,
     val pinPurpose: PinPurpose,
-    val enterState: PinCodeEnterState
+    val enterState: PinEnterState
 )
 
 sealed class PinPurpose(
@@ -120,10 +120,10 @@ sealed class PinPurpose(
     ) : PinPurpose("Confirm PIN", nextRoute, message)
 }
 
-sealed class PinCodeEnterState {
-    object WaitingForEnter : PinCodeEnterState()
+sealed class PinEnterState {
+    object WaitingForEnter : PinEnterState()
 
-    object Error : PinCodeEnterState()
+    object Error : PinEnterState()
 
-    object Success : PinCodeEnterState()
+    object Success : PinEnterState()
 }

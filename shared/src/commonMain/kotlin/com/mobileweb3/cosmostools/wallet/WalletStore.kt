@@ -4,6 +4,7 @@ import com.mobileweb3.cosmostools.app.Action
 import com.mobileweb3.cosmostools.app.Effect
 import com.mobileweb3.cosmostools.app.Store
 import com.mobileweb3.cosmostools.core.entity.Account
+import com.mobileweb3.cosmostools.crypto.EncryptHelper
 import com.mobileweb3.cosmostools.crypto.Entropy
 import com.mobileweb3.cosmostools.crypto.Mnemonic
 import com.mobileweb3.cosmostools.crypto.Network
@@ -82,7 +83,7 @@ private val initMnemonic = listOf(
     "", "", "", "", "", "", "", ""
 )
 
-const val PIN_CODE_LENGTH = 4
+const val PIN_LENGTH = 4
 class WalletStore(
     private val interactor: WalletInteractor
 ) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
@@ -552,33 +553,60 @@ class WalletStore(
                 }
             }
             is WalletAction.PinCodeDeleteSymbol -> {
-                //todo
+                val newPinCodeState = when (val pinPurpose = oldState.pinState.pinPurpose) {
+                    is PinPurpose.Check -> {
+                        oldState.pinState.copy(
+                            pinPurpose = pinPurpose.copy(
+                                enteredPin = pinPurpose.enteredPin.dropLast(1)
+                            )
+                        )
+                    }
+                    is PinPurpose.Set -> {
+                        if (pinPurpose.firstPinFilled) {
+                            oldState.pinState.copy(
+                                pinPurpose = pinPurpose.copy(
+                                    confirmPin = pinPurpose.confirmPin.dropLast(1)
+                                )
+                            )
+                        } else {
+                            oldState.pinState.copy(
+                                pinPurpose = pinPurpose.copy(
+                                    firstPin = pinPurpose.firstPin.dropLast(1)
+                                )
+                            )
+                        }
+                    }
+                }
+
+                newState = oldState.copy(
+                    pinState = newPinCodeState
+                )
             }
             is WalletAction.PinCodeNewSymbol -> {
-                val newPinCodeState = when (val pinCodePurpose = oldState.pinState.pinPurpose) {
+                val newPinCodeState = when (val pinPurpose = oldState.pinState.pinPurpose) {
                     is PinPurpose.Set -> {
-                        if (pinCodePurpose.firstPinFilled) {
-                            val newConfirmEnteredPinCode = pinCodePurpose.confirmPin + action.enteredNumber
+                        if (pinPurpose.firstPinFilled) {
+                            val newConfirmEnteredPinCode = pinPurpose.confirmPin + action.enteredNumber
 
-                            if (newConfirmEnteredPinCode.length != PIN_CODE_LENGTH) {
+                            if (newConfirmEnteredPinCode.length != PIN_LENGTH) {
                                 oldState.pinState.copy(
-                                    pinPurpose = pinCodePurpose.copy(
+                                    pinPurpose = pinPurpose.copy(
                                         confirmPin = newConfirmEnteredPinCode
                                     )
                                 )
                             } else {
-                                if (newConfirmEnteredPinCode == pinCodePurpose.firstPin) {
+                                if (newConfirmEnteredPinCode == pinPurpose.firstPin) {
+                                    interactor.savePinCode(EncryptHelper.encryptPin(newConfirmEnteredPinCode))
+
                                     oldState.pinState.copy(
-                                        pinPurpose = pinCodePurpose.copy(
+                                        pinPurpose = pinPurpose.copy(
                                             confirmPin = newConfirmEnteredPinCode
                                         ),
                                         enterState = PinCodeEnterState.Success
                                     )
-
-                                    //interactor.savePinCode(newConfirmEnteredPinCode)
                                 } else {
                                     oldState.pinState.copy(
-                                        pinPurpose = pinCodePurpose.copy(
+                                        pinPurpose = pinPurpose.copy(
                                             firstPin = "",
                                             confirmPin = "",
                                             firstPinFilled = false,
@@ -589,12 +617,12 @@ class WalletStore(
                                 }
                             }
                         } else {
-                            val newFirstEnteredPinCode = pinCodePurpose.firstPin + action.enteredNumber
+                            val newFirstEnteredPin = pinPurpose.firstPin + action.enteredNumber
                             oldState.pinState.copy(
-                                pinPurpose = pinCodePurpose.copy(
-                                    firstPin = newFirstEnteredPinCode,
-                                    firstPinFilled = newFirstEnteredPinCode.length == PIN_CODE_LENGTH,
-                                    message = if (newFirstEnteredPinCode.length == PIN_CODE_LENGTH) {
+                                pinPurpose = pinPurpose.copy(
+                                    firstPin = newFirstEnteredPin,
+                                    firstPinFilled = newFirstEnteredPin.length == PIN_LENGTH,
+                                    message = if (newFirstEnteredPin.length == PIN_LENGTH) {
                                         "Repeat entered PIN\n"
                                     } else {
                                         "Do not use simple sequences.\nNo way to recover this, please remember!"
@@ -604,7 +632,34 @@ class WalletStore(
                             )
                         }
                     }
-                    is PinPurpose.Check -> TODO()
+                    is PinPurpose.Check -> {
+                        val newEnteredPin = pinPurpose.enteredPin + action.enteredNumber
+
+                        if (newEnteredPin.length == PIN_LENGTH) {
+                            val userPin = interactor.getPinCode()
+                            if (EncryptHelper.encryptPin(newEnteredPin) == userPin) {
+                                oldState.pinState.copy(
+                                    enterState = PinCodeEnterState.Success
+                                )
+                            } else {
+                                oldState.pinState.copy(
+                                    pinPurpose = pinPurpose.copy(
+                                        enteredPin = "",
+                                        message = "Entered PIN is not correct!\nTry again."
+                                    ),
+                                    enterState = PinCodeEnterState.Error
+                                )
+                            }
+                        } else {
+                            oldState.pinState.copy(
+                                pinPurpose = pinPurpose.copy(
+                                    enteredPin = newEnteredPin,
+                                    message = "Please enter your PIN to continue\n"
+                                ),
+                                enterState = PinCodeEnterState.WaitingForEnter
+                            )
+                        }
+                    }
                 }
 
                 newState = oldState.copy(

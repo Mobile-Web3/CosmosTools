@@ -93,11 +93,11 @@ fun PinCodeScreen(
                 .fillMaxWidth()
                 .height(70.dp)
         ) {
-            NumberView(number = 6, walletStore = walletStore)
+            NumberView(number = 4, walletStore = walletStore)
 
             NumberView(number = 5, walletStore = walletStore)
 
-            NumberView(number = 4, walletStore = walletStore)
+            NumberView(number = 6, walletStore = walletStore)
         }
 
         Row(

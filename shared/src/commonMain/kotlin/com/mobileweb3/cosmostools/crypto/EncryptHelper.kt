@@ -11,6 +11,8 @@ expect object EncryptHelper {
     fun EncryptResult.getEncData(): String
 
     fun EncryptResult.getIvData(): String
+
+    fun encryptPin(pin: String): String
 }
 
 class EncryptResult(var encData: ByteArray, var ivData: ByteArray)

@@ -12,12 +12,12 @@ class WalletStorage(
     private val json: Json
 ) {
 
-    var userPinCode: String?
+    var userPin: String?
         get() {
-            return settings.getStringOrNull(USER_PIN_CODE)
+            return settings.getStringOrNull(USER_PIN)
         }
         set(wallet) {
-            settings[USER_PIN_CODE] = wallet
+            settings[USER_PIN] = wallet
         }
 
     var currentNetwork: String?
@@ -93,7 +93,7 @@ class WalletStorage(
     }
 
     companion object {
-        private const val USER_PIN_CODE = "USER_PIN_CODE"
+        private const val USER_PIN = "USER_PIN_CODE"
 
         private const val CURRENT_ACCOUNT = "CURRENT_ACCOUNT"
         private const val CURRENT_NETWORK = "CURRENT_NETWORK"

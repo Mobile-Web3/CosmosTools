@@ -115,8 +115,9 @@ sealed class PinPurpose(
 
     data class Check(
         val enteredPin: String = "",
-        override val nextRoute: String
-    ) : PinPurpose("Confirm PIN", nextRoute, "Please enter your PIN to continue")
+        override val nextRoute: String,
+        override val message: String = "Please enter your PIN to continue\n"
+    ) : PinPurpose("Confirm PIN", nextRoute, message)
 }
 
 sealed class PinCodeEnterState {

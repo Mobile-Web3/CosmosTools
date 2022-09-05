@@ -10,7 +10,11 @@ class WalletInteractor internal constructor(
 
     fun userHasPinCode(): Boolean = !getPinCode().isNullOrEmpty()
 
-    fun getPinCode(): String? = walletStorage.userPinCode
+    fun getPinCode(): String? = walletStorage.userPin
+
+    fun savePinCode(pinCode: String) {
+        walletStorage.userPin = pinCode
+    }
 
     fun getCurrentNetwork(): Network =
         mockNetworks.find { it.pretty_name == (walletStorage.currentNetwork ?: "Cosmos Hub") }!!

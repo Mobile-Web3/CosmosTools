@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
 import com.mobileweb3.cosmostools.android.ui.WarningColor
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
-import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
 import com.mobileweb3.cosmostools.wallet.PinCodeEnterState
 import com.mobileweb3.cosmostools.wallet.PinState
 
@@ -43,10 +42,6 @@ fun EnterPinCode(
                 } else {
                     NumberPinCodeCell(number = symbol)
                 }
-
-                if (index != 3) {
-                    HorizontalSpacer(24.dp)
-                }
             }
 
             FillSpacer()
@@ -67,25 +62,35 @@ fun EnterPinCode(
 
 @Composable
 private fun EmptyPinCodeCell() {
-    Text(
-        text = "",
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .height(16.dp)
-            .width(16.dp)
-            .background(
-                color = PrimaryColor,
-                shape = RoundedCornerShape(100.dp)
-            )
-    )
+    Column(
+        modifier = Modifier.width(70.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "",
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .height(16.dp)
+                .width(16.dp)
+                .background(
+                    color = PrimaryColor,
+                    shape = RoundedCornerShape(100.dp)
+                )
+        )
+    }
 }
 
 @Composable
 private fun NumberPinCodeCell(number: Char) {
-    Text(
-        text = number.toString(),
-        fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.h4,
-        color = PrimaryColor
-    )
+    Column(
+        modifier = Modifier.width(70.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = number.toString(),
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.h4,
+            color = PrimaryColor
+        )
+    }
 }

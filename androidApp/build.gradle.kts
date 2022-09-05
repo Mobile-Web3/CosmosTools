@@ -100,5 +100,6 @@ android {
         implementation(libs.landscapist.glide)
 
         implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+        implementation("androidx.compose.material:material-icons-extended:1.2.1")
     }
 }

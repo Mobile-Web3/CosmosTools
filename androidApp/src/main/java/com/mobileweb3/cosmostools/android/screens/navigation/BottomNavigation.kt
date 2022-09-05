@@ -22,7 +22,7 @@ fun BottomNavigation(navController: NavController, bottomNavItems: List<BottomNa
         val currentRoute = navBackStackEntry?.destination?.route
         bottomNavItems.forEach { item ->
             BottomNavigationItem(
-                icon = { Icon(painterResource(id = item.iconRes), contentDescription = item.title) },
+                icon = { Icon(imageVector = item.vector, contentDescription = item.title) },
                 label = { Text(text = item.title, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 selectedContentColor = MaterialTheme.colors.primary,
                 unselectedContentColor = Color.White,

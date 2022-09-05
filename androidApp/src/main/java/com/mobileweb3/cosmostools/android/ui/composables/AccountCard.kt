@@ -9,21 +9,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.mobileweb3.cosmostools.android.ui.PrimaryColor
 import com.mobileweb3.cosmostools.core.entity.Account
-import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.mockNetworks
-import com.mobileweb3.cosmostools.wallet.displayedAddress
 
 @Composable
 fun AccountCard(
     account: Account,
+    showOptions: Boolean,
     clickable: Boolean = true,
     modifier: Modifier = Modifier,
     borderColor: Color,
@@ -70,5 +76,58 @@ fun AccountCard(
             }
             VerticalSpacer()
         }
+
+        if (showOptions) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                FillSpacer()
+
+                Column {
+                    AccountIconView(AccountIcon.Delete) {
+
+                    }
+
+                    VerticalSpacer(2.dp)
+
+                    AccountIconView(AccountIcon.See) {
+
+                    }
+
+                    VerticalSpacer(2.dp)
+
+                    AccountIconView(AccountIcon.Explorer) {
+
+                    }
+                }
+            }
+        }
     }
+}
+
+@Composable
+fun AccountIconView(
+    accountIcon: AccountIcon,
+    onClickListener: () -> Unit
+) {
+    Icon(
+        modifier = Modifier
+            .padding(2.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .clickable { onClickListener() }
+            .border(1.dp, Color.White, RoundedCornerShape(10.dp))
+            .background(PrimaryColor, RoundedCornerShape(10.dp))
+            .padding(6.dp),
+        imageVector = accountIcon.vector,
+        contentDescription = accountIcon.contentDescription,
+        tint = Color.White
+    )
+}
+
+sealed class AccountIcon(val vector: ImageVector, val contentDescription: String) {
+    object Delete : AccountIcon(Icons.Filled.Delete, "Delete")
+    object See : AccountIcon(Icons.Filled.Visibility, "Source")
+    object Explorer : AccountIcon(Icons.Filled.Explore, "Explorer")
 }

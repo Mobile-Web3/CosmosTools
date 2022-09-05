@@ -75,13 +75,16 @@ fun WalletScreen(
 
             EmptyWalletView(walletStore, navController)
         } else {
+            val currentAccount = state.value.currentAccount!!
+
             AddWalletView(walletStore, navController)
 
             VerticalSpacer()
 
             val openAddressDialog = remember { mutableStateOf(false) }
             AccountCard(
-                account = state.value.currentAccount!!,
+                account = currentAccount,
+                showOptions = true,
                 clickable = true,
                 modifier = Modifier.padding(horizontal = 16.dp),
                 borderColor = PrimaryColor,
@@ -90,7 +93,7 @@ fun WalletScreen(
                 }
             )
 
-            val accountAddress = state.value.currentAccount!!.address!!
+            val accountAddress = currentAccount.address!!
             val qrCodeBitMatrix = QRCodeWriter().encode(accountAddress, BarcodeFormat.QR_CODE, 400, 400)
             val qrCodeBitmap = qrCodeBitMatrix.toBitmap()
 

@@ -34,6 +34,7 @@ fun SelectAccountsGrid(
             }
             AccountCard(
                 account = item.account,
+                showOptions = false,
                 modifier = Modifier.padding(2.dp),
                 borderColor = selectedColor,
                 onAccountClicked = {

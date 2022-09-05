@@ -13,6 +13,8 @@ expect object EncryptHelper {
     fun EncryptResult.getIvData(): String
 
     fun encryptPin(pin: String): String
+
+    fun verifyPin(pin: String, signatureStr: String): Boolean
 }
 
 class EncryptResult(var encData: ByteArray, var ivData: ByteArray)

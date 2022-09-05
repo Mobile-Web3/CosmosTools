@@ -637,7 +637,7 @@ class WalletStore(
 
                         if (newEnteredPin.length == PIN_LENGTH) {
                             val userPin = interactor.getPinCode()
-                            if (EncryptHelper.encryptPin(newEnteredPin) == userPin) {
+                            if (EncryptHelper.verifyPin(newEnteredPin, userPin ?: "")) {
                                 oldState.pinState.copy(
                                     enterState = PinCodeEnterState.Success
                                 )

@@ -123,4 +123,17 @@ actual object EncryptHelper {
         val signature = s.sign()
         return Base64.encodeToString(signature, Base64.DEFAULT)
     }
+
+    actual fun verifyPin(pin: String, signatureStr: String): Boolean {
+        val alias = "PASSWORD_KEY"
+        val data = pin.toByteArray()
+        val keyStore = loadKeyStore()
+
+        val signature: ByteArray = Base64.decode(signatureStr, Base64.DEFAULT)
+        val s = Signature.getInstance(SIGNATURE_SHA256withRSA)
+
+        s.initVerify(keyStore.getCertificate(alias))
+        s.update(data)
+        return s.verify(signature)
+    }
 }

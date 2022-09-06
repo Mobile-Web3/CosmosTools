@@ -134,8 +134,31 @@ data class RevealSourceState(
     val addressSource: AddressSource
 )
 
-sealed class AddressSource {
-    class Mnemonic(val words: List<String>) : AddressSource()
+sealed class AddressSource(val helpMessage: String) {
 
-    class PrivateKey(val key: String) : AddressSource()
+    abstract fun getAsString(): String
+
+    class Mnemonic(val words: List<String>) : AddressSource(
+        helpMessage = ""
+    ) {
+
+        override fun getAsString(): String {
+            return words.joinToString(" ")
+        }
+    }
+
+    class PrivateKey(val key: String) : AddressSource(
+        helpMessage = "Private key is only used to restore the currently selected wallet." +
+                "We highly recommend keeping your mnemonics offline in a secure location, and never share your" +
+                "mnemonics with anyone else.\n\n" +
+                "Private key is NOT mnemonics." +
+                "You MUST backup your mnemonics if you have one." +
+                "You need your mnemonics to restore your original" +
+                "wallets if you created them with mnemonics."
+    ) {
+
+        override fun getAsString(): String {
+            return key
+        }
+    }
 }

@@ -62,9 +62,9 @@ sealed class CreateAddressMethod {
                 spec = encryptResult.getIvData()
                 address = createdAddress.address
                 network = createdAddress.network.pretty_name
-                hasPrivateKey = true
+                hasPrivateKey = false
                 fromMnemonic = true
-                mnemonicTitle = this@FromMnemonic.mnemonicTitle
+                sourceTitle = this@FromMnemonic.mnemonicTitle
                 fullDerivationPath = createdAddress.fullDerivationPath
                 derivationHDPath = createdAddress.derivationHDPath
                 mnemonicSize = mnemonicResult.mnemonic.filter { it.isNotBlank() && it.isNotEmpty() }.size
@@ -111,7 +111,7 @@ sealed class CreateAddressMethod {
                 network = createdAddress.network.pretty_name
                 hasPrivateKey = true
                 fromMnemonic = false
-                mnemonicTitle = this@FromPrivateKey.privateKeyTitle
+                sourceTitle = this@FromPrivateKey.privateKeyTitle
                 importTime = System.getCurrentMillis()
             }
         }

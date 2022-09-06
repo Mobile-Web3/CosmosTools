@@ -8,6 +8,12 @@ expect object EncryptHelper {
         withAuth: Boolean
     ): EncryptResult
 
+    fun decrypt(
+        alias: String,
+        resource: String,
+        spec: String
+    ): String
+
     fun EncryptResult.getEncData(): String
 
     fun EncryptResult.getIvData(): String

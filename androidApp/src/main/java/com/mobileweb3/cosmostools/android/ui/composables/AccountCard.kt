@@ -34,6 +34,7 @@ fun AccountCard(
     clickable: Boolean = true,
     modifier: Modifier = Modifier,
     borderColor: Color,
+    onSourceClicked: (() -> Unit)? = null,
     onAccountClicked: ((Account) -> Unit)?
 ) {
     //todo выпилится, когда сети будут приходить с сервака
@@ -66,7 +67,7 @@ fun AccountCard(
             VerticalSpacer()
 
             Text(
-                text = account.mnemonicTitle ?: "",
+                text = account.sourceTitle ?: "",
                 maxLines = 1
             )
 
@@ -95,8 +96,8 @@ fun AccountCard(
 
                     VerticalSpacer(2.dp)
 
-                    AccountIconView(AccountIcon.See) {
-
+                    AccountIconView(AccountIcon.Source) {
+                        onSourceClicked?.invoke()
                     }
 
                     VerticalSpacer(2.dp)
@@ -131,6 +132,6 @@ fun AccountIconView(
 
 sealed class AccountIcon(val vector: ImageVector, val contentDescription: String) {
     object Delete : AccountIcon(Icons.Filled.Delete, "Delete")
-    object See : AccountIcon(Icons.Filled.Visibility, "Source")
+    object Source : AccountIcon(Icons.Filled.Visibility, "Source")
     object Explorer : AccountIcon(Icons.Filled.Explore, "Explorer")
 }

@@ -88,6 +88,10 @@ fun WalletScreen(
                 clickable = true,
                 modifier = Modifier.padding(horizontal = 16.dp),
                 borderColor = PrimaryColor,
+                onSourceClicked = {
+                    walletStore.dispatch(WalletAction.RevealAddressSource(currentAccount))
+                    navController.navigate("pin_code")
+                },
                 onAccountClicked = {
                     openAddressDialog.value = true
                 }

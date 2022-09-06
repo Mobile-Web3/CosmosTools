@@ -6,11 +6,13 @@ import android.util.Base64
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.KeyStore.PrivateKeyEntry
+import java.security.KeyStore.SecretKeyEntry
 import java.security.KeyStoreException
 import java.security.Signature
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
 actual object EncryptHelper {
 
@@ -24,9 +26,18 @@ actual object EncryptHelper {
         resource: String,
         withAuth: Boolean
     ): EncryptResult {
-        val cipher: Cipher = getEncodeCipher(alias, withAuth)
+        val cipher = getEncodeCipher(alias, withAuth)
         val end = cipher.doFinal(resource.toByteArray(charset("UTF-8")))
         return EncryptResult(end, cipher.iv)
+    }
+
+    actual fun decrypt(
+        alias: String,
+        resource: String,
+        spec: String
+    ): String {
+        val cipher = getDecodeCipher(alias, Base64.decode(spec, Base64.DEFAULT))
+        return String(cipher!!.doFinal(Base64.decode(resource, Base64.DEFAULT)))
     }
 
     actual fun EncryptResult.getEncData(): String {
@@ -44,6 +55,16 @@ actual object EncryptHelper {
         val key = keyStore.getKey(alias, null) as SecretKey
         encCipher.init(Cipher.ENCRYPT_MODE, key)
         return encCipher
+    }
+
+    @Throws(Exception::class)
+    private fun getDecodeCipher(alias: String, iv: ByteArray): Cipher? {
+        val decCipher = Cipher.getInstance(TRANSFORMATION)
+        val keyStore: KeyStore = loadKeyStore()
+        val secretKey = (keyStore.getEntry(alias, null) as SecretKeyEntry).secretKey
+        val spec = GCMParameterSpec(128, iv)
+        decCipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
+        return decCipher
     }
 
     private fun loadKeyStore(): KeyStore {

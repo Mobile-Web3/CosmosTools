@@ -6,13 +6,17 @@ import com.mobileweb3.cosmostools.app.Store
 import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.crypto.EncryptHelper
 import com.mobileweb3.cosmostools.crypto.Entropy
+import com.mobileweb3.cosmostools.crypto.HexUtils
 import com.mobileweb3.cosmostools.crypto.Mnemonic
 import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.PrivateKey
 import com.mobileweb3.cosmostools.crypto.mockNetworks
 import io.github.aakira.napier.Napier
+import io.ktor.utils.io.charsets.Charset
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -71,6 +75,7 @@ sealed class WalletAction : Action {
 
     object PinCodeDeleteSymbol : WalletAction()
 
+    class RevealAddressSource(val account: Account) : WalletAction()
 }
 
 sealed class WalletSideEffect : Effect {
@@ -666,6 +671,46 @@ class WalletStore(
                 newState = oldState.copy(
                     pinState = newPinCodeState
                 )
+            }
+            is WalletAction.RevealAddressSource -> {
+                val account = action.account
+
+                val addressSourceString = if (account.fromMnemonic == true) {
+                    "Mnemonic"
+                } else {
+                    "Private key"
+                }
+
+                newState = oldState.copy(
+                    pinState = oldState.pinState.copy(
+                        pinPurpose = PinPurpose.Check(
+                            nextRoute = "reveal_source",
+                            message = "Enter PIN to reveal your $addressSourceString"
+                        ),
+                        enterState = PinEnterState.WaitingForEnter
+                    )
+                )
+
+                launch {
+                    val addressSource = if (account.fromMnemonic == true) {
+                        val entropy = EncryptHelper.decrypt(
+                            alias = "MNEMONIC_KEY" + account.uuid,
+                            resource = account.resource!!,
+                            spec = account.spec!!
+                        )
+
+                        AddressSource.Mnemonic(Mnemonic.getRandomMnemonic(HexUtils.toBytes(entropy)))
+                    } else {
+                        AddressSource.PrivateKey("")
+                    }
+
+                    state.tryEmit(state.value.copy(
+                        revealSourceState = RevealSourceState(
+                            account = account,
+                            addressSource = addressSource
+                        )
+                    ))
+                }
             }
         }
 

@@ -13,7 +13,8 @@ data class WalletState(
     val restorePrivateKeyState: RestorePrivateKeyState? = null,
     val deriveWalletState: DeriveWalletState? = null,
     val switchWalletState: SwitchWalletState? = null,
-    val pinState: PinState
+    val pinState: PinState,
+    val revealSourceState: RevealSourceState? = null
 ) : State
 
 data class AddressSelectionState(
@@ -126,4 +127,15 @@ sealed class PinEnterState {
     object Error : PinEnterState()
 
     object Success : PinEnterState()
+}
+
+data class RevealSourceState(
+    val account: Account,
+    val addressSource: AddressSource
+)
+
+sealed class AddressSource {
+    class Mnemonic(val words: List<String>) : AddressSource()
+
+    class PrivateKey(val key: String) : AddressSource()
 }

@@ -12,11 +12,8 @@ import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.PrivateKey
 import com.mobileweb3.cosmostools.crypto.mockNetworks
 import io.github.aakira.napier.Napier
-import io.ktor.utils.io.charsets.Charset
-import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -701,7 +698,17 @@ class WalletStore(
 
                         AddressSource.Mnemonic(Mnemonic.getRandomMnemonic(HexUtils.toBytes(entropy)))
                     } else {
-                        AddressSource.PrivateKey("")
+                        var privateKey = EncryptHelper.decrypt(
+                            alias = "PRIVATE_KEY" + account.uuid,
+                            resource = account.resource!!,
+                            spec = account.spec!!
+                        )
+
+                        if (!privateKey.startsWith("0x") && !privateKey.startsWith("0X")) {
+                            privateKey = "0x$privateKey"
+                        }
+
+                        AddressSource.PrivateKey(privateKey)
                     }
 
                     state.tryEmit(state.value.copy(

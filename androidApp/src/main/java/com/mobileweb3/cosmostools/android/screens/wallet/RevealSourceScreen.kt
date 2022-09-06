@@ -13,5 +13,14 @@ fun RevealSourceScreen(
     walletStore: WalletStore
 ) {
     val state = walletStore.observeState().collectAsState()
-    Text(text = (state.value.revealSourceState!!.addressSource as AddressSource.Mnemonic).words.joinToString(" "))
+
+    if (state.value.revealSourceState == null) {
+        return
+    }
+
+    val source = when (val addressSource = state.value.revealSourceState!!.addressSource) {
+        is AddressSource.Mnemonic -> addressSource.words.joinToString(" ")
+        is AddressSource.PrivateKey -> addressSource.key
+    }
+    Text(text = source)
 }

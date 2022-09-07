@@ -139,7 +139,9 @@ sealed class AddressSource(val helpMessage: String) {
     abstract fun getAsString(): String
 
     class Mnemonic(val words: List<String>) : AddressSource(
-        helpMessage = ""
+        helpMessage = "Warning! Losing your mnemonics could lead to loss of your assets. " +
+                "We highly recommend keeping your mnemonics offline in a secure location. " +
+                "Never share your mnemonics with anyone else!"
     ) {
 
         override fun getAsString(): String {

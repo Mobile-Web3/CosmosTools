@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -22,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicEditableTitle
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicGrid
-import com.mobileweb3.cosmostools.android.ui.WarningColor
+import com.mobileweb3.cosmostools.android.screens.wallet.views.WarningTextView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
@@ -58,14 +57,10 @@ fun GeneratedMnemonicScreen(
             MnemonicGrid(words = it.mnemonicResult.mnemonic)
         }
 
-        Text(
+        WarningTextView(
             text = "Warning! Losing your mnemonics could lead to loss of your assets. " +
                     "We highly recommend keeping your mnemonics offline in a secure location. " +
-                    "Never share your mnemonics with anyone else!",
-            color = WarningColor,
-            style = MaterialTheme.typography.subtitle1,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
+                    "Never share your mnemonics with anyone else!"
         )
 
         FillSpacer()

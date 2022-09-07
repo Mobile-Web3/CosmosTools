@@ -17,16 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
+import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicGrid
+import com.mobileweb3.cosmostools.android.screens.wallet.views.WarningTextView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
 import com.mobileweb3.cosmostools.wallet.AddressSource
-import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -58,7 +57,7 @@ fun RevealSourceScreen(
 
         when (val addressSource = revealState.addressSource) {
             is AddressSource.Mnemonic -> {
-                addressSource.words.joinToString(" ")
+                MnemonicGrid(words = addressSource.words)
             }
             is AddressSource.PrivateKey -> {
                 OutlinedTextField(
@@ -73,10 +72,8 @@ fun RevealSourceScreen(
             }
         }
 
-        Text(
-            text = revealState.addressSource.helpMessage,
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            textAlign = TextAlign.Center
+        WarningTextView(
+            text = revealState.addressSource.helpMessage
         )
 
         FillSpacer()
@@ -95,6 +92,18 @@ fun RevealSourceScreen(
             ) {
                 Text(
                     text = "Copy",
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier.padding(4.dp)
+                )
+            }
+
+            Button(
+                onClick = {
+
+                }
+            ) {
+                Text(
+                    text = "Delete",
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )

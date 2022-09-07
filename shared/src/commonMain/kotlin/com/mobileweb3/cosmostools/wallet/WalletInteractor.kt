@@ -54,7 +54,16 @@ class WalletInteractor internal constructor(
         walletStorage.saveAccount(account)
     }
 
-    suspend fun deleteAccount(id: Long) = walletStorage.deleteAccount(id)
+    fun deleteAccount(id: Long) = walletStorage.deleteAccount(id)
+
+    fun deleteAccountsBySource(sourceTitle: String?) {
+        walletStorage
+            .getAllAccounts()
+            .filter { account -> account.sourceTitle == sourceTitle }
+            .forEach { account ->
+                deleteAccount(account.id)
+            }
+    }
 
     companion object
 }

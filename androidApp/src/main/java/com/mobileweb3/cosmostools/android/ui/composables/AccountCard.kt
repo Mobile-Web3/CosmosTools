@@ -34,7 +34,8 @@ fun AccountCard(
     clickable: Boolean = true,
     modifier: Modifier = Modifier,
     borderColor: Color,
-    onSourceClicked: (() -> Unit)? = null,
+    onRevealSourceClicked: (() -> Unit)? = null,
+    onDeleteClicked: (() -> Unit)? = null,
     onAccountClicked: ((Account) -> Unit)?
 ) {
     //todo выпилится, когда сети будут приходить с сервака
@@ -91,13 +92,13 @@ fun AccountCard(
 
                 Column {
                     AccountIconView(AccountIcon.Delete) {
-
+                        onDeleteClicked?.invoke()
                     }
 
                     VerticalSpacer(2.dp)
 
                     AccountIconView(AccountIcon.Source) {
-                        onSourceClicked?.invoke()
+                        onRevealSourceClicked?.invoke()
                     }
 
                     VerticalSpacer(2.dp)

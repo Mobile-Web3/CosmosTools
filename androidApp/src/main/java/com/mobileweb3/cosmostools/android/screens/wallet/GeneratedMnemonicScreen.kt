@@ -25,7 +25,9 @@ import com.mobileweb3.cosmostools.android.screens.wallet.views.WarningTextView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
+import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
+import com.mobileweb3.cosmostools.android.utils.toast
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -71,11 +73,9 @@ fun GeneratedMnemonicScreen(
         ) {
             Button(
                 onClick = {
-                    Toast
-                        .makeText(context, "Mnemonic copied!", Toast.LENGTH_LONG)
-                        .show()
+                    context.toast("Mnemonic copied!")
                     state.value.generatedMnemonicState?.mnemonicResult?.mnemonic?.let {
-                        clipboardManager.setText(AnnotatedString(it.joinToString(" ")))
+                        clipboardManager.copy(it.joinToString(" "))
                     }
                 }
             ) {

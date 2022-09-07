@@ -77,7 +77,7 @@ class WalletStorage(
         accountsDiskCache = accountsMemCache
     }
 
-    suspend fun deleteAccount(id: Long) {
+    fun deleteAccount(id: Long) {
         accountsMemCache.remove(id)
         accountsDiskCache = accountsMemCache
     }

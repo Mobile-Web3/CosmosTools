@@ -13,19 +13,26 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.mobileweb3.cosmostools.android.screens.wallet.views.DeleteWalletDialog
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicGrid
 import com.mobileweb3.cosmostools.android.screens.wallet.views.WarningTextView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
+import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
+import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
+import com.mobileweb3.cosmostools.android.utils.toast
 import com.mobileweb3.cosmostools.wallet.AddressSource
+import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -84,10 +91,8 @@ fun RevealSourceScreen(
         ) {
             Button(
                 onClick = {
-                    Toast
-                        .makeText(context, "${revealState.account.sourceTitle} copied!", Toast.LENGTH_LONG)
-                        .show()
-                    clipboardManager.setText(AnnotatedString(revealState.addressSource.getAsString()))
+                    context.toast("${revealState.account.sourceTitle} copied!")
+                    clipboardManager.copy(revealState.addressSource.getAsString())
                 }
             ) {
                 Text(
@@ -97,15 +102,40 @@ fun RevealSourceScreen(
                 )
             }
 
+            HorizontalSpacer()
+
+            val openDeleteDialog = remember { mutableStateOf(false) }
             Button(
                 onClick = {
-
+                    openDeleteDialog.value = true
                 }
             ) {
                 Text(
                     text = "Delete",
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
+                )
+            }
+
+            if (openDeleteDialog.value) {
+                DeleteWalletDialog(
+                    accountAddress = revealState.account.address,
+                    sourceTitle = revealState.account.sourceTitle,
+                    onDeleteAddress = {
+                        walletStore.dispatch(WalletAction.DeleteAddress(revealState.account))
+                        context.toast("Address deleted!")
+                        openDeleteDialog.value = false
+                        navController.popBackStack()
+                    },
+                    onDeleteSource = {
+                        walletStore.dispatch(WalletAction.DeleteSource(revealState.account))
+                        context.toast("${revealState.account.sourceTitle} deleted!")
+                        openDeleteDialog.value = false
+                        navController.popBackStack()
+                    },
+                    onDismissRequest = {
+                        openDeleteDialog.value = false
+                    }
                 )
             }
         }

@@ -73,6 +73,10 @@ sealed class WalletAction : Action {
     object PinCodeDeleteSymbol : WalletAction()
 
     class RevealAddressSource(val account: Account) : WalletAction()
+
+    class DeleteAddress(val account: Account) : WalletAction()
+
+    class DeleteSource(val account: Account) : WalletAction()
 }
 
 sealed class WalletSideEffect : Effect {
@@ -718,6 +722,20 @@ class WalletStore(
                         )
                     ))
                 }
+            }
+            is WalletAction.DeleteAddress -> {
+                interactor.deleteAccount(action.account.id)
+
+                newState = oldState.copy(
+                    currentAccount = null
+                )
+            }
+            is WalletAction.DeleteSource -> {
+                interactor.deleteAccountsBySource(action.account.sourceTitle)
+
+                newState = oldState.copy(
+                    currentAccount = null
+                )
             }
         }
 

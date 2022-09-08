@@ -1,9 +1,6 @@
 package com.mobileweb3.cosmostools.core
 
 import android.content.Context
-import com.mobileweb3.cosmostools.core.datasource.network.SomethingLoader
-import com.mobileweb3.cosmostools.core.datasource.storage.SomethingStorage
-import com.mobileweb3.cosmostools.interactor.MainInteractor
 import com.mobileweb3.cosmostools.wallet.WalletInteractor
 import com.mobileweb3.cosmostools.wallet.WalletStorage
 import com.russhwolf.settings.AndroidSettings

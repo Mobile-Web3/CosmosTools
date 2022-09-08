@@ -16,6 +16,14 @@ import com.mobileweb3.cosmostools.android.screens.wallet.RevealSourceScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.SelectNetworksScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.SwitchNetworkWalletScreen
 import com.mobileweb3.cosmostools.android.screens.wallet.WalletScreen
+import com.mobileweb3.cosmostools.resources.Routes.DERIVE_WALLET_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.GENERATED_MNEMONIC_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.PIN_CODE_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.RESTORE_MNEMONIC_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.RESTORE_PRIVATE_KEY_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.REVEAL_SOURCE_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.SELECT_NETWORKS_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -36,28 +44,28 @@ fun NavigationGraph(
         composable(BottomNavItem.Wallet.route) {
             WalletScreen(navController, walletStore)
         }
-        composable("select_networks") {
+        composable(SELECT_NETWORKS_SCREEN_ROUTE) {
             SelectNetworksScreen(navController, walletStore)
         }
-        composable("generated_mnemonic") {
+        composable(GENERATED_MNEMONIC_SCREEN_ROUTE) {
             GeneratedMnemonicScreen(navController, walletStore)
         }
-        composable("derive_wallet") {
-            DeriveWalletScreen(navController, walletStore)
-        }
-        composable("restore_mnemonic") {
+        composable(RESTORE_MNEMONIC_SCREEN_ROUTE) {
             RestoreMnemonicScreen(navController, walletStore)
         }
-        composable("restore_private_key") {
+        composable(RESTORE_PRIVATE_KEY_SCREEN_ROUTE) {
             RestorePrivateKeyScreen(navController, walletStore)
         }
-        composable("switch") {
+        composable(DERIVE_WALLET_SCREEN_ROUTE) {
+            DeriveWalletScreen(navController, walletStore)
+        }
+        composable(SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE) {
             SwitchNetworkWalletScreen(navController, walletStore)
         }
-        composable("pin_code") {
+        composable(PIN_CODE_SCREEN_ROUTE) {
             PinCodeScreen(navController, walletStore)
         }
-        composable("reveal_source") {
+        composable(REVEAL_SOURCE_SCREEN_ROUTE) {
             RevealSourceScreen(navController, walletStore)
         }
     }

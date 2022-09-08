@@ -28,7 +28,8 @@ import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toBitmap
-import com.mobileweb3.cosmostools.android.utils.toast
+import com.mobileweb3.cosmostools.resources.Routes.PIN_CODE_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -69,7 +70,7 @@ fun WalletScreen(
                 borderColor = PrimaryColor,
                 onRevealSourceClicked = {
                     walletStore.dispatch(WalletAction.RevealAddressSource(currentAccount))
-                    navController.navigate("pin_code")
+                    navController.navigate(PIN_CODE_SCREEN_ROUTE)
                 },
                 onDeleteClicked = {
                     openDeleteDialog.value = true
@@ -91,18 +92,10 @@ fun WalletScreen(
 
             if (openDeleteDialog.value) {
                 DeleteWalletDialog(
-                    accountAddress = accountAddress,
+                    currentAccount = currentAccount,
+                    walletStore = walletStore,
+                    context = context,
                     sourceTitle = currentAccount.sourceTitle,
-                    onDeleteAddress = {
-                        walletStore.dispatch(WalletAction.DeleteAddress(currentAccount))
-                        context.toast("Address deleted!")
-                        openDeleteDialog.value = false
-                    },
-                    onDeleteSource = {
-                        walletStore.dispatch(WalletAction.DeleteSource(currentAccount))
-                        context.toast("${currentAccount.sourceTitle} deleted!")
-                        openDeleteDialog.value = false
-                    },
                     onDismissRequest = { openDeleteDialog.value = false }
                 )
             }
@@ -125,7 +118,7 @@ fun WalletScreen(
                     onPaletteChanged = null,
                     onNetworkClicked = {
                         walletStore.dispatch(WalletAction.OpenSwitchNetwork)
-                        navController.navigate("switch")
+                        navController.navigate(SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE)
                     }
                 )
             }

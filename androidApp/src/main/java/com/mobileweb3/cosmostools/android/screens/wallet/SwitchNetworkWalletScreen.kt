@@ -21,6 +21,8 @@ import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
 import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
+import com.mobileweb3.cosmostools.resources.Strings.SELECT_NETWORKS_SCREEN_SEARCH_HINT
+import com.mobileweb3.cosmostools.resources.Strings.SWITCH_NETWORK_WALLET_SCREEN_TITLE
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -38,12 +40,12 @@ fun SwitchNetworkWalletScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Toolbar(
-            title = "Switch Network and Wallet",
+            title = SWITCH_NETWORK_WALLET_SCREEN_TITLE,
             navController = navHostController
         )
 
         EditableTextField(
-            title = "Search network by title",
+            title = SELECT_NETWORKS_SCREEN_SEARCH_HINT,
             onTextChanged = {
                 walletStore.dispatch(WalletAction.SearchNetworkQueryChanged(it))
             }

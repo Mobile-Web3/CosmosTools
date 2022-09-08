@@ -95,7 +95,6 @@ class WalletStorage(
     companion object {
         private const val USER_PIN = "USER_PIN_CODE"
 
-        private const val CURRENT_ACCOUNT = "CURRENT_ACCOUNT"
         private const val CURRENT_NETWORK = "CURRENT_NETWORK"
 
         private const val MNEMONIC_COUNTER = "MNEMONIC_COUNTER"
@@ -103,7 +102,6 @@ class WalletStorage(
 
         private const val KEY_ACCOUNT_CACHE = "KEY_ACCOUNT_CACHE"
         private const val KEY_ACCOUNT_ID_CACHE = "KEY_ACCOUNT_ID_CACHE"
-        private const val KEY_LAST_ACCOUNT_ID_CACHE = "KEY_LAST_ACCOUNT_ID_CACHE"
         private const val KEY_SELECTED_ACCOUNT_NETWORK_CACHE = "KEY_SELECTED_ACCOUNT_NETWORK_CACHE"
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -29,6 +27,10 @@ import androidx.core.content.FileProvider
 import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
 import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.toast
+import com.mobileweb3.cosmostools.resources.Strings.COPY_ADDRESS_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.SHARE_QR_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.SHARE_TEXT_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.SUCCESS_COPY_MESSAGE
 import com.mobileweb3.cosmostools.wallet.displayedAddress
 import java.io.File
 import java.io.FileOutputStream
@@ -79,7 +81,7 @@ fun ShareAndCopyDialog(
                         saveAndShareQr(context, accountAddress, qrCodeBitmap)
                     }
                 ) {
-                    Text("Share QR")
+                    Text(SHARE_QR_OPTION)
                 }
 
                 HorizontalSpacer(4.dp)
@@ -97,7 +99,7 @@ fun ShareAndCopyDialog(
                         ContextCompat.startActivity(context, shareIntent, Bundle())
                     }
                 ) {
-                    Text("Share text")
+                    Text(SHARE_TEXT_OPTION)
                 }
 
                 HorizontalSpacer(4.dp)
@@ -105,11 +107,11 @@ fun ShareAndCopyDialog(
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        context.toast("Address copied!")
+                        context.toast(SUCCESS_COPY_MESSAGE)
                         clipboardManager.copy(accountAddress)
                     }
                 ) {
-                    Text("Copy")
+                    Text(COPY_ADDRESS_OPTION)
                 }
             }
         }

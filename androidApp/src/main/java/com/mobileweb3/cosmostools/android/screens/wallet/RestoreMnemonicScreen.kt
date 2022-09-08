@@ -18,11 +18,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicEditableGrid
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicEditableTitle
-import com.mobileweb3.cosmostools.android.ui.WarningColor
+import com.mobileweb3.cosmostools.android.screens.wallet.views.WarningTextView
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
+import com.mobileweb3.cosmostools.resources.Routes.DERIVE_WALLET_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Strings.DERIVE_WALLET_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.MNEMONIC_WARNING
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_MNEMONIC_CLEAR_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_MNEMONIC_PASTE_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_MNEMONIC_SCREEN_TITLE
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -43,7 +49,7 @@ fun RestoreMnemonicScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Toolbar(
-            title = "Enter Mnemonic",
+            title = RESTORE_MNEMONIC_SCREEN_TITLE,
             navController = navController
         )
 
@@ -53,15 +59,7 @@ fun RestoreMnemonicScreen(
             MnemonicEditableGrid(walletStore)
         }
 
-        Text(
-            text = "Warning! Losing your mnemonics could lead to loss of your assets. " +
-                    "We highly recommend keeping your mnemonics offline in a secure location. " +
-                    "Never share your mnemonics with anyone else!",
-            color = WarningColor,
-            style = MaterialTheme.typography.subtitle1,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-        )
+        WarningTextView(MNEMONIC_WARNING)
 
         FillSpacer()
 
@@ -75,7 +73,7 @@ fun RestoreMnemonicScreen(
                 }
             ) {
                 Text(
-                    text = "Clear",
+                    text = RESTORE_MNEMONIC_CLEAR_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )
@@ -90,7 +88,7 @@ fun RestoreMnemonicScreen(
                 }
             ) {
                 Text(
-                    text = "Paste",
+                    text = RESTORE_MNEMONIC_PASTE_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )
@@ -100,11 +98,11 @@ fun RestoreMnemonicScreen(
                 enabled = state.value.restoreMnemonicState?.deriveWalletEnabled ?: false,
                 onClick = {
                     walletStore.dispatch(WalletAction.DeriveWallet)
-                    navController.navigate("derive_wallet")
+                    navController.navigate(DERIVE_WALLET_SCREEN_ROUTE)
                 }
             ) {
                 Text(
-                    text = "Derive Wallet",
+                    text = DERIVE_WALLET_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )

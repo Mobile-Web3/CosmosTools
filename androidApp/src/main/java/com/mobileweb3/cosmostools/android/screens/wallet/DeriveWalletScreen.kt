@@ -32,6 +32,9 @@ import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
+import com.mobileweb3.cosmostools.resources.Routes.WALLET_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Strings.DERIVE_SCREEN_GENERATING_ADDRESSES_MESSAGE
+import com.mobileweb3.cosmostools.resources.Strings.DERIVE_SCREEN_SAVE_ADDRESSES_OPTION
 import com.mobileweb3.cosmostools.wallet.CreateAddressMethod
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
@@ -67,7 +70,7 @@ fun DeriveWalletScreen(
 
         if (state.value.deriveWalletState?.generating == true) {
             Text(
-                text = "Generating addresses...",
+                text = DERIVE_SCREEN_GENERATING_ADDRESSES_MESSAGE,
                 modifier = Modifier.padding(8.dp),
                 fontWeight = FontWeight.Bold
             )
@@ -147,11 +150,11 @@ fun DeriveWalletScreen(
                 Button(
                     onClick = {
                         walletStore.dispatch(WalletAction.SaveGeneratedAddressesButtonClicked)
-                        navController.popBackStack("wallet", false)
+                        navController.popBackStack(WALLET_SCREEN_ROUTE, false)
                     }
                 ) {
                     Text(
-                        text = "Save wallets",
+                        text = DERIVE_SCREEN_SAVE_ADDRESSES_OPTION,
                         style = MaterialTheme.typography.body1,
                         modifier = Modifier.padding(4.dp)
                     )

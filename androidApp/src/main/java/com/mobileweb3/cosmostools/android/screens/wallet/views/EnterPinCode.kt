@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -73,24 +72,9 @@ private fun PinCodeCell(filled: Boolean) {
                         PrimaryColor
                     } else {
                         PrimaryColorAlpha50
-                   },
+                    },
                     shape = RoundedCornerShape(100.dp)
                 )
-        )
-    }
-}
-
-@Composable
-private fun NumberPinCodeCell(number: Char) {
-    Column(
-        modifier = Modifier.width(70.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = number.toString(),
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.h4,
-            color = PrimaryColor
         )
     }
 }

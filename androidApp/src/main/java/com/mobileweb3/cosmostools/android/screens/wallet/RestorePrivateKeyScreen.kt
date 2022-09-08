@@ -26,6 +26,14 @@ import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
+import com.mobileweb3.cosmostools.resources.Routes.DERIVE_WALLET_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_PRIVATE_KEY_SCREEN_EDITABLE_HINT
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_PRIVATE_KEY_SCREEN_EDITABLE_TITLE_HINT
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_PRIVATE_KEY_SCREEN_MESSAGE
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_PRIVATE_KEY_SCREEN_PASTE_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_PRIVATE_KEY_SCREEN_RESTORE_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_PRIVATE_KEY_SCREEN_SCAN_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_PRIVATE_KEY_SCREEN_TITLE
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -46,24 +54,26 @@ fun RestorePrivateKeyScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Toolbar(
-            title = "Enter Private Key",
+            title = RESTORE_PRIVATE_KEY_SCREEN_TITLE,
             navController = navController
         )
 
-        EditableTextField("Private key title", state.value.restorePrivateKeyState?.generatedPrivateKeyTitle ?: "") {
+        EditableTextField(
+            title = RESTORE_PRIVATE_KEY_SCREEN_EDITABLE_TITLE_HINT,
+            initText = state.value.restorePrivateKeyState?.generatedPrivateKeyTitle ?: ""
+        ) {
             walletStore.dispatch(WalletAction.PrivateKeyTitleEdited(it))
         }
 
         VerticalSpacer(16.dp)
 
         Text(
-            text = "Please enter your private key.\n" +
-                    "The private key is a 66-digit string starting with 0x",
+            text = RESTORE_PRIVATE_KEY_SCREEN_MESSAGE,
             style = MaterialTheme.typography.body1
         )
 
         EditableTextFieldWithoutRemember(
-            title = "Insert Private key",
+            title = RESTORE_PRIVATE_KEY_SCREEN_EDITABLE_HINT,
             text = state.value.restorePrivateKeyState?.enteredPrivateKey ?: "",
             maxLines = 3
         ) {
@@ -92,7 +102,7 @@ fun RestorePrivateKeyScreen(
                 }
             ) {
                 Text(
-                    text = "Scan",
+                    text = RESTORE_PRIVATE_KEY_SCREEN_SCAN_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )
@@ -107,7 +117,7 @@ fun RestorePrivateKeyScreen(
                 }
             ) {
                 Text(
-                    text = "Paste",
+                    text = RESTORE_PRIVATE_KEY_SCREEN_PASTE_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )
@@ -118,11 +128,11 @@ fun RestorePrivateKeyScreen(
                         && state.value.restorePrivateKeyState?.enteredPrivateKey?.isNotEmpty() ?: false,
                 onClick = {
                     walletStore.dispatch(WalletAction.RestoreFromPrivateKey)
-                    navController.navigate("derive_wallet")
+                    navController.navigate(DERIVE_WALLET_SCREEN_ROUTE)
                 }
             ) {
                 Text(
-                    text = "Restore",
+                    text = RESTORE_PRIVATE_KEY_SCREEN_RESTORE_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )

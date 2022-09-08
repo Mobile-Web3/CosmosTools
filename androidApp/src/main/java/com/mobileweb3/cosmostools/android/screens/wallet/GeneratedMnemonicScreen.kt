@@ -1,6 +1,5 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicEditableTitle
@@ -28,6 +26,12 @@ import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toast
+import com.mobileweb3.cosmostools.resources.Routes.DERIVE_WALLET_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Strings.COPY_MNEMONIC_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.DERIVE_WALLET_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.GENERATED_MNEMONIC_SCREEN_TITLE
+import com.mobileweb3.cosmostools.resources.Strings.MNEMONIC_WARNING
+import com.mobileweb3.cosmostools.resources.Strings.SUCCESS_COPY_MNEMONIC
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -49,7 +53,7 @@ fun GeneratedMnemonicScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Toolbar(
-            title = "Generated Mnemonic",
+            title = GENERATED_MNEMONIC_SCREEN_TITLE,
             navController = navController
         )
 
@@ -59,11 +63,7 @@ fun GeneratedMnemonicScreen(
             MnemonicGrid(words = it.mnemonicResult.mnemonic)
         }
 
-        WarningTextView(
-            text = "Warning! Losing your mnemonics could lead to loss of your assets. " +
-                    "We highly recommend keeping your mnemonics offline in a secure location. " +
-                    "Never share your mnemonics with anyone else!"
-        )
+        WarningTextView(MNEMONIC_WARNING)
 
         FillSpacer()
 
@@ -73,14 +73,14 @@ fun GeneratedMnemonicScreen(
         ) {
             Button(
                 onClick = {
-                    context.toast("Mnemonic copied!")
+                    context.toast(SUCCESS_COPY_MNEMONIC)
                     state.value.generatedMnemonicState?.mnemonicResult?.mnemonic?.let {
                         clipboardManager.copy(it.joinToString(" "))
                     }
                 }
             ) {
                 Text(
-                    text = "Copy Mnemonic",
+                    text = COPY_MNEMONIC_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )
@@ -89,11 +89,11 @@ fun GeneratedMnemonicScreen(
             Button(
                 onClick = {
                     walletStore.dispatch(WalletAction.DeriveWallet)
-                    navController.navigate("derive_wallet")
+                    navController.navigate(DERIVE_WALLET_SCREEN_ROUTE)
                 }
             ) {
                 Text(
-                    text = "Derive Wallet",
+                    text = DERIVE_WALLET_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )

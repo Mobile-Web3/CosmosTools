@@ -14,8 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-
-private val paths = listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+import com.mobileweb3.cosmostools.resources.Constants.DERIVATION_PATHS
+import com.mobileweb3.cosmostools.resources.Strings.SELECT_DERIVE_PATH_MESSAGE
 
 @Composable
 fun DerivationPathSelectView(
@@ -39,13 +39,13 @@ fun DerivationPathSelectView(
         Column {
             OutlinedTextField(
                 readOnly = true,
-                value = "HD derivation path: ${path.value}",
+                value = SELECT_DERIVE_PATH_MESSAGE + path.value,
                 onValueChange = { path.value = it.toInt() },
                 modifier = Modifier.fillMaxWidth()
             )
             DropdownHDPathSelection(
                 requestToOpen = isOpen.value,
-                paths = paths,
+                paths = DERIVATION_PATHS,
                 openCloseOfDropDownList,
                 userSelectedString
             )

@@ -22,6 +22,10 @@ import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
 import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
+import com.mobileweb3.cosmostools.resources.Strings.SELECT_NETWORKS_SCREEN_SEARCH_HINT
+import com.mobileweb3.cosmostools.resources.Strings.SELECT_NETWORKS_SCREEN_SELECT_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.SELECT_NETWORKS_SCREEN_TITLE
+import com.mobileweb3.cosmostools.resources.Strings.SELECT_NETWORKS_SCREEN_UNSELECT_OPTION
 import com.mobileweb3.cosmostools.wallet.AddressSelectionState
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
@@ -42,7 +46,7 @@ fun SelectNetworksScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Toolbar(
-            title = "Select Networks",
+            title = SELECT_NETWORKS_SCREEN_TITLE,
             navController = navController
         )
 
@@ -68,7 +72,7 @@ fun ColumnScope.SelectNetworksContent(
     )
 
     EditableTextField(
-        title = "Search network by title",
+        title = SELECT_NETWORKS_SCREEN_SEARCH_HINT,
         onTextChanged = {
             walletStore.dispatch(WalletAction.SearchNetworkQueryChanged(it))
         }
@@ -94,7 +98,7 @@ fun ColumnScope.SelectNetworksContent(
             }
         ) {
             Text(
-                text = "Unselect All",
+                text = SELECT_NETWORKS_SCREEN_UNSELECT_OPTION,
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(4.dp)
             )
@@ -106,7 +110,7 @@ fun ColumnScope.SelectNetworksContent(
             }
         ) {
             Text(
-                text = "Select All",
+                text = SELECT_NETWORKS_SCREEN_SELECT_OPTION,
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(4.dp)
             )

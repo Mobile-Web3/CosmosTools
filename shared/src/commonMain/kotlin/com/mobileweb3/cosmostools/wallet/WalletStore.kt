@@ -11,6 +11,12 @@ import com.mobileweb3.cosmostools.crypto.Mnemonic
 import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.PrivateKey
 import com.mobileweb3.cosmostools.crypto.mockNetworks
+import com.mobileweb3.cosmostools.resources.Constants.PIN_LENGTH
+import com.mobileweb3.cosmostools.resources.Routes.GENERATED_MNEMONIC_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.RESTORE_MNEMONIC_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.RESTORE_PRIVATE_KEY_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.REVEAL_SOURCE_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.SELECT_NETWORKS_SCREEN_ROUTE
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -89,7 +95,6 @@ private val initMnemonic = listOf(
     "", "", "", "", "", "", "", ""
 )
 
-const val PIN_LENGTH = 4
 class WalletStore(
     private val interactor: WalletInteractor
 ) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
@@ -155,36 +160,36 @@ class WalletStore(
 
         when (action) {
             WalletAction.CreateWallet -> {
-                refreshPinState("select_networks")
+                refreshPinState(SELECT_NETWORKS_SCREEN_ROUTE)
 
                 walletAction = WalletAction.CreateWallet
 
                 initSelectNetworks(
                     description = "Select networks for which addresses will be created from a single mnemonic:",
                     action = "Create",
-                    nextRoute = "generated_mnemonic"
+                    nextRoute = GENERATED_MNEMONIC_SCREEN_ROUTE
                 )
             }
             WalletAction.RestoreWalletByMnemonic -> {
-                refreshPinState("select_networks")
+                refreshPinState(SELECT_NETWORKS_SCREEN_ROUTE)
 
                 walletAction = WalletAction.RestoreWalletByMnemonic
 
                 initSelectNetworks(
                     description = "Select networks for which addresses will be restored from entered mnemonic:",
                     action = "Restore",
-                    nextRoute = "restore_mnemonic"
+                    nextRoute = RESTORE_MNEMONIC_SCREEN_ROUTE
                 )
             }
             WalletAction.RestoreWalletByPrivateKey -> {
-                refreshPinState("select_networks")
+                refreshPinState(SELECT_NETWORKS_SCREEN_ROUTE)
 
                 walletAction = WalletAction.RestoreWalletByPrivateKey
 
                 initSelectNetworks(
                     description = "Select networks for which addresses will be restored from private key:",
                     action = "Restore",
-                    nextRoute = "restore_private_key"
+                    nextRoute = RESTORE_PRIVATE_KEY_SCREEN_ROUTE
                 )
             }
             is WalletAction.SearchNetworkQueryChanged -> {
@@ -468,7 +473,7 @@ class WalletStore(
 
                     state.tryEmit(
                         state.value.copy(
-                            deriveWalletState = oldState.deriveWalletState?.copy(
+                            deriveWalletState = oldState.deriveWalletState.copy(
                                 generating = false,
                                 derivationHDPath = action.hdPath,
                                 resultAddresses = createdAddresses
@@ -685,7 +690,7 @@ class WalletStore(
                 newState = oldState.copy(
                     pinState = oldState.pinState.copy(
                         pinPurpose = PinPurpose.Check(
-                            nextRoute = "reveal_source",
+                            nextRoute = REVEAL_SOURCE_SCREEN_ROUTE,
                             message = "Enter PIN to reveal your $addressSourceString"
                         ),
                         enterState = PinEnterState.WaitingForEnter

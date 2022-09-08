@@ -1,6 +1,5 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.DeleteWalletDialog
@@ -31,8 +29,10 @@ import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toast
+import com.mobileweb3.cosmostools.resources.Strings.REVEAL_SOURCE_SCREEN_COPY_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.REVEAL_SOURCE_SCREEN_DELETE_OPTION
+import com.mobileweb3.cosmostools.resources.Strings.SUCCESS_REVEAL_SOURCE_SCREEN_COPY_OPTION
 import com.mobileweb3.cosmostools.wallet.AddressSource
-import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -91,12 +91,12 @@ fun RevealSourceScreen(
         ) {
             Button(
                 onClick = {
-                    context.toast("${revealState.account.sourceTitle} copied!")
+                    context.toast(revealState.account.sourceTitle + SUCCESS_REVEAL_SOURCE_SCREEN_COPY_OPTION)
                     clipboardManager.copy(revealState.addressSource.getAsString())
                 }
             ) {
                 Text(
-                    text = "Copy",
+                    text = REVEAL_SOURCE_SCREEN_COPY_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )
@@ -111,7 +111,7 @@ fun RevealSourceScreen(
                 }
             ) {
                 Text(
-                    text = "Delete",
+                    text = REVEAL_SOURCE_SCREEN_DELETE_OPTION,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(4.dp)
                 )
@@ -119,18 +119,11 @@ fun RevealSourceScreen(
 
             if (openDeleteDialog.value) {
                 DeleteWalletDialog(
-                    accountAddress = revealState.account.address,
+                    currentAccount = revealState.account,
                     sourceTitle = revealState.account.sourceTitle,
-                    onDeleteAddress = {
-                        walletStore.dispatch(WalletAction.DeleteAddress(revealState.account))
-                        context.toast("Address deleted!")
-                        openDeleteDialog.value = false
-                        navController.popBackStack()
-                    },
-                    onDeleteSource = {
-                        walletStore.dispatch(WalletAction.DeleteSource(revealState.account))
-                        context.toast("${revealState.account.sourceTitle} deleted!")
-                        openDeleteDialog.value = false
+                    walletStore = walletStore,
+                    context = context,
+                    onOptionPressed = {
                         navController.popBackStack()
                     },
                     onDismissRequest = {

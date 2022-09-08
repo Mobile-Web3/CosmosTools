@@ -9,9 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
@@ -25,10 +23,7 @@ import com.mobileweb3.cosmostools.android.screens.navigation.BottomNavItem
 import com.mobileweb3.cosmostools.android.screens.navigation.BottomNavigation
 import com.mobileweb3.cosmostools.android.screens.navigation.NavigationGraph
 import com.mobileweb3.cosmostools.android.ui.AppTheme
-import com.mobileweb3.cosmostools.app.MainSideEffect
-import com.mobileweb3.cosmostools.app.MainStore
 import com.mobileweb3.cosmostools.wallet.WalletStore
-import kotlinx.coroutines.flow.filterIsInstance
 import org.koin.android.ext.android.inject
 
 class AppActivity : ComponentActivity() {
@@ -49,20 +44,7 @@ class AppActivity : ComponentActivity() {
                 ProvideWindowInsets {
                     val scaffoldState = rememberScaffoldState()
 
-                    val store: MainStore by inject()
-                    val message = store.observeSideEffect()
-                        .filterIsInstance<MainSideEffect.Message>()
-                        .collectAsState(null)
-
                     val walletStore: WalletStore by inject()
-
-                    LaunchedEffect(message.value) {
-                        message.value?.let {
-                            scaffoldState.snackbarHostState.showSnackbar(
-                                it.text
-                            )
-                        }
-                    }
 
                     val bottomNavItems = listOf(
                         BottomNavItem.Validators,

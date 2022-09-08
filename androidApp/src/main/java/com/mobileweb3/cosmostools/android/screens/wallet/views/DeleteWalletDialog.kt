@@ -1,5 +1,6 @@
 package com.mobileweb3.cosmostools.android.screens.wallet.views
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,15 +18,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.mobileweb3.cosmostools.android.ui.composables.HorizontalSpacer
+import com.mobileweb3.cosmostools.android.utils.toast
+import com.mobileweb3.cosmostools.core.entity.Account
+import com.mobileweb3.cosmostools.resources.Strings
+import com.mobileweb3.cosmostools.resources.Strings.DELETE_WALLET_DIALOG_MESSAGE_PT1
+import com.mobileweb3.cosmostools.resources.Strings.DELETE_WALLET_DIALOG_MESSAGE_PT2
+import com.mobileweb3.cosmostools.resources.Strings.DELETE_WALLET_DIALOG_OPTION_ADDRESS
+import com.mobileweb3.cosmostools.resources.Strings.DELETE_WALLET_DIALOG_OPTION_SOURCE
+import com.mobileweb3.cosmostools.resources.Strings.DELETE_WALLET_DIALOG_TITLE
+import com.mobileweb3.cosmostools.wallet.WalletAction
+import com.mobileweb3.cosmostools.wallet.WalletStore
 import com.mobileweb3.cosmostools.wallet.displayedAddress
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DeleteWalletDialog(
-    accountAddress: String?,
+    currentAccount: Account,
     sourceTitle: String?,
-    onDeleteAddress: () -> Unit,
-    onDeleteSource: () -> Unit,
+    walletStore: WalletStore,
+    context: Context,
+    onOptionPressed: (() -> Unit)? = null,
     onDismissRequest: () -> Unit
 ) {
     AlertDialog(
@@ -37,7 +49,7 @@ fun DeleteWalletDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Delete Wallet",
+                    text = DELETE_WALLET_DIALOG_TITLE,
                     style = MaterialTheme.typography.h6,
                     fontWeight = FontWeight.Bold
                 )
@@ -49,8 +61,8 @@ fun DeleteWalletDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Do you want to just delete address ${accountAddress?.displayedAddress()}" +
-                            " or delete all addresses created from $sourceTitle?"
+                    text = DELETE_WALLET_DIALOG_MESSAGE_PT1 + currentAccount.address?.displayedAddress() +
+                            DELETE_WALLET_DIALOG_MESSAGE_PT2 + sourceTitle
                 )
             }
         },
@@ -61,10 +73,13 @@ fun DeleteWalletDialog(
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        onDeleteAddress.invoke()
+                        walletStore.dispatch(WalletAction.DeleteAddress(currentAccount))
+                        context.toast(Strings.DELETE_WALLET_DIALOG_SUCCESS_ADDRESS_DELETE)
+                        onOptionPressed?.invoke()
+                        onDismissRequest()
                     }
                 ) {
-                    Text("Delete address")
+                    Text(DELETE_WALLET_DIALOG_OPTION_ADDRESS)
                 }
 
                 HorizontalSpacer(4.dp)
@@ -72,11 +87,14 @@ fun DeleteWalletDialog(
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        onDeleteSource.invoke()
+                        walletStore.dispatch(WalletAction.DeleteSource(currentAccount))
+                        context.toast(currentAccount.sourceTitle + Strings.DELETE_WALLET_DIALOG_SUCCESS_SOURCE_DELETE)
+                        onOptionPressed?.invoke()
+                        onDismissRequest()
                     }
                 ) {
                     Text(
-                        "Delete $sourceTitle",
+                        text = DELETE_WALLET_DIALOG_OPTION_SOURCE + sourceTitle,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

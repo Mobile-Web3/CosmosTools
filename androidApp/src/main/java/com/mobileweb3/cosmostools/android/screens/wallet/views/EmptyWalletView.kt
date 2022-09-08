@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import com.mobileweb3.cosmostools.resources.Strings.EMPTY_WALLET_SCREEN_MESSAGE
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -16,9 +17,7 @@ fun EmptyWalletView(
     navController: NavController
 ) {
     Text(
-        text = "You don't have wallet yet!\n" +
-                "Create new or import existing wallet\nby following easy steps.\n" +
-                "We don't store your mnemonic phrases\nand private keys!",
+        text = EMPTY_WALLET_SCREEN_MESSAGE,
         style = MaterialTheme.typography.body1,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth()

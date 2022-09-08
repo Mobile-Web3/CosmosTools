@@ -3,6 +3,8 @@ package com.mobileweb3.cosmostools.wallet
 import com.mobileweb3.cosmostools.app.State
 import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.crypto.Network
+import com.mobileweb3.cosmostools.resources.Strings.MNEMONIC_WARNING
+import com.mobileweb3.cosmostools.resources.Strings.REVEAL_PRIVATE_KEY_MESSAGE
 
 data class WalletState(
     val currentNetwork: Network?,
@@ -139,9 +141,7 @@ sealed class AddressSource(val helpMessage: String) {
     abstract fun getAsString(): String
 
     class Mnemonic(val words: List<String>) : AddressSource(
-        helpMessage = "Warning! Losing your mnemonics could lead to loss of your assets. " +
-                "We highly recommend keeping your mnemonics offline in a secure location. " +
-                "Never share your mnemonics with anyone else!"
+        helpMessage = MNEMONIC_WARNING
     ) {
 
         override fun getAsString(): String {
@@ -150,13 +150,7 @@ sealed class AddressSource(val helpMessage: String) {
     }
 
     class PrivateKey(val key: String) : AddressSource(
-        helpMessage = "Private key is only used to restore the currently selected wallet." +
-                "We highly recommend keeping your mnemonics offline in a secure location, and never share your" +
-                "mnemonics with anyone else.\n\n" +
-                "Private key is NOT mnemonics." +
-                "You MUST backup your mnemonics if you have one." +
-                "You need your mnemonics to restore your original" +
-                "wallets if you created them with mnemonics."
+        helpMessage = REVEAL_PRIVATE_KEY_MESSAGE
     ) {
 
         override fun getAsString(): String {

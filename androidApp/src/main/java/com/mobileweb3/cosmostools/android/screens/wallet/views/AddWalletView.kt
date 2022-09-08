@@ -5,6 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.mobileweb3.cosmostools.resources.Routes.PIN_CODE_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Routes.SELECT_NETWORKS_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Strings.CREATE_WALLET_OPTION_TITLE
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_WALLET_FROM_MNEMONIC_OPTION_TITLE
+import com.mobileweb3.cosmostools.resources.Strings.RESTORE_WALLET_FROM_PRIVATE_KEY_OPTION_TITLE
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -17,15 +22,15 @@ fun AddWalletView(
 
     val pinCodeCheckBeforeSelectNetworks = {
         if (state.value.pinState.userHasPin) {
-            navController.navigate("select_networks")
+            navController.navigate(SELECT_NETWORKS_SCREEN_ROUTE)
         } else {
-            navController.navigate("pin_code")
+            navController.navigate(PIN_CODE_SCREEN_ROUTE)
         }
     }
 
     Row {
         AddWalletItem(
-            title = "Create wallet",
+            title = CREATE_WALLET_OPTION_TITLE,
             onClick = {
                 walletStore.dispatch(WalletAction.CreateWallet)
                 pinCodeCheckBeforeSelectNetworks.invoke()
@@ -34,7 +39,7 @@ fun AddWalletView(
         )
 
         AddWalletItem(
-            title = "Mnemonic",
+            title = RESTORE_WALLET_FROM_MNEMONIC_OPTION_TITLE,
             onClick = {
                 walletStore.dispatch(WalletAction.RestoreWalletByMnemonic)
                 pinCodeCheckBeforeSelectNetworks.invoke()
@@ -43,7 +48,7 @@ fun AddWalletView(
         )
 
         AddWalletItem(
-            title = "Private Key",
+            title = RESTORE_WALLET_FROM_PRIVATE_KEY_OPTION_TITLE,
             onClick = {
                 walletStore.dispatch(WalletAction.RestoreWalletByPrivateKey)
                 pinCodeCheckBeforeSelectNetworks.invoke()

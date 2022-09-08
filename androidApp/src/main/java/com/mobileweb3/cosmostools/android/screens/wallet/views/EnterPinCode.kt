@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
 import com.mobileweb3.cosmostools.android.ui.PrimaryColorAlpha50
+import com.mobileweb3.cosmostools.android.ui.SelectedColor
 import com.mobileweb3.cosmostools.android.ui.WarningColor
 import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
 import com.mobileweb3.cosmostools.wallet.PinEnterState
@@ -36,7 +37,20 @@ fun EnterPinCode(
 
             for (index in 0..3) {
                 val symbol = enteredPinCode.getOrNull(index)
-                PinCodeCell(symbol != null)
+
+                val color = when {
+                    pinState.enterState == PinEnterState.Success -> {
+                        SelectedColor
+                    }
+                    symbol != null -> {
+                        PrimaryColor
+                    }
+                    else -> {
+                        PrimaryColorAlpha50
+                    }
+                }
+
+                PinCodeCell(color)
             }
 
             FillSpacer()
@@ -56,7 +70,7 @@ fun EnterPinCode(
 }
 
 @Composable
-private fun PinCodeCell(filled: Boolean) {
+private fun PinCodeCell(color: Color) {
     Column(
         modifier = Modifier.width(50.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -68,11 +82,7 @@ private fun PinCodeCell(filled: Boolean) {
                 .height(16.dp)
                 .width(16.dp)
                 .background(
-                    color = if (filled) {
-                        PrimaryColor
-                    } else {
-                        PrimaryColorAlpha50
-                    },
+                    color,
                     shape = RoundedCornerShape(100.dp)
                 )
         )

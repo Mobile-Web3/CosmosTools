@@ -52,13 +52,6 @@ fun PinCodeScreen(
         Row {
             FillSpacer()
 
-            if (pinCodeState.enterState is PinEnterState.Success) {
-                if (navController.currentBackStackEntry?.destination?.route == PIN_CODE_SCREEN_ROUTE) {
-                    navController.popBackStack()
-                    navController.navigate(pinCodeState.pinPurpose.nextRoute)
-                }
-            }
-
             when (pinCodePurpose) {
                 is PinPurpose.Set -> {
                     if (pinCodePurpose.firstPinFilled) {
@@ -69,6 +62,13 @@ fun PinCodeScreen(
                 }
                 is PinPurpose.Check -> {
                     EnterPinCode(pinCodePurpose.enteredPin, pinCodeState)
+                }
+            }
+
+            if (pinCodeState.enterState is PinEnterState.Success) {
+                if (navController.currentBackStackEntry?.destination?.route == PIN_CODE_SCREEN_ROUTE) {
+                    navController.popBackStack()
+                    navController.navigate(pinCodeState.pinPurpose.nextRoute)
                 }
             }
 

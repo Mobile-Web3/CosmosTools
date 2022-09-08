@@ -651,6 +651,10 @@ class WalletStore(
                             val userPin = interactor.getPinCode()
                             if (EncryptHelper.verifyPin(newEnteredPin, userPin ?: "")) {
                                 oldState.pinState.copy(
+                                    pinPurpose = pinPurpose.copy(
+                                        enteredPin = newEnteredPin,
+                                        message = "\n"
+                                    ),
                                     enterState = PinEnterState.Success
                                 )
                             } else {
@@ -666,9 +670,7 @@ class WalletStore(
                             oldState.pinState.copy(
                                 pinPurpose = pinPurpose.copy(
                                     enteredPin = newEnteredPin,
-                                    message = "Please enter your PIN to continue\n"
-                                ),
-                                enterState = PinEnterState.WaitingForEnter
+                                )
                             )
                         }
                     }
@@ -691,7 +693,7 @@ class WalletStore(
                     pinState = oldState.pinState.copy(
                         pinPurpose = PinPurpose.Check(
                             nextRoute = REVEAL_SOURCE_SCREEN_ROUTE,
-                            message = "Enter PIN to reveal your $addressSourceString"
+                            message = "Enter PIN to reveal your $addressSourceString\n"
                         ),
                         enterState = PinEnterState.WaitingForEnter
                     )

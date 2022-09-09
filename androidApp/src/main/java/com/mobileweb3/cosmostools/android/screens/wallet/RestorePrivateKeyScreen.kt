@@ -85,7 +85,9 @@ fun RestorePrivateKeyScreen(
         val scanLauncher = rememberLauncherForActivityResult(
             contract = ScanContract(),
             onResult = { result ->
-                walletStore.dispatch(WalletAction.PrivateKeyEdited(result.contents))
+                if (result.contents != null) {
+                    walletStore.dispatch(WalletAction.PrivateKeyEdited(result.contents))
+                }
             }
         )
         Row(

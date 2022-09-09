@@ -17,13 +17,12 @@ import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 fun AddWalletItem(
     title: String,
     onClick: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .clickable { onClick.invoke() }
-
             .padding(vertical = 8.dp)
     ) {
         Icon(painterResource(id = R.drawable.ic_add_wallet), contentDescription = title)

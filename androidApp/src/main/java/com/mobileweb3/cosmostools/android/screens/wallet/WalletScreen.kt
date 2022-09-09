@@ -56,7 +56,7 @@ fun WalletScreen(
         } else {
             val currentAccount = state.value.currentAccount!!
 
-            AddWalletView(walletStore, navController)
+            AddWalletView(walletStore, navController, showAsColumn = false)
 
             VerticalSpacer()
 

@@ -110,7 +110,6 @@ fun DeriveWalletScreen(
                                     VerticalSpacer()
 
                                     Text(text = createdAddress.fullDerivationPath!!)
-
                                 }
 
                                 Row(

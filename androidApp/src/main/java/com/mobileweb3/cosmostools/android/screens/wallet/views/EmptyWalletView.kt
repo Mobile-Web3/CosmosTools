@@ -23,5 +23,5 @@ fun EmptyWalletView(
         modifier = Modifier.fillMaxWidth()
     )
 
-    AddWalletView(walletStore, navController)
+    AddWalletView(walletStore, navController, showAsColumn = false)
 }

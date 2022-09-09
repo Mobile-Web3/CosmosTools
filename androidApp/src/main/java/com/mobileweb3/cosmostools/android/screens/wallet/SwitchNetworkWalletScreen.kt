@@ -12,9 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.mobileweb3.cosmostools.android.screens.wallet.views.AddWalletView
 import com.mobileweb3.cosmostools.android.screens.wallet.views.SelectAccountsGrid
 import com.mobileweb3.cosmostools.android.screens.wallet.views.SelectNetworksGrid
 import com.mobileweb3.cosmostools.android.ui.composables.EditableTextField
@@ -69,17 +70,39 @@ fun SwitchNetworkWalletScreen(
 
             HorizontalSpacer()
 
-            SelectAccountsGrid(
-                accounts = state.value.switchWalletState?.accounts,
-                columnsCount = 1,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f)
-                    .padding(end = 16.dp),
-                onAccountClicked = { account, selected ->
-                    walletStore.dispatch(WalletAction.SwitchAccount(account))
+            if (state.value.switchWalletState?.accounts.isNullOrEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        text = "You do not have wallets in ${state.value.currentNetwork?.pretty_name} network. Create one!",
+                        textAlign = TextAlign.Center
+                    )
+
+                    VerticalSpacer()
+
+                    AddWalletView(
+                        walletStore = walletStore,
+                        navController = navHostController,
+                        showAsColumn = true
+                    )
                 }
-            )
+            } else {
+                SelectAccountsGrid(
+                    accounts = state.value.switchWalletState?.accounts,
+                    columnsCount = 1,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .padding(end = 16.dp),
+                    onAccountClicked = { account, selected ->
+                        walletStore.dispatch(WalletAction.SwitchAccount(account))
+                    }
+                )
+            }
         }
     }
 }

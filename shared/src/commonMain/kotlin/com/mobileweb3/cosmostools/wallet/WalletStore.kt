@@ -565,33 +565,23 @@ class WalletStore(
                 }
             }
             is WalletAction.PinCodeDeleteSymbol -> {
-                val newPinCodeState = when (val pinPurpose = oldState.pinState.pinPurpose) {
+                val refreshedPinPurpose = when (val pinPurpose = oldState.pinState.pinPurpose) {
                     is PinPurpose.Check -> {
-                        oldState.pinState.copy(
-                            pinPurpose = pinPurpose.copy(
-                                enteredPin = pinPurpose.enteredPin.dropLast(1)
-                            )
-                        )
+                        pinPurpose.copy(enteredPin = pinPurpose.enteredPin.dropLast(1))
                     }
                     is PinPurpose.Set -> {
                         if (pinPurpose.firstPinFilled) {
-                            oldState.pinState.copy(
-                                pinPurpose = pinPurpose.copy(
-                                    confirmPin = pinPurpose.confirmPin.dropLast(1)
-                                )
-                            )
+                            pinPurpose.copy(confirmPin = pinPurpose.confirmPin.dropLast(1))
                         } else {
-                            oldState.pinState.copy(
-                                pinPurpose = pinPurpose.copy(
-                                    firstPin = pinPurpose.firstPin.dropLast(1)
-                                )
-                            )
+                            pinPurpose.copy(firstPin = pinPurpose.firstPin.dropLast(1))
                         }
                     }
                 }
 
                 newState = oldState.copy(
-                    pinState = newPinCodeState
+                    pinState = oldState.pinState.copy(
+                        pinPurpose = refreshedPinPurpose
+                    )
                 )
             }
             is WalletAction.PinCodeNewSymbol -> {
@@ -608,7 +598,8 @@ class WalletStore(
                                 )
                             } else {
                                 if (newConfirmEnteredPinCode == pinPurpose.firstPin) {
-                                    interactor.savePinCode(EncryptHelper.encryptPin(newConfirmEnteredPinCode))
+                                    val pinToSave = EncryptHelper.encryptPin(newConfirmEnteredPinCode)
+                                    interactor.savePinCode(pinToSave)
 
                                     oldState.pinState.copy(
                                         pinPurpose = pinPurpose.copy(
@@ -649,7 +640,10 @@ class WalletStore(
 
                         if (newEnteredPin.length == PIN_LENGTH) {
                             val userPin = interactor.getPinCode()
-                            if (EncryptHelper.verifyPin(newEnteredPin, userPin ?: "")) {
+
+                            val verify = EncryptHelper.verifyPin(newEnteredPin, userPin!!)
+
+                            if (verify) {
                                 oldState.pinState.copy(
                                     pinPurpose = pinPurpose.copy(
                                         enteredPin = newEnteredPin,

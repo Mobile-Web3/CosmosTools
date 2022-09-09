@@ -33,7 +33,7 @@ fun EditableTextFieldWithoutRemember(
             if (text.isNotEmpty()) {
                 IconButton(
                     onClick = {
-                        onTextChanged.invoke(text)
+                        onTextChanged.invoke("")
                     }
                 ) {
                     Icon(

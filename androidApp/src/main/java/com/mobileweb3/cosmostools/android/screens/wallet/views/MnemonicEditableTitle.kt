@@ -8,12 +8,12 @@ import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
 fun MnemonicEditableTitle(
-    title: String,
+    title: String?,
     walletStore: WalletStore
 ) {
     EditableTextField(
         title = MNEMONIC_EDITABLE_FIELD_HINT,
-        initText = title,
+        initText = title ?: "",
         onTextChanged = {
             walletStore.dispatch(WalletAction.MnemonicTitleChanged(it))
         }

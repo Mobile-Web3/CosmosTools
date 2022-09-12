@@ -22,7 +22,8 @@ val mockNetworks = listOf(
             NetworkExplorer(
                 kind = "mintscan",
                 url = "https://www.mintscan.io/cosmos",
-                tx_page = "https://www.mintscan.io/cosmos/txs/"
+                tx_page = "https://www.mintscan.io/cosmos/txs/",
+                account_page = "https://www.mintscan.io/cosmos/account/"
             )
         ),
         assets = listOf(

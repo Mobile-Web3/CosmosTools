@@ -15,4 +15,6 @@ object Routes {
     const val SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE = "switch_wallet"
     const val PIN_CODE_SCREEN_ROUTE = "pin_code"
     const val REVEAL_SOURCE_SCREEN_ROUTE = "reveal_source"
+
+    const val TRANSFER_SCREEN_ROUTE = "transfer_screen"
 }

@@ -38,6 +38,8 @@ kotlin {
                 implementation(libs.napier)
                 //JSON
                 implementation(libs.kotlinx.serialization.json)
+                implementation(libs.ktor.content.negotiation)
+                implementation(libs.ktor.json)
                 //Key-Value storage
                 implementation(libs.multiplatform.settings)
                 // DI

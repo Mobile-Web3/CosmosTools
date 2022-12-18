@@ -20,6 +20,8 @@ object Strings {
     const val COPY_ADDRESS_OPTION = "Copy"
     const val SUCCESS_COPY_MESSAGE = "Address copied!"
 
+    const val TRANSFER_OPTION = "Send"
+
     //select networks screen
     const val SELECT_NETWORKS_SCREEN_TITLE = "Select Networks"
     const val SELECT_NETWORKS_SCREEN_SEARCH_HINT = "Search network by title"

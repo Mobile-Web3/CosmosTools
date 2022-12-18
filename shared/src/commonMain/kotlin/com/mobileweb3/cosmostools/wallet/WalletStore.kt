@@ -144,7 +144,13 @@ class WalletStore(
             return
         }
 
-        //todo request wallet info
+        launch(Dispatchers.Default) {
+            currentAccount.address?.let {
+                val balance = interactor.getAccountBalance(it)
+
+                balance
+            }
+        }
     }
 
     override fun observeState(): StateFlow<WalletState> = state

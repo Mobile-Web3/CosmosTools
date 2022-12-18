@@ -1,5 +1,6 @@
 package com.mobileweb3.cosmostools.core
 
+import com.mobileweb3.cosmostools.network.api
 import com.mobileweb3.cosmostools.wallet.WalletInteractor
 import com.mobileweb3.cosmostools.wallet.WalletStorage
 import com.russhwolf.settings.AppleSettings
@@ -16,7 +17,8 @@ fun WalletInteractor.Companion.create(withLog: Boolean) = WalletInteractor(
             isLenient = true
             encodeDefaults = false
         }
-    )
+    ),
+    api!!
 ).also {
     if (withLog) Napier.base(DebugAntilog())
 }

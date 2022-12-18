@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 fun EditableTextField(
     title: String,
     initText: String = "",
+    readOnly: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null,
     onTextChanged: (String) -> Unit
 ) {
     var text by remember { mutableStateOf(initText) }
@@ -33,8 +35,8 @@ fun EditableTextField(
             ),
         value = text,
         label = { Text(title) },
-        trailingIcon = {
-            if (text.isNotEmpty()) {
+        trailingIcon = trailingIcon ?: {
+            if (text.isNotEmpty() && !readOnly) {
                 IconButton(
                     onClick = {
                         text = initText
@@ -53,6 +55,7 @@ fun EditableTextField(
             text = it
             onTextChanged.invoke(it)
         },
-        maxLines = 1
+        maxLines = 1,
+        readOnly = readOnly
     )
 }

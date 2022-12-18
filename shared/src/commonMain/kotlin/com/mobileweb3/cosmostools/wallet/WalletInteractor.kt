@@ -3,9 +3,14 @@ package com.mobileweb3.cosmostools.wallet
 import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.mockNetworks
+import com.mobileweb3.cosmostools.network.Api
+import com.mobileweb3.cosmostools.network.request.GetBalanceRequest
+import com.mobileweb3.cosmostools.network.response.GetBalanceResponse
+import com.mobileweb3.cosmostools.network.safeCall
 
 class WalletInteractor internal constructor(
-    private val walletStorage: WalletStorage
+    private val walletStorage: WalletStorage,
+    private val api: Api
 ) {
 
     fun userHasPin(): Boolean = !getPinCode().isNullOrEmpty()
@@ -63,6 +68,12 @@ class WalletInteractor internal constructor(
             .forEach { account ->
                 deleteAccount(account.id)
             }
+    }
+
+    suspend fun getAccountBalance(address: String): Result<GetBalanceResponse> {
+        return safeCall {
+            api.getBalance(GetBalanceRequest(address))
+        }
     }
 
     companion object

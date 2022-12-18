@@ -4,6 +4,7 @@ import android.app.Application
 import com.mobileweb3.cosmostools.core.create
 import com.mobileweb3.cosmostools.wallet.WalletInteractor
 import com.mobileweb3.cosmostools.wallet.WalletStore
+import com.mobileweb3.cosmostools.wallet.transfer.TransferStore
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -15,6 +16,7 @@ class App : Application() {
     private val appModule = module {
         single { WalletInteractor.create(get(), BuildConfig.DEBUG) }
         single { WalletStore(interactor = get()) }
+        single { TransferStore(interactor = get()) }
     }
 
     override fun onCreate() {

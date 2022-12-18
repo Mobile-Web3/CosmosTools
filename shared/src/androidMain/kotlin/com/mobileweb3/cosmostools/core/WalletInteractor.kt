@@ -1,6 +1,7 @@
 package com.mobileweb3.cosmostools.core
 
 import android.content.Context
+import com.mobileweb3.cosmostools.network.api
 import com.mobileweb3.cosmostools.wallet.WalletInteractor
 import com.mobileweb3.cosmostools.wallet.WalletStorage
 import com.russhwolf.settings.AndroidSettings
@@ -16,7 +17,8 @@ fun WalletInteractor.Companion.create(ctx: Context, withLog: Boolean) = WalletIn
             isLenient = true
             encodeDefaults = false
         }
-    )
+    ),
+    api = api!!
 ).also {
     if (withLog) Napier.base(DebugAntilog())
 }

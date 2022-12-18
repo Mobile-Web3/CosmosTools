@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.Button
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -28,8 +31,10 @@ import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
 import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toBitmap
+import com.mobileweb3.cosmostools.resources.Routes
 import com.mobileweb3.cosmostools.resources.Routes.PIN_CODE_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Routes.SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.resources.Strings
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -101,6 +106,19 @@ fun WalletScreen(
             }
 
             VerticalSpacer()
+
+            Button(
+                onClick = {
+                    navController.navigate(Routes.TRANSFER_SCREEN_ROUTE)
+                }
+            ) {
+                Text(
+                    text = Strings.TRANSFER_OPTION,
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier
+                        .padding(4.dp)
+                )
+            }
         }
 
         FillSpacer()

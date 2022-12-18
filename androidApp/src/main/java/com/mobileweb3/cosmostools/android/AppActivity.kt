@@ -24,6 +24,7 @@ import com.mobileweb3.cosmostools.android.screens.navigation.BottomNavigation
 import com.mobileweb3.cosmostools.android.screens.navigation.NavigationGraph
 import com.mobileweb3.cosmostools.android.ui.AppTheme
 import com.mobileweb3.cosmostools.wallet.WalletStore
+import com.mobileweb3.cosmostools.wallet.transfer.TransferStore
 import org.koin.android.ext.android.inject
 
 class AppActivity : ComponentActivity() {
@@ -44,7 +45,13 @@ class AppActivity : ComponentActivity() {
                 ProvideWindowInsets {
                     val scaffoldState = rememberScaffoldState()
 
+
                     val walletStore: WalletStore by inject()
+                    val transferStore: TransferStore by inject()
+                    val storeHolder = StoreHolder(
+                        walletStore = walletStore,
+                        transferStore = transferStore
+                    )
 
                     val bottomNavItems = listOf(
                         BottomNavItem.Validators,
@@ -88,7 +95,7 @@ class AppActivity : ComponentActivity() {
                                 }
                             }
                         ) {
-                            NavigationGraph(navController = navController, walletStore)
+                            NavigationGraph(navController = navController, storeHolder)
                         }
                     }
                 }

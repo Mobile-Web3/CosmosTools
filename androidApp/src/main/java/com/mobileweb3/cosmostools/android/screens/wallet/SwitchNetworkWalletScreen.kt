@@ -59,6 +59,7 @@ fun SwitchNetworkWalletScreen(
         ) {
             SelectNetworksGrid(
                 networks = state.value.switchWalletState?.networks,
+                scrollToIndex = state.value.switchWalletState?.scrollToIndex,
                 columnsCount = 1,
                 modifier = Modifier
                     .fillMaxHeight()

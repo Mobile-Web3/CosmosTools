@@ -219,7 +219,8 @@ class WalletStore(
                     switchWalletState = SwitchWalletState(
                         networks = networksByQuery,
                         accounts = emptyList(),
-                        searchQuery = action.query
+                        searchQuery = action.query,
+                        scrollToIndex = null
                     )
                 )
 
@@ -545,7 +546,8 @@ class WalletStore(
                     state.value = oldState.copy(
                         switchWalletState = SwitchWalletState(
                             networks = resultNetworks,
-                            accounts = emptyList()
+                            accounts = emptyList(),
+                            scrollToIndex = resultNetworks.indexOfFirst { it.network == state.value.currentNetwork }
                         )
                     )
 
@@ -565,7 +567,8 @@ class WalletStore(
                         currentAccount = interactor.getSelectedAccount(action.network.network),
                         switchWalletState = oldState.switchWalletState?.copy(
                             networks = getNetworksByQuery(oldState.switchWalletState.searchQuery),
-                            accounts = emptyList()
+                            accounts = emptyList(),
+                            scrollToIndex = null
                         )
                     )
 

@@ -88,7 +88,8 @@ fun String.displayedAddress(): String {
 data class SwitchWalletState(
     val networks: List<NetworkWithSelection>,
     val accounts: List<AccountWithSelection>,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val scrollToIndex: Int?
 )
 
 data class NetworkWithSelection(

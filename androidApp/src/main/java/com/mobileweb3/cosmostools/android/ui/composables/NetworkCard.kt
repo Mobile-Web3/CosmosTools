@@ -18,16 +18,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.palette.graphics.Palette
-import com.mobileweb3.cosmostools.crypto.Network
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 
 @Composable
 fun NetworkCard(
-    network: Network,
+    network: NetworkResponse,
     clickable: Boolean = true,
     modifier: Modifier = Modifier,
     borderColor: Color,
     onPaletteChanged: ((Palette) -> Unit)?,
-    onNetworkClicked: ((Network) -> Unit)?
+    onNetworkClicked: ((NetworkResponse) -> Unit)?
 ) {
     var palette by remember { mutableStateOf<Palette?>(null) }
 

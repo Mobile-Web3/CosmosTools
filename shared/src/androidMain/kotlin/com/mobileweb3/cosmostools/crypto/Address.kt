@@ -1,6 +1,7 @@
 package com.mobileweb3.cosmostools.crypto
 
 import com.mobileweb3.cosmostools.crypto.AndroidUtils.decodeHex
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicHierarchy
 import org.bitcoinj.crypto.DeterministicKey
@@ -15,7 +16,7 @@ actual object Address {
     private const val CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 
     actual fun createAddressFromEntropyByNetwork(
-        network: Network,
+        network: NetworkResponse,
         entropy: String,
         path: Int,
         customPath: Int
@@ -37,7 +38,7 @@ actual object Address {
     }
 
     private fun createKeyWithPathFromEntropy(
-        network: Network,
+        network: NetworkResponse,
         entropy: String,
         path: Int,
         customPath: Int
@@ -66,7 +67,7 @@ actual object Address {
     }
 
     actual fun getDpAddress(
-        network: Network,
+        network: NetworkResponse,
         pubHex: String
     ): String {
         val digest: MessageDigest = Sha256.sha256Digest
@@ -80,7 +81,7 @@ actual object Address {
 
         val converted: ByteArray = convertBits(hash3, 8, 5, true)
 
-        return bech32Encode(network.bech32_prefix.toByteArray(), converted)
+        return bech32Encode(network.bech32Prefix.toByteArray(), converted)
     }
 
     @Throws(Exception::class)

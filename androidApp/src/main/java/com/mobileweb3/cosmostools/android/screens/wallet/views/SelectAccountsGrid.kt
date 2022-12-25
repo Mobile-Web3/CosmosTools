@@ -33,6 +33,7 @@ fun SelectAccountsGrid(
                 MaterialTheme.colors.primary
             }
             AccountCard(
+                network = item.network,
                 account = item.account,
                 showOptions = false,
                 modifier = Modifier.padding(2.dp),

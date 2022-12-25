@@ -2,20 +2,24 @@ package com.mobileweb3.cosmostools.wallet
 
 import com.mobileweb3.cosmostools.app.State
 import com.mobileweb3.cosmostools.core.entity.Account
-import com.mobileweb3.cosmostools.crypto.Network
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import com.mobileweb3.cosmostools.resources.Strings.MNEMONIC_WARNING
 import com.mobileweb3.cosmostools.resources.Strings.REVEAL_PRIVATE_KEY_MESSAGE
 
 data class WalletState(
-    val currentNetwork: Network?,
-    val currentAccount: Account?,
+    val currentNetwork: NetworkResponse? = null,
+    val currentAccount: Account? = null,
     val addressSelectionState: AddressSelectionState? = null,
     val generatedMnemonicState: GeneratedMnemonicState? = null,
     val restoreMnemonicState: RestoreMnemonicState? = null,
     val restorePrivateKeyState: RestorePrivateKeyState? = null,
     val deriveWalletState: DeriveWalletState? = null,
     val switchWalletState: SwitchWalletState? = null,
-    val pinState: PinState,
+    val pinState: PinState = PinState(
+        userHasPin = false,
+        pinPurpose = PinPurpose.Check(nextRoute = ""),
+        enterState = PinEnterState.WaitingForEnter
+    ),
     val revealSourceState: RevealSourceState? = null
 ) : State
 
@@ -64,7 +68,7 @@ data class DeriveWalletState(
 )
 
 data class CreatedOrRestoredAddress(
-    val network: Network,
+    val network: NetworkResponse,
     val address: String,
     val derivationHDPath: Int?,
     val fullDerivationPath: String?,
@@ -89,12 +93,13 @@ data class SwitchWalletState(
 
 data class NetworkWithSelection(
     var selected: Boolean,
-    val network: Network
+    val network: NetworkResponse
 )
 
 data class AccountWithSelection(
     var selected: Boolean,
-    val account: Account
+    val account: Account,
+    val network: NetworkResponse
 )
 
 data class PinState(
@@ -112,7 +117,7 @@ sealed class PinPurpose(
         val firstPin: String = "",
         val confirmPin: String = "",
         val firstPinFilled: Boolean = false,
-        override val nextRoute : String,
+        override val nextRoute: String,
         override val message: String = "Do not use simple sequences.\nNo way to recover this, please remember!"
     ) : PinPurpose("Set PIN", nextRoute, message)
 

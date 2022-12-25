@@ -36,7 +36,7 @@ fun TransferScreen(navController: NavHostController, transferStore: TransferStor
             title = "From",
             onTextChanged = {},
             readOnly = true,
-            initText = state.value.data.from.address?.displayedAddress() ?: ""
+            initText = state.value.data.from?.address?.displayedAddress() ?: ""
         )
 
         VerticalSpacer()

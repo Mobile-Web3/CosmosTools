@@ -2,6 +2,9 @@ package com.mobileweb3.cosmostools.android
 
 import android.app.Application
 import com.mobileweb3.cosmostools.core.create
+import com.mobileweb3.cosmostools.network.api
+import com.mobileweb3.cosmostools.repository.BalancesRepository
+import com.mobileweb3.cosmostools.repository.NetworksRepository
 import com.mobileweb3.cosmostools.wallet.WalletInteractor
 import com.mobileweb3.cosmostools.wallet.WalletStore
 import com.mobileweb3.cosmostools.wallet.transfer.TransferStore
@@ -14,7 +17,9 @@ import org.koin.dsl.module
 class App : Application() {
 
     private val appModule = module {
-        single { WalletInteractor.create(get(), BuildConfig.DEBUG) }
+        single { BalancesRepository(api) }
+        single { NetworksRepository(api) }
+        single { WalletInteractor.create(get(), get(), get(), BuildConfig.DEBUG) }
         single { WalletStore(interactor = get()) }
         single { TransferStore(interactor = get()) }
     }

@@ -9,6 +9,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import java.util.concurrent.TimeUnit
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 
 internal fun AndroidHttpClient(withLog: Boolean) = HttpClient(OkHttp) {
     engine {
@@ -18,7 +19,17 @@ internal fun AndroidHttpClient(withLog: Boolean) = HttpClient(OkHttp) {
         }
     }
     install(ContentNegotiation) {
-        json()
+        json(
+            json = Json {
+                encodeDefaults = true
+                isLenient = true
+                allowSpecialFloatingPointValues = true
+                allowStructuredMapKeys = true
+                prettyPrint = false
+                useArrayPolymorphism = false
+                ignoreUnknownKeys = true
+            }
+        )
     }
     defaultRequest {
         url(BASE_URL)

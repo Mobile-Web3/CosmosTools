@@ -1,8 +1,6 @@
 package com.mobileweb3.cosmostools.network
 
-var api: Api? = null
-    private set
-    get() = field ?: ApiBuilder.create()
+val api: Api = ApiBuilder.create()
 
 expect object ApiBuilder {
 

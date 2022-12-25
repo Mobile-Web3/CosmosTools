@@ -8,7 +8,7 @@ data class TransferState(
 ) : State
 
 data class TransferData(
-    val from: Account,
+    val from: Account?,
     val to: String? = null,
     val amount: Double = 0.0
 )

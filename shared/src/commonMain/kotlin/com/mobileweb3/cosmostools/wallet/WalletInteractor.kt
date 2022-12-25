@@ -1,16 +1,17 @@
 package com.mobileweb3.cosmostools.wallet
 
 import com.mobileweb3.cosmostools.core.entity.Account
-import com.mobileweb3.cosmostools.crypto.Network
-import com.mobileweb3.cosmostools.crypto.mockNetworks
 import com.mobileweb3.cosmostools.network.Api
-import com.mobileweb3.cosmostools.network.request.GetBalanceRequest
 import com.mobileweb3.cosmostools.network.response.GetBalanceResponse
-import com.mobileweb3.cosmostools.network.safeCall
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
+import com.mobileweb3.cosmostools.repository.BalancesRepository
+import com.mobileweb3.cosmostools.repository.NetworksRepository
 
 class WalletInteractor internal constructor(
     private val walletStorage: WalletStorage,
-    private val api: Api
+    private val api: Api,
+    private val balancesRepository: BalancesRepository,
+    private val networksRepository: NetworksRepository
 ) {
 
     fun userHasPin(): Boolean = !getPinCode().isNullOrEmpty()
@@ -21,11 +22,13 @@ class WalletInteractor internal constructor(
         walletStorage.userPin = pinCode
     }
 
-    fun getCurrentNetwork(): Network =
-        mockNetworks.find { it.pretty_name == (walletStorage.currentNetwork ?: "Cosmos Hub") }!!
+    suspend fun getNetworks() = networksRepository.getNetworks()
 
-    fun setCurrentNetwork(network: Network) {
-        walletStorage.currentNetwork = network.pretty_name
+    suspend fun getCurrentNetwork(): NetworkResponse? =
+        networksRepository.getNetworks().find { it.prettyName == (walletStorage.currentNetwork ?: "Cosmos Hub") }
+
+    fun setCurrentNetwork(network: NetworkResponse) {
+        walletStorage.currentNetwork = network.prettyName
     }
 
     fun getMnemonicCounter(): Int = walletStorage.mnemonicCounter
@@ -38,21 +41,21 @@ class WalletInteractor internal constructor(
         return walletStorage.getAllAccounts()
     }
 
-    fun getAllAccountsByNetwork(network: Network): List<Account> {
-        return walletStorage.getAllAccounts().filter { it.network == network.pretty_name }
+    fun getAllAccountsByNetwork(network: NetworkResponse): List<Account> {
+        return walletStorage.getAllAccounts().filter { it.network == network.prettyName }
     }
 
-    fun getSelectedAccount(network: Network? = null): Account? {
+    suspend fun getSelectedAccount(network: NetworkResponse? = null): Account? {
         return walletStorage
             .getAllAccounts()
             .find { it.id == walletStorage.getSelectedAccountInNetwork(network ?: getCurrentNetwork()) }
     }
 
-    fun setSelectedAccount(accountId: Long, network: Network) {
+    fun setSelectedAccount(accountId: Long, network: NetworkResponse) {
         walletStorage.setSelectedAccountInNetwork(network, accountId)
     }
 
-    suspend fun saveAccount(account: Account, network: Network) {
+    suspend fun saveAccount(account: Account, network: NetworkResponse) {
         if (getCurrentNetwork() == network) {
             walletStorage.setSelectedAccountInNetwork(network, account.id)
         }
@@ -70,10 +73,8 @@ class WalletInteractor internal constructor(
             }
     }
 
-    suspend fun getAccountBalance(address: String): Result<GetBalanceResponse> {
-        return safeCall {
-            api.getBalance(GetBalanceRequest(address))
-        }
+    suspend fun getAccountBalance(address: String): GetBalanceResponse? {
+        return balancesRepository.getBalance(address)
     }
 
     companion object

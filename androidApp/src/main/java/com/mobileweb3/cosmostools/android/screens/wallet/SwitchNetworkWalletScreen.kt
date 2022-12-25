@@ -78,7 +78,7 @@ fun SwitchNetworkWalletScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
-                        text = "You do not have wallets in ${state.value.currentNetwork?.pretty_name} network. Create one!",
+                        text = "You do not have wallets in ${state.value.currentNetwork?.prettyName} network. Create one!",
                         textAlign = TextAlign.Center
                     )
 

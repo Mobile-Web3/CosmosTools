@@ -18,7 +18,7 @@ fun WalletInteractor.Companion.create(withLog: Boolean) = WalletInteractor(
             encodeDefaults = false
         }
     ),
-    api!!
+    api
 ).also {
     if (withLog) Napier.base(DebugAntilog())
 }

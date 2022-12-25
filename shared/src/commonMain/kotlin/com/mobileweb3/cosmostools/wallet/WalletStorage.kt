@@ -1,7 +1,7 @@
 package com.mobileweb3.cosmostools.wallet
 
 import com.mobileweb3.cosmostools.core.entity.Account
-import com.mobileweb3.cosmostools.crypto.Network
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 import kotlinx.serialization.builtins.ListSerializer
@@ -84,12 +84,12 @@ class WalletStorage(
 
     fun getAllAccounts(): List<Account> = accountsMemCache.values.toList()
 
-    fun getSelectedAccountInNetwork(network: Network): Long? {
-        return settings.getLongOrNull(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network.pretty_name)
+    fun getSelectedAccountInNetwork(network: NetworkResponse?): Long? {
+        return settings.getLongOrNull(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network?.prettyName)
     }
 
-    fun setSelectedAccountInNetwork(network: Network, id: Long) {
-        settings.putLong(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network.pretty_name, id)
+    fun setSelectedAccountInNetwork(network: NetworkResponse, id: Long) {
+        settings.putLong(KEY_SELECTED_ACCOUNT_NETWORK_CACHE + ":" + network.prettyName, id)
     }
 
     companion object {

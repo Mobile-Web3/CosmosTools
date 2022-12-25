@@ -25,10 +25,11 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
 import com.mobileweb3.cosmostools.core.entity.Account
-import com.mobileweb3.cosmostools.crypto.mockNetworks
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 
 @Composable
 fun AccountCard(
+    network: NetworkResponse,
     account: Account,
     showOptions: Boolean,
     clickable: Boolean = true,
@@ -38,15 +39,12 @@ fun AccountCard(
     onDeleteClicked: (() -> Unit)? = null,
     onAccountClicked: ((Account) -> Unit)?
 ) {
-    //todo выпилится, когда сети будут приходить с сервака
-    val accountNetwork = mockNetworks.find { it.pretty_name == account.network }!!
-
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(10.dp))
             .background(
-                brush = getGradientBrush(null, accountNetwork.getLogo()),
+                brush = getGradientBrush(null, network.getLogo()),
                 shape = RoundedCornerShape(10.dp)
             )
             .clickable(clickable) { onAccountClicked?.invoke(account) }
@@ -63,7 +61,7 @@ fun AccountCard(
 
             VerticalSpacer(4.dp)
 
-            Text(text = "0.000000 ${accountNetwork.assets[0].symbol}")
+            //Text(text = "0.000000 ${accountNetwork.assets[0].symbol}")
 
             VerticalSpacer()
 
@@ -104,7 +102,7 @@ fun AccountCard(
                     VerticalSpacer(2.dp)
 
                     AccountIconView(AccountIcon.Explorer) {
-                        uriHandler.openUri(accountNetwork.getAddressExplorerLink(account.address))
+                        //uriHandler.openUri(accountNetwork.getAddressExplorerLink(account.address))
                     }
                 }
             }

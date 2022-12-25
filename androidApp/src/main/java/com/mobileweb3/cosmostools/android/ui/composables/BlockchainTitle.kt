@@ -12,17 +12,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.mobileweb3.cosmostools.crypto.Network
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 
 @Composable
 fun NetworkTitle(
-    network: Network,
+    network: NetworkResponse,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = MaterialTheme.typography.h6,
     backgroundColor: Color = MaterialTheme.colors.primary
 ) {
     Text(
-        text = network.pretty_name,
+        text = network.prettyName,
         color = Color.White,
         maxLines = 1,
         textAlign = TextAlign.Center,

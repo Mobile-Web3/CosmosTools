@@ -5,14 +5,14 @@ import com.mobileweb3.cosmostools.crypto.Address
 import com.mobileweb3.cosmostools.crypto.EncryptHelper
 import com.mobileweb3.cosmostools.crypto.EncryptHelper.getEncData
 import com.mobileweb3.cosmostools.crypto.EncryptHelper.getIvData
-import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.PrivateKey
 import com.mobileweb3.cosmostools.crypto.Utils
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import com.mobileweb3.cosmostools.shared.System
 
 sealed class CreateAddressMethod {
 
-    abstract fun create(network: Network, allAccounts: List<Account>): CreatedOrRestoredAddress
+    abstract fun create(network: NetworkResponse, allAccounts: List<Account>): CreatedOrRestoredAddress
 
     abstract fun applyAccount(
         createdAddress: CreatedOrRestoredAddress,
@@ -25,7 +25,7 @@ sealed class CreateAddressMethod {
         private val hdPath: Int
     ) : CreateAddressMethod() {
 
-        override fun create(network: Network, allAccounts: List<Account>): CreatedOrRestoredAddress {
+        override fun create(network: NetworkResponse, allAccounts: List<Account>): CreatedOrRestoredAddress {
             val address = Address.createAddressFromEntropyByNetwork(
                 network = network,
                 entropy = Utils.byteArrayToHexString(mnemonicResult.entropy),
@@ -36,7 +36,7 @@ sealed class CreateAddressMethod {
             return CreatedOrRestoredAddress(
                 network = network,
                 address = address,
-                balance = "0.000000 ${network.assets[0].symbol}",
+                balance = "0.000000 TODO",//${network.assets[0].symbol}",
                 derivationHDPath = hdPath,
                 fullDerivationPath = "m/44/${network.slip44}/0/0/$hdPath",
                 importedStatus = if (allAccounts.any { it.address == address }) {
@@ -61,7 +61,7 @@ sealed class CreateAddressMethod {
                 resource = encryptResult.getEncData()
                 spec = encryptResult.getIvData()
                 address = createdAddress.address
-                network = createdAddress.network.pretty_name
+                network = createdAddress.network.prettyName
                 hasPrivateKey = false
                 fromMnemonic = true
                 sourceTitle = this@FromMnemonic.mnemonicTitle
@@ -80,13 +80,13 @@ sealed class CreateAddressMethod {
         private val privateKeyTitle: String
     ) : CreateAddressMethod() {
 
-        override fun create(network: Network, allAccounts: List<Account>): CreatedOrRestoredAddress {
+        override fun create(network: NetworkResponse, allAccounts: List<Account>): CreatedOrRestoredAddress {
             val address = Address.getDpAddress(network, PrivateKey.generatePubHexFromPrivate(privateKey))
 
             return CreatedOrRestoredAddress(
                 network = network,
                 address = address,
-                balance = "0.000000 ${network.assets[0].symbol}",
+                balance = "0.000000 TODO",//${network.assets[0].symbol}",
                 derivationHDPath = -1,
                 fullDerivationPath = "-1",
                 importedStatus = if (allAccounts.any { it.address == address }) {
@@ -108,7 +108,7 @@ sealed class CreateAddressMethod {
                 resource = encryptResult.getEncData()
                 spec = encryptResult.getIvData()
                 address = createdAddress.address
-                network = createdAddress.network.pretty_name
+                network = createdAddress.network.prettyName
                 hasPrivateKey = true
                 fromMnemonic = false
                 sourceTitle = this@FromPrivateKey.privateKeyTitle

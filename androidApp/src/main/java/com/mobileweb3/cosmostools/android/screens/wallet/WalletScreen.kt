@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -60,6 +59,7 @@ fun WalletScreen(
             EmptyWalletView(walletStore, navController)
         } else {
             val currentAccount = state.value.currentAccount!!
+            val currentNetwork = state.value.currentNetwork!!
 
             AddWalletView(walletStore, navController, showAsColumn = false)
 
@@ -67,7 +67,9 @@ fun WalletScreen(
 
             val openAddressDialog = remember { mutableStateOf(false) }
             val openDeleteDialog = remember { mutableStateOf(false) }
+
             AccountCard(
+                network = currentNetwork,
                 account = currentAccount,
                 showOptions = true,
                 clickable = true,

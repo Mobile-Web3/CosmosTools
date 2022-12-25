@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 sealed class TransferAction : Action {
 
@@ -28,18 +29,25 @@ class TransferStore(
     private val state = MutableStateFlow(
         TransferState(
             data = TransferData(
-                from = interactor.getSelectedAccount()!!
+                from = null
             )
         )
     )
     private val sideEffect = MutableSharedFlow<TransferSideEffect>()
 
-    override fun observeState(): StateFlow<TransferState> {
-        state.tryEmit(
-            state.value.copy(
-                data = TransferData(from = interactor.getSelectedAccount()!!)
+    init {
+        launch {
+            state.tryEmit(
+                value = state.value.copy(
+                    data = state.value.data.copy(
+                        from = interactor.getSelectedAccount()
+                    )
+                )
             )
-        )
+        }
+    }
+
+    override fun observeState(): StateFlow<TransferState> {
         return state
     }
 

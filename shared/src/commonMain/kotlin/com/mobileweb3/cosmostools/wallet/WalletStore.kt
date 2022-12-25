@@ -8,9 +8,8 @@ import com.mobileweb3.cosmostools.crypto.EncryptHelper
 import com.mobileweb3.cosmostools.crypto.Entropy
 import com.mobileweb3.cosmostools.crypto.HexUtils
 import com.mobileweb3.cosmostools.crypto.Mnemonic
-import com.mobileweb3.cosmostools.crypto.Network
 import com.mobileweb3.cosmostools.crypto.PrivateKey
-import com.mobileweb3.cosmostools.crypto.mockNetworks
+import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import com.mobileweb3.cosmostools.resources.Constants.PIN_LENGTH
 import com.mobileweb3.cosmostools.resources.Routes.GENERATED_MNEMONIC_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Routes.RESTORE_MNEMONIC_SCREEN_ROUTE
@@ -99,8 +98,28 @@ class WalletStore(
     private val interactor: WalletInteractor
 ) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
-    private val state = MutableStateFlow(
-        WalletState(
+    private val state = MutableStateFlow(WalletState())
+    private val sideEffect = MutableSharedFlow<WalletSideEffect>()
+
+    private var walletAction: WalletAction? = null
+    private var resultNetworks = emptyList<NetworkWithSelection>()
+
+    init {
+        requestWalletInfo(state.value.currentAccount)
+
+        launch {
+            getInitState()
+        }
+
+        launch {
+            resultNetworks = getInitSelectionNetworks()
+        }
+
+        refreshPinState("")
+    }
+
+    private suspend fun getInitState() {
+        state.emit(WalletState(
             currentNetwork = interactor.getCurrentNetwork(),
             currentAccount = interactor.getSelectedAccount(),
             addressSelectionState = null,
@@ -110,17 +129,7 @@ class WalletStore(
                 pinPurpose = PinPurpose.Set(nextRoute = ""),
                 enterState = PinEnterState.WaitingForEnter
             )
-        )
-    )
-    private val sideEffect = MutableSharedFlow<WalletSideEffect>()
-
-    private var walletAction: WalletAction? = null
-    private var resultNetworks = getInitSelectionNetworks()
-
-    init {
-        requestWalletInfo(state.value.currentAccount)
-
-        refreshPinState("")
+        ))
     }
 
     private fun refreshPinState(nextRoute: String) {
@@ -214,9 +223,11 @@ class WalletStore(
                     )
                 )
 
-                if (networksByQuery.none { it.network == interactor.getCurrentNetwork() }) {
-                    if (networksByQuery.isNotEmpty()) {
-                        updateSwitchWallets(networksByQuery[0].network)
+                launch {
+                    if (networksByQuery.none { it.network == interactor.getCurrentNetwork() }) {
+                        if (networksByQuery.isNotEmpty()) {
+                            updateSwitchWallets(networksByQuery[0].network)
+                        }
                     }
                 }
             }
@@ -528,16 +539,18 @@ class WalletStore(
                 }
             }
             WalletAction.OpenSwitchNetwork -> {
-                resultNetworks = getInitSelectionNetworks()
+                launch {
+                    resultNetworks = getInitSelectionNetworks()
 
-                newState = oldState.copy(
-                    switchWalletState = SwitchWalletState(
-                        networks = resultNetworks,
-                        accounts = emptyList()
+                    state.value = oldState.copy(
+                        switchWalletState = SwitchWalletState(
+                            networks = resultNetworks,
+                            accounts = emptyList()
+                        )
                     )
-                )
 
-                updateSwitchWallets(interactor.getCurrentNetwork())
+                    updateSwitchWallets(interactor.getCurrentNetwork())
+                }
             }
             is WalletAction.SwitchNetwork -> {
                 resultNetworks.forEach {
@@ -546,16 +559,18 @@ class WalletStore(
 
                 interactor.setCurrentNetwork(action.network.network)
 
-                newState = oldState.copy(
-                    currentNetwork = action.network.network,
-                    currentAccount = interactor.getSelectedAccount(action.network.network),
-                    switchWalletState = oldState.switchWalletState?.copy(
-                        networks = getNetworksByQuery(oldState.switchWalletState.searchQuery),
-                        accounts = emptyList()
+                launch {
+                    state.value = oldState.copy(
+                        currentNetwork = action.network.network,
+                        currentAccount = interactor.getSelectedAccount(action.network.network),
+                        switchWalletState = oldState.switchWalletState?.copy(
+                            networks = getNetworksByQuery(oldState.switchWalletState.searchQuery),
+                            accounts = emptyList()
+                        )
                     )
-                )
 
-                updateSwitchWallets(action.network.network)
+                    updateSwitchWallets(action.network.network)
+                }
             }
             is WalletAction.SwitchAccount -> {
                 state.value.currentNetwork?.let {
@@ -761,7 +776,7 @@ class WalletStore(
     }
 
     private fun createAddresses(
-        networks: List<Network>,
+        networks: List<NetworkResponse>,
         createAddressMethod: CreateAddressMethod
     ): List<CreatedOrRestoredAddress> {
         val allAccounts = interactor.getAllAccounts()
@@ -771,8 +786,8 @@ class WalletStore(
         }
     }
 
-    private fun getInitSelectionNetworks(): List<NetworkWithSelection> {
-        return mockNetworks.map {
+    private suspend fun getInitSelectionNetworks(): List<NetworkWithSelection> {
+        return interactor.getNetworks().map {
             NetworkWithSelection(
                 selected = it == state.value.currentNetwork,
                 network = it
@@ -780,14 +795,19 @@ class WalletStore(
         }
     }
 
-    private fun updateSwitchWallets(network: Network) {
+    private fun updateSwitchWallets(network: NetworkResponse?) {
+        if (network == null) {
+            return
+        }
+
         launch {
             val selectedAccountId = interactor.getSelectedAccount(network)
 
             val accounts = interactor.getAllAccountsByNetwork(network).map {
                 AccountWithSelection(
                     selected = it.id == selectedAccountId?.id,
-                    account = it
+                    account = it,
+                    network = network
                 )
             }
 
@@ -806,23 +826,26 @@ class WalletStore(
         action: String,
         nextRoute: String
     ) {
-        resultNetworks = getInitSelectionNetworks()
 
-        state.tryEmit(state.value.copy(
-            addressSelectionState = AddressSelectionState(
-                description = description,
-                displayedNetworks = resultNetworks,
-                actionButtonEnabled = resultNetworks.any { it.selected },
-                action = action,
-                selectedCount = 1,
-                nextRoute = nextRoute
-            )
-        ))
+        launch {
+            resultNetworks = getInitSelectionNetworks()
+
+            state.tryEmit(state.value.copy(
+                addressSelectionState = AddressSelectionState(
+                    description = description,
+                    displayedNetworks = resultNetworks,
+                    actionButtonEnabled = resultNetworks.any { it.selected },
+                    action = action,
+                    selectedCount = 1,
+                    nextRoute = nextRoute
+                )
+            ))
+        }
     }
 
     private fun getNetworksByQuery(query: String?): List<NetworkWithSelection> {
         return resultNetworks.filter {
-            it.network.pretty_name.startsWith(query ?: "", true)
+            it.network.prettyName.startsWith(query ?: "", true)
         }
     }
 

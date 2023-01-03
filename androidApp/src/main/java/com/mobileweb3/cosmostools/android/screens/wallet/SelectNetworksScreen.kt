@@ -82,11 +82,10 @@ fun ColumnScope.SelectNetworksContent(
         networks = addressState.displayedNetworks,
         columnsCount = 3,
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            .weight(1f)
     ) { network, selected ->
         walletStore.dispatch(WalletAction.SelectNetworkForCreationOrRestore(network, selected))
     }
-
-    FillSpacer()
 
     Row(
         modifier = Modifier.fillMaxWidth(),

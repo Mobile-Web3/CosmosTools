@@ -4,11 +4,7 @@ import com.mobileweb3.cosmostools.app.Action
 import com.mobileweb3.cosmostools.app.Effect
 import com.mobileweb3.cosmostools.app.Store
 import com.mobileweb3.cosmostools.core.entity.Account
-import com.mobileweb3.cosmostools.crypto.EncryptHelper
-import com.mobileweb3.cosmostools.crypto.Entropy
-import com.mobileweb3.cosmostools.crypto.HexUtils
-import com.mobileweb3.cosmostools.crypto.Mnemonic
-import com.mobileweb3.cosmostools.crypto.PrivateKey
+import com.mobileweb3.cosmostools.crypto.*
 import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import com.mobileweb3.cosmostools.resources.Constants.PIN_LENGTH
 import com.mobileweb3.cosmostools.resources.Routes.GENERATED_MNEMONIC_SCREEN_ROUTE
@@ -718,32 +714,10 @@ class WalletStore(
                 )
 
                 launch {
-                    val addressSource = if (account.fromMnemonic == true) {
-                        val entropy = EncryptHelper.decrypt(
-                            alias = "MNEMONIC_KEY" + account.uuid,
-                            resource = account.resource!!,
-                            spec = account.spec!!
-                        )
-
-                        AddressSource.Mnemonic(Mnemonic.getRandomMnemonic(HexUtils.toBytes(entropy)))
-                    } else {
-                        var privateKey = EncryptHelper.decrypt(
-                            alias = "PRIVATE_KEY" + account.uuid,
-                            resource = account.resource!!,
-                            spec = account.spec!!
-                        )
-
-                        if (!privateKey.startsWith("0x") && !privateKey.startsWith("0X")) {
-                            privateKey = "0x$privateKey"
-                        }
-
-                        AddressSource.PrivateKey(privateKey)
-                    }
-
                     state.tryEmit(state.value.copy(
                         revealSourceState = RevealSourceState(
                             account = account,
-                            addressSource = addressSource
+                            addressSource = getAddressSource(account)
                         )
                     ))
                 }

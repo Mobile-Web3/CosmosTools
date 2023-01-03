@@ -7,6 +7,7 @@ import com.mobileweb3.cosmostools.repository.BalancesRepository
 import com.mobileweb3.cosmostools.repository.NetworksRepository
 import com.mobileweb3.cosmostools.wallet.WalletInteractor
 import com.mobileweb3.cosmostools.wallet.WalletStore
+import com.mobileweb3.cosmostools.wallet.transfer.TransferInteractor
 import com.mobileweb3.cosmostools.wallet.transfer.TransferStore
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -20,8 +21,9 @@ class App : Application() {
         single { BalancesRepository(api) }
         single { NetworksRepository(api) }
         single { WalletInteractor.create(get(), get(), get(), BuildConfig.DEBUG) }
+        single { TransferInteractor(api, get()) }
         single { WalletStore(interactor = get()) }
-        single { TransferStore(interactor = get()) }
+        single { TransferStore(walletInteractor = get(), transferInteractor = get()) }
     }
 
     override fun onCreate() {

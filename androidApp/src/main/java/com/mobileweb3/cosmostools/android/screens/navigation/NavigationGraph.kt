@@ -27,6 +27,7 @@ import com.mobileweb3.cosmostools.resources.Routes.REVEAL_SOURCE_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Routes.SELECT_NETWORKS_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Routes.SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Routes.TRANSFER_SCREEN_ROUTE
+import com.mobileweb3.cosmostools.wallet.transfer.TransferAction
 
 @Composable
 fun NavigationGraph(
@@ -71,7 +72,7 @@ fun NavigationGraph(
             RevealSourceScreen(navController, storeHolder.walletStore)
         }
         composable(TRANSFER_SCREEN_ROUTE) {
-            TransferScreen(navController, storeHolder.transferStore)
+            TransferScreen(storeHolder.transferStore) { }
         }
     }
 }

@@ -4,5 +4,5 @@ package com.mobileweb3.cosmostools.network
 data class BaseResponse<T>(
     val error: String,
     val isSuccess: Boolean,
-    val result: T
+    val result: T?
 )

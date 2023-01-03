@@ -15,7 +15,7 @@ class Cacheable<T> {
 
     val cached get() = publicSubscribersFlow.value
 
-    suspend fun request(checkCache: Boolean = true, update: suspend () -> Result<T>): Result<T> {
+    suspend fun request(checkCache: Boolean = true, update: suspend () -> Result<T?>): Result<T?> {
         if (checkCache) {
             cached?.let { return Result.success(it) }
         }

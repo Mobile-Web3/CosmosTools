@@ -13,7 +13,7 @@ class NetworksRepository(private val api: Api) {
         safeCall { api.getNetworks() }
     }.fold(
         onSuccess = {
-            return it
+            return it ?: emptyList()
         },
         onFailure = {
             return mockNetworksResponse

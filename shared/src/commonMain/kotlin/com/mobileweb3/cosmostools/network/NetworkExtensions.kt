@@ -3,8 +3,8 @@ package com.mobileweb3.cosmostools.network
 import io.ktor.utils.io.*
 
 suspend fun <T> safeCall(
-    block: suspend () -> BaseResponse<T>,
-): Result<T> {
+    block: suspend () -> BaseResponse<T?>,
+): Result<T?> {
     return runCatching {
         block()
     }.fold(

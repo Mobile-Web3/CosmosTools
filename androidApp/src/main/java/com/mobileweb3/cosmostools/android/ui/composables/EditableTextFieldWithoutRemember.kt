@@ -18,6 +18,8 @@ fun EditableTextFieldWithoutRemember(
     title: String,
     text: String,
     maxLines: Int,
+    readOnly: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null,
     onTextChanged: (String) -> Unit
 ) {
     OutlinedTextField(
@@ -29,7 +31,7 @@ fun EditableTextFieldWithoutRemember(
             ),
         value = text,
         label = { Text(title) },
-        trailingIcon = {
+        trailingIcon = trailingIcon ?: {
             if (text.isNotEmpty()) {
                 IconButton(
                     onClick = {
@@ -47,6 +49,7 @@ fun EditableTextFieldWithoutRemember(
         onValueChange = {
             onTextChanged.invoke(it)
         },
+        readOnly = readOnly,
         maxLines = maxLines
     )
 }

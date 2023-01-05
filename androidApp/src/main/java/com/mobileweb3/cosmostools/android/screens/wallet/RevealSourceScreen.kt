@@ -122,7 +122,6 @@ fun RevealSourceScreen(
                     currentAccount = revealState.account,
                     sourceTitle = revealState.account.sourceTitle,
                     walletStore = walletStore,
-                    context = context,
                     onOptionPressed = {
                         navController.popBackStack()
                     },

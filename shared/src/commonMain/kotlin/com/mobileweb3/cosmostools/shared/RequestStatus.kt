@@ -18,5 +18,5 @@ sealed class RequestStatus<T> {
 
     val dataOrNull: T? get() = (this as? Data)?.data
 
-    open fun refresh(): RequestStatus<T> = Loading<T>()
+    open fun refresh(): RequestStatus<T> = Loading()
 }

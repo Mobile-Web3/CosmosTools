@@ -2,6 +2,9 @@ package com.mobileweb3.cosmostools.resources
 
 object Strings {
 
+    //base
+    const val DEFAULT_ERROR = "Server error. Please try again later"
+
     //bottom navigation
     const val VALIDATORS_SCREEN_TITLE = "Validators"
     const val STATS_SCREEN_TITLE = "Stats"

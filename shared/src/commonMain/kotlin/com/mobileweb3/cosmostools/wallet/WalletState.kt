@@ -5,8 +5,12 @@ import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import com.mobileweb3.cosmostools.resources.Strings.MNEMONIC_WARNING
 import com.mobileweb3.cosmostools.resources.Strings.REVEAL_PRIVATE_KEY_MESSAGE
+import com.mobileweb3.cosmostools.shared.RequestStatus
 
 data class WalletState(
+    val networks: RequestStatus<List<NetworkResponse>>,
+
+
     val currentNetwork: NetworkResponse? = null,
     val currentAccount: Account? = null,
     val addressSelectionState: AddressSelectionState? = null,
@@ -25,6 +29,7 @@ data class WalletState(
 
 data class AddressSelectionState(
     val description: String,
+    val allNetworks: List<NetworkWithSelection>,
     val displayedNetworks: List<NetworkWithSelection>,
     val action: String,
     val actionButtonEnabled: Boolean,

@@ -25,7 +25,12 @@ class WalletInteractor internal constructor(
     suspend fun getNetworks() = networksRepository.getNetworks()
 
     suspend fun getCurrentNetwork(): NetworkResponse? =
-        networksRepository.getNetworks().find { it.prettyName == (walletStorage.currentNetwork ?: "Cosmos Hub") }
+        networksRepository.getNetworks().fold(
+            onSuccess = { listOfNetworks ->
+                listOfNetworks?.find { it.prettyName == (walletStorage.currentNetwork ?: "Cosmos Hub") }
+            },
+            onFailure = { null }
+        )
 
     fun setCurrentNetwork(network: NetworkResponse) {
         walletStorage.currentNetwork = network.prettyName

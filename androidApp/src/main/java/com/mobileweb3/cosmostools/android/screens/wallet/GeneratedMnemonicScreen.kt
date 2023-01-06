@@ -1,12 +1,8 @@
 package com.mobileweb3.cosmostools.android.screens.wallet
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -20,9 +16,7 @@ import androidx.navigation.NavHostController
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicEditableTitle
 import com.mobileweb3.cosmostools.android.screens.wallet.views.MnemonicGrid
 import com.mobileweb3.cosmostools.android.screens.wallet.views.WarningTextView
-import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
-import com.mobileweb3.cosmostools.android.ui.composables.Toolbar
-import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
+import com.mobileweb3.cosmostools.android.ui.composables.*
 import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toast
@@ -32,6 +26,7 @@ import com.mobileweb3.cosmostools.resources.Strings.DERIVE_WALLET_OPTION
 import com.mobileweb3.cosmostools.resources.Strings.GENERATED_MNEMONIC_SCREEN_TITLE
 import com.mobileweb3.cosmostools.resources.Strings.MNEMONIC_WARNING
 import com.mobileweb3.cosmostools.resources.Strings.SUCCESS_COPY_MNEMONIC
+import com.mobileweb3.cosmostools.shared.RequestStatus
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
@@ -41,8 +36,6 @@ fun GeneratedMnemonicScreen(
     walletStore: WalletStore
 ) {
     val state = walletStore.observeState().collectAsState()
-    val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
 
     disableScreenshot()
 
@@ -57,49 +50,93 @@ fun GeneratedMnemonicScreen(
             navController = navController
         )
 
-        state.value.generatedMnemonicState?.let {
-            MnemonicEditableTitle(title = it.generatedMnemonicTitle, walletStore)
-
-            MnemonicGrid(words = it.mnemonicResult.mnemonic)
-        }
-
-        WarningTextView(MNEMONIC_WARNING)
-
-        FillSpacer()
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Button(
-                onClick = {
-                    context.toast(SUCCESS_COPY_MNEMONIC)
-                    state.value.generatedMnemonicState?.mnemonicResult?.mnemonic?.let {
-                        clipboardManager.copy(it.joinToString(" "))
+        when (state.value.generatedMnemonicState?.mnemonic) {
+            is RequestStatus.Data -> {
+                MnemonicContent(
+                    walletStore = walletStore,
+                    mnemonicTitle = state.value.generatedMnemonicState!!.generatedMnemonicTitle,
+                    mnemonic = state.value.generatedMnemonicState!!.mnemonic.dataOrNull!!,
+                    onNavigate = { route -> navController.navigate(route) }
+                )
+            }
+            is RequestStatus.Error -> {
+                FullScreenError(
+                    onRetryClicked = {
+                        walletStore.dispatch(WalletAction.RetryCreateMnemonic)
                     }
-                }
-            ) {
-                Text(
-                    text = COPY_MNEMONIC_OPTION,
-                    style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(4.dp)
                 )
             }
-
-            Button(
-                onClick = {
-                    walletStore.dispatch(WalletAction.DeriveWallet)
-                    navController.navigate(DERIVE_WALLET_SCREEN_ROUTE)
-                }
-            ) {
-                Text(
-                    text = DERIVE_WALLET_OPTION,
-                    style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(4.dp)
-                )
+            is RequestStatus.Loading,
+            null -> {
+                FullScreenLoading()
             }
         }
+    }
+}
 
-        VerticalSpacer()
+@Composable
+private fun ColumnScope.MnemonicContent(
+    walletStore: WalletStore,
+    mnemonicTitle: String,
+    mnemonic: List<String>,
+    onNavigate: (route: String) -> Unit
+) {
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+
+    MnemonicEditableTitle(title = mnemonicTitle, walletStore)
+
+    MnemonicGrid(words = mnemonic)
+
+    WarningTextView(MNEMONIC_WARNING)
+
+    FillSpacer()
+
+    ButtonsRow(
+        onCopyClicked = {
+            context.toast(SUCCESS_COPY_MNEMONIC)
+            clipboardManager.copy(mnemonic.joinToString(" "))
+        },
+        onDeriveClicked = {
+            walletStore.dispatch(WalletAction.DeriveWallet)
+            onNavigate(DERIVE_WALLET_SCREEN_ROUTE)
+        }
+    )
+
+    VerticalSpacer()
+}
+
+@Composable
+private fun ButtonsRow(
+    onCopyClicked: () -> Unit,
+    onDeriveClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        Button(
+            onClick = onCopyClicked,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = COPY_MNEMONIC_OPTION,
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier.padding(4.dp)
+            )
+        }
+
+        HorizontalSpacer()
+
+        Button(
+            onClick = onDeriveClicked,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = DERIVE_WALLET_OPTION,
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier.padding(4.dp)
+            )
+        }
     }
 }

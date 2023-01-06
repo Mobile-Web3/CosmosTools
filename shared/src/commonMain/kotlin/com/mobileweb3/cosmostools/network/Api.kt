@@ -10,7 +10,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 
-const val BASE_URL = "http://95.143.188.89:8090/api/"
+const val BASE_URL = "https://mobileweb3.tech/api/"
 
 class Api(private val httpClient: HttpClient) {
 
@@ -21,13 +21,17 @@ class Api(private val httpClient: HttpClient) {
     }
 
     suspend fun getNetworks(): BaseResponse<List<NetworkResponse>?> {
-        return httpClient.post("chains/all").body()
+        return defaultRequest("chains/all")
     }
 
     suspend fun simulateTransaction(request: SimulateTransactionRequest): BaseResponse<SimulateTransactionResponse?> {
         return defaultRequest("transaction/simulate") {
             it.setBody(request)
         }
+    }
+
+    suspend fun createMnemonic(): BaseResponse<String> {
+        return defaultRequest("account/mnemonic")
     }
 
     private suspend inline fun <reified T> defaultRequest(

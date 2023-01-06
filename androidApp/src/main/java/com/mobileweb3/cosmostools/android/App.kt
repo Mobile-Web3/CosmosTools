@@ -1,7 +1,10 @@
 package com.mobileweb3.cosmostools.android
 
+import android.R.attr.password
+import android.R.attr.path
 import android.app.Application
 import com.mobileweb3.cosmostools.core.create
+import com.mobileweb3.cosmostools.core.keyStore
 import com.mobileweb3.cosmostools.network.api
 import com.mobileweb3.cosmostools.repository.BalancesRepository
 import com.mobileweb3.cosmostools.repository.NetworksRepository
@@ -14,6 +17,9 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
+import java.io.FileInputStream
+import java.security.KeyStore
+
 
 class App : Application() {
 
@@ -29,7 +35,25 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        initKeyStore()
         initKoin()
+    }
+
+    private fun initKeyStore() {
+        var caFileInputStream = applicationContext.resources.openRawResource(R.raw.certificate)
+
+        val keyStorePassword = "foobar".toCharArray()
+
+        keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+            //load(null)
+            FileInputStream(path).use { inputStream ->
+                load(
+                    inputStream,
+                    keyStorePassword
+                )
+            }
+            //load(caFileInputStream, keyStorePassword)
+        }
     }
 
     private fun initKoin() {

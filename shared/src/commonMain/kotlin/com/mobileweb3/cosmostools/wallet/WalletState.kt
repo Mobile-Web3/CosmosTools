@@ -41,7 +41,8 @@ data class AddressSelectionState(
 data class GeneratedMnemonicState(
     val generatedMnemonicTitle: String,
     val resultMnemonicTitle: String,
-    val mnemonicResult: MnemonicResult
+    val mnemonic: RequestStatus<List<String>>
+    //val mnemonicResult: MnemonicResult
 )
 
 data class RestoreMnemonicState(

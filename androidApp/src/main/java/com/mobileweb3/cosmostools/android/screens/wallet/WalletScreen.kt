@@ -2,12 +2,8 @@ package com.mobileweb3.cosmostools.android.screens.wallet
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.zxing.BarcodeFormat
@@ -17,10 +13,7 @@ import com.mobileweb3.cosmostools.android.screens.wallet.views.DeleteWalletDialo
 import com.mobileweb3.cosmostools.android.screens.wallet.views.EmptyWalletView
 import com.mobileweb3.cosmostools.android.screens.wallet.views.ShareAndCopyDialog
 import com.mobileweb3.cosmostools.android.ui.PrimaryColor
-import com.mobileweb3.cosmostools.android.ui.composables.AccountCard
-import com.mobileweb3.cosmostools.android.ui.composables.FillSpacer
-import com.mobileweb3.cosmostools.android.ui.composables.NetworkCard
-import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
+import com.mobileweb3.cosmostools.android.ui.composables.*
 import com.mobileweb3.cosmostools.android.utils.enableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toBitmap
 import com.mobileweb3.cosmostools.core.entity.Account
@@ -29,7 +22,6 @@ import com.mobileweb3.cosmostools.resources.Routes
 import com.mobileweb3.cosmostools.resources.Routes.PIN_CODE_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Routes.SWITCH_NETWORK_AND_WALLET_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Strings
-import com.mobileweb3.cosmostools.resources.Strings.DEFAULT_ERROR
 import com.mobileweb3.cosmostools.shared.RequestStatus
 import com.mobileweb3.cosmostools.wallet.WalletAction
 import com.mobileweb3.cosmostools.wallet.WalletState
@@ -51,50 +43,16 @@ fun WalletScreen(
     ) {
         when (state.value.networks) {
             is RequestStatus.Loading -> {
-                WalletLoading()
+                FullScreenLoading()
             }
             is RequestStatus.Error -> {
-                WalletError(
+                FullScreenError(
                     onRetryClicked = { walletStore.dispatch(WalletAction.RetryGetNetworks) }
                 )
             }
             is RequestStatus.Data -> {
                 WalletData(navController, walletStore, state)
             }
-        }
-    }
-}
-
-@Composable
-private fun WalletLoading() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun WalletError(
-    onRetryClicked: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(DEFAULT_ERROR)
-        IconButton(
-            modifier = Modifier.scale(1.2f),
-            onClick = { onRetryClicked() }
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Refresh,
-                contentDescription = "Refresh",
-                tint = MaterialTheme.colors.primary
-            )
         }
     }
 }

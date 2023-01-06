@@ -4,6 +4,7 @@ import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.network.Api
 import com.mobileweb3.cosmostools.network.response.GetBalanceResponse
 import com.mobileweb3.cosmostools.network.response.NetworkResponse
+import com.mobileweb3.cosmostools.network.safeCall
 import com.mobileweb3.cosmostools.repository.BalancesRepository
 import com.mobileweb3.cosmostools.repository.NetworksRepository
 
@@ -80,6 +81,10 @@ class WalletInteractor internal constructor(
 
     suspend fun getAccountBalance(address: String): GetBalanceResponse? {
         return balancesRepository.getBalance(address)
+    }
+
+    suspend fun getNewMnemonic(): Result<String> {
+        return safeCall { api.createMnemonic() }
     }
 
     companion object

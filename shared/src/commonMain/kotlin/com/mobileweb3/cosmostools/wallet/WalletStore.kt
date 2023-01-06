@@ -24,28 +24,25 @@ import kotlinx.coroutines.launch
 
 sealed class WalletAction : Action {
 
+    //wallet screen
     object RetryGetNetworks : WalletAction()
-
     object CreateWallet : WalletAction()
-
     object RestoreWalletByMnemonic : WalletAction()
-
     object RestoreWalletByPrivateKey : WalletAction()
 
+    //select networks screen
     class SearchNetworkQueryChanged(val query: String) : WalletAction()
-
     class SelectNetworkForCreationOrRestore(
         val createWalletNetwork: NetworkWithSelection,
         val selected: Boolean
     ) : WalletAction()
-
     object SelectAllNetworks : WalletAction()
-
     object UnselectAllNetworks : WalletAction()
-
     object ActionAfterNetworksSelected : WalletAction()
 
+    //mnemonic screen
     class MnemonicTitleChanged(val newTitle: String) : WalletAction()
+    object RetryCreateMnemonic : WalletAction()
 
     object ClearMnemonic : WalletAction()
 
@@ -197,7 +194,7 @@ class WalletStore(
 
                 walletAction = WalletAction.CreateWallet
 
-                initSelectNetworks(
+                newState = initSelectNetworks(
                     description = "Select networks for which addresses will be created from a single mnemonic:",
                     action = "Create",
                     nextRoute = GENERATED_MNEMONIC_SCREEN_ROUTE
@@ -208,7 +205,7 @@ class WalletStore(
 
                 walletAction = WalletAction.RestoreWalletByMnemonic
 
-                initSelectNetworks(
+                newState = initSelectNetworks(
                     description = "Select networks for which addresses will be restored from entered mnemonic:",
                     action = "Restore",
                     nextRoute = RESTORE_MNEMONIC_SCREEN_ROUTE
@@ -219,7 +216,7 @@ class WalletStore(
 
                 walletAction = WalletAction.RestoreWalletByPrivateKey
 
-                initSelectNetworks(
+                newState = initSelectNetworks(
                     description = "Select networks for which addresses will be restored from private key:",
                     action = "Restore",
                     nextRoute = RESTORE_PRIVATE_KEY_SCREEN_ROUTE
@@ -265,43 +262,26 @@ class WalletStore(
                 )
             }
             is WalletAction.SelectAllNetworks -> {
-                state.value.addressSelectionState?.allNetworks?.forEach {
-                    it.selected = true
-                }
-
-                newState = oldState.copy(
-                    addressSelectionState = oldState.addressSelectionState?.copy(
-                        actionButtonEnabled = true,
-                        selectedCount = getSelectedNetworksCount()
-                    )
-                )
+                newState = refreshNetworksSelection(true)
             }
             is WalletAction.UnselectAllNetworks -> {
-                state.value.addressSelectionState?.allNetworks?.forEach {
-                    it.selected = false
-                }
-
-                newState = oldState.copy(
-                    addressSelectionState = oldState.addressSelectionState?.copy(
-                        actionButtonEnabled = false,
-                        selectedCount = getSelectedNetworksCount()
-                    )
-                )
+                newState = refreshNetworksSelection(false)
             }
             WalletAction.ActionAfterNetworksSelected -> {
                 when (walletAction) {
                     WalletAction.CreateWallet -> {
-                        val mnemonicResult = createMnemonic()
                         val mnemonicTitle = "Mnemonic ${interactor.getMnemonicCounter()}"
 
-                        newState = oldState.copy(
+                        state.value = state.value.copy(
                             generatedMnemonicState = GeneratedMnemonicState(
                                 generatedMnemonicTitle = mnemonicTitle,
                                 resultMnemonicTitle = mnemonicTitle,
-                                mnemonicResult = mnemonicResult
+                                mnemonic = RequestStatus.Loading()
                             ),
                             deriveWalletState = null
                         )
+
+                        createMnemonic()
                     }
                     WalletAction.RestoreWalletByMnemonic -> {
                         val mnemonicTitle = "Mnemonic ${interactor.getMnemonicCounter()}"
@@ -345,6 +325,9 @@ class WalletStore(
                         resultMnemonicTitle = action.newTitle
                     )
                 )
+            }
+            is WalletAction.RetryCreateMnemonic -> {
+                createMnemonic()
             }
             is WalletAction.ClearMnemonic -> {
                 newState = oldState.copy(
@@ -777,13 +760,13 @@ class WalletStore(
         }
     }
 
-    private fun createMnemonic(): MnemonicResult {
-        val entropy = Entropy.getEntropy()
-        return MnemonicResult(
-            entropy = entropy,
-            mnemonic = Mnemonic.getRandomMnemonic(entropy)
-        )
-    }
+//    private fun createMnemonic(): MnemonicResult {
+//        val entropy = Entropy.getEntropy()
+//        return MnemonicResult(
+//            entropy = entropy,
+//            mnemonic = Mnemonic.getRandomMnemonic(entropy)
+//        )
+//    }
 
     private fun createAddresses(
         networks: List<NetworkResponse>,
@@ -835,22 +818,20 @@ class WalletStore(
         description: String,
         action: String,
         nextRoute: String
-    ) {
-        launch {
-            val resultNetworks = getInitSelectionNetworks()!!
+    ): WalletState {
+        val resultNetworks = getInitSelectionNetworks()!!
 
-            state.tryEmit(state.value.copy(
-                addressSelectionState = AddressSelectionState(
-                    description = description,
-                    allNetworks = resultNetworks,
-                    displayedNetworks = resultNetworks,
-                    actionButtonEnabled = resultNetworks.any { it.selected },
-                    action = action,
-                    selectedCount = 1,
-                    nextRoute = nextRoute
-                )
-            ))
-        }
+        return state.value.copy(
+            addressSelectionState = AddressSelectionState(
+                description = description,
+                allNetworks = resultNetworks,
+                displayedNetworks = resultNetworks,
+                actionButtonEnabled = resultNetworks.any { it.selected },
+                action = action,
+                selectedCount = 1,
+                nextRoute = nextRoute
+            )
+        )
     }
 
     private fun getNetworksByQuery(query: String?): List<NetworkWithSelection> {
@@ -861,6 +842,47 @@ class WalletStore(
 
     private fun getSelectedNetworksCount(): Int {
         return state.value.addressSelectionState?.allNetworks!!.filter { it.selected }.size
+    }
+
+    private fun refreshNetworksSelection(selected: Boolean): WalletState {
+        state.value.addressSelectionState?.allNetworks?.forEach {
+            it.selected = selected
+        }
+
+        return state.value.copy(
+            addressSelectionState = state.value.addressSelectionState?.copy(
+                actionButtonEnabled = true,
+                selectedCount = getSelectedNetworksCount()
+            )
+        )
+    }
+
+    private fun createMnemonic() {
+        state.value = state.value.copy(
+            generatedMnemonicState = state.value.generatedMnemonicState?.copy(
+                mnemonic = RequestStatus.Loading()
+            ),
+            deriveWalletState = null
+        )
+
+        launch {
+            interactor.getNewMnemonic().fold(
+                onSuccess = { mnemonicString ->
+                    state.value = state.value.copy(
+                        generatedMnemonicState = state.value.generatedMnemonicState?.copy(
+                            mnemonic = RequestStatus.Data(mnemonicString.split(" "))
+                        )
+                    )
+                },
+                onFailure = {
+                    state.value = state.value.copy(
+                        generatedMnemonicState = state.value.generatedMnemonicState?.copy(
+                            mnemonic = RequestStatus.Error(it)
+                        )
+                    )
+                }
+            )
+        }
     }
 
 }

@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-parcelize")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -100,6 +101,9 @@ android {
         implementation(libs.landscapist.glide)
 
         implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-        implementation("androidx.compose.material:material-icons-extended:1.2.1")
+        implementation("androidx.compose.material:material-icons-extended:1.3.1")
+
+        implementation("com.google.firebase:firebase-bom:31.1.1")
+        implementation("com.google.firebase:firebase-messaging:23.1.1")
     }
 }

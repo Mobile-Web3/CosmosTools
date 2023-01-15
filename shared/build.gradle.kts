@@ -90,3 +90,6 @@ android {
         coreLibraryDesugaring(libs.desugar.jdk.libs)
     }
 }
+dependencies {
+    implementation("com.google.firebase:firebase-messaging-ktx:23.1.1")
+}

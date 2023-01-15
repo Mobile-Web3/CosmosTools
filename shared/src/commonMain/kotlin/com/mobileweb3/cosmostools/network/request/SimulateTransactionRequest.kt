@@ -7,6 +7,7 @@ data class SimulateTransactionRequest(
     val amount: String,
     val from: String,
     val memo: String,
-    val mnemonic: String,
-    val to: String
+    val key: String,
+    val to: String,
+    val chainId: String
 )

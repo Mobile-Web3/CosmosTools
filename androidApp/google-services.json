@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "278261286213",
+    "project_id": "mobileweb-3",
+    "storage_bucket": "mobileweb-3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278261286213:android:13228351e2f7941d14aa2c",
+        "android_client_info": {
+          "package_name": "com.mobileweb3.cosmostools.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "278261286213-e18glaej2q5r71ecj3uqpv427ukcs0j0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHizB9AgXZds-XrMM7mMMdAaFOZdaTRHY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "278261286213-e18glaej2q5r71ecj3uqpv427ukcs0j0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

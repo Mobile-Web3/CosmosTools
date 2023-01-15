@@ -6,80 +6,19 @@ import android.util.Base64
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.KeyStore.PrivateKeyEntry
-import java.security.KeyStore.SecretKeyEntry
 import java.security.KeyStoreException
 import java.security.Signature
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 
 actual object EncryptHelper {
 
-    private const val TRANSFORMATION = "AES/GCM/NoPadding"
     private const val KEYSTORE = "AndroidKeyStore"
     private const val TYPE_RSA = "RSA"
     private const val SIGNATURE_SHA256withRSA = "SHA256withRSA"
-
-    actual fun encrypt(
-        alias: String,
-        resource: String,
-        withAuth: Boolean
-    ): EncryptResult {
-        val cipher = getEncodeCipher(alias, withAuth)
-        val end = cipher.doFinal(resource.toByteArray(charset("UTF-8")))
-        return EncryptResult(end, cipher.iv)
-    }
-
-    actual fun decrypt(
-        alias: String,
-        resource: String,
-        spec: String
-    ): String {
-        val cipher = getDecodeCipher(alias, Base64.decode(spec, Base64.DEFAULT))
-        return String(cipher!!.doFinal(Base64.decode(resource, Base64.DEFAULT)))
-    }
-
-    actual fun EncryptResult.getEncData(): String {
-        return Base64.encodeToString(encData, 0)
-    }
-
-    actual fun EncryptResult.getIvData(): String {
-        return Base64.encodeToString(ivData, 0)
-    }
-
-    private fun getEncodeCipher(alias: String, withAuth: Boolean): Cipher {
-        val encCipher = Cipher.getInstance(TRANSFORMATION)
-        val keyStore: KeyStore = loadKeyStore()
-        generateKeyIfNecessary(keyStore, alias, withAuth)
-        val key = keyStore.getKey(alias, null) as SecretKey
-        encCipher.init(Cipher.ENCRYPT_MODE, key)
-        return encCipher
-    }
-
-    @Throws(Exception::class)
-    private fun getDecodeCipher(alias: String, iv: ByteArray): Cipher? {
-        val decCipher = Cipher.getInstance(TRANSFORMATION)
-        val keyStore: KeyStore = loadKeyStore()
-        val secretKey = (keyStore.getEntry(alias, null) as SecretKeyEntry).secretKey
-        val spec = GCMParameterSpec(128, iv)
-        decCipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
-        return decCipher
-    }
 
     private fun loadKeyStore(): KeyStore {
         return KeyStore.getInstance(KEYSTORE).apply {
             load(null)
         }
-    }
-
-    private fun generateKeyIfNecessary(keyStore: KeyStore, alias: String, withAuth: Boolean): Boolean {
-        try {
-            return keyStore.containsAlias(alias) || generateKey(alias, withAuth)
-        } catch (e: KeyStoreException) {
-            e.printStackTrace()
-        }
-        return false
     }
 
     private fun generateKeyPairIfNecessary(keyStore: KeyStore, alias: String): Boolean {
@@ -89,30 +28,6 @@ actual object EncryptHelper {
             e.printStackTrace()
         }
         return false
-    }
-
-    private fun generateKey(alias: String, withAuth: Boolean): Boolean {
-        return try {
-            val keyGenerator: KeyGenerator = KeyGenerator.getInstance(
-                KeyProperties.KEY_ALGORITHM_AES,
-                KEYSTORE
-            )
-            keyGenerator.init(
-                KeyGenParameterSpec.Builder(
-                    alias,
-                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-                )
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setUserAuthenticationRequired(withAuth)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .build()
-            )
-            keyGenerator.generateKey()
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
     }
 
     private fun generateKeyPair(alias: String): Boolean {

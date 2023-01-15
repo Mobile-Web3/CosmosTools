@@ -29,10 +29,11 @@ import com.mobileweb3.cosmostools.android.ui.composables.VerticalSpacer
 import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toast
+import com.mobileweb3.cosmostools.crypto.splitMnemonic
+import com.mobileweb3.cosmostools.resources.Strings
 import com.mobileweb3.cosmostools.resources.Strings.REVEAL_SOURCE_SCREEN_COPY_OPTION
 import com.mobileweb3.cosmostools.resources.Strings.REVEAL_SOURCE_SCREEN_DELETE_OPTION
 import com.mobileweb3.cosmostools.resources.Strings.SUCCESS_REVEAL_SOURCE_SCREEN_COPY_OPTION
-import com.mobileweb3.cosmostools.wallet.AddressSource
 import com.mobileweb3.cosmostools.wallet.WalletStore
 
 @Composable
@@ -62,25 +63,27 @@ fun RevealSourceScreen(
             navController = navController
         )
 
-        when (val addressSource = revealState.addressSource) {
-            is AddressSource.Mnemonic -> {
-                MnemonicGrid(words = addressSource.words)
+        val message = when {
+            revealState.account.mnemonic != null -> {
+                MnemonicGrid(words = revealState.account.mnemonic!!.splitMnemonic())
+                Strings.MNEMONIC_WARNING
             }
-            is AddressSource.PrivateKey -> {
+            else -> {
                 OutlinedTextField(
                     readOnly = true,
-                    value = addressSource.key,
+                    value = revealState.account.key,
                     onValueChange = {},
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 )
-                addressSource.key
+                revealState.account.key
+                Strings.REVEAL_PRIVATE_KEY_MESSAGE
             }
         }
 
         WarningTextView(
-            text = revealState.addressSource.helpMessage
+            text = message
         )
 
         FillSpacer()
@@ -90,9 +93,10 @@ fun RevealSourceScreen(
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
+                modifier = Modifier.weight(1f),
                 onClick = {
                     context.toast(revealState.account.sourceTitle + SUCCESS_REVEAL_SOURCE_SCREEN_COPY_OPTION)
-                    clipboardManager.copy(revealState.addressSource.getAsString())
+                    clipboardManager.copy(revealState.account.getSource())
                 }
             ) {
                 Text(
@@ -106,6 +110,7 @@ fun RevealSourceScreen(
 
             val openDeleteDialog = remember { mutableStateOf(false) }
             Button(
+                modifier = Modifier.weight(1f),
                 onClick = {
                     openDeleteDialog.value = true
                 }

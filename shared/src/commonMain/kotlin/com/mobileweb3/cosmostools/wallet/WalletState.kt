@@ -3,8 +3,6 @@ package com.mobileweb3.cosmostools.wallet
 import com.mobileweb3.cosmostools.app.State
 import com.mobileweb3.cosmostools.core.entity.Account
 import com.mobileweb3.cosmostools.network.response.NetworkResponse
-import com.mobileweb3.cosmostools.resources.Strings.MNEMONIC_WARNING
-import com.mobileweb3.cosmostools.resources.Strings.REVEAL_PRIVATE_KEY_MESSAGE
 import com.mobileweb3.cosmostools.shared.RequestStatus
 
 data class WalletState(
@@ -60,25 +58,21 @@ data class RestorePrivateKeyState(
     val privateKeyIsValid: Boolean
 )
 
-data class MnemonicResult(
-    val entropy: ByteArray,
-    val mnemonic: List<String>
-)
-
 data class DeriveWalletState(
-    val generating: Boolean,
     val derivationHDPath: Int?,
-    val resultAddresses: List<CreatedOrRestoredAddress>,
+    val accountCreateRequest: RequestStatus<AccountCreateEntity>,
     val title: String?,
-    val createAddressMethod: CreateAddressMethod
 )
 
-data class CreatedOrRestoredAddress(
-    val network: NetworkResponse,
+data class AccountCreateEntity(
+    val networksWithAddresses: List<NetworkWithAddress>,
+    val key: String
+)
+
+data class NetworkWithAddress(
     val address: String,
-    val derivationHDPath: Int?,
+    val network: NetworkResponse,
     val fullDerivationPath: String?,
-    val balance: String,
     val importedStatus: ImportedStatus
 )
 
@@ -144,29 +138,5 @@ sealed class PinEnterState {
 }
 
 data class RevealSourceState(
-    val account: Account,
-    val addressSource: AddressSource
+    val account: Account
 )
-
-sealed class AddressSource(val helpMessage: String) {
-
-    abstract fun getAsString(): String
-
-    class Mnemonic(val words: List<String>) : AddressSource(
-        helpMessage = MNEMONIC_WARNING
-    ) {
-
-        override fun getAsString(): String {
-            return words.joinToString(" ")
-        }
-    }
-
-    class PrivateKey(val key: String) : AddressSource(
-        helpMessage = REVEAL_PRIVATE_KEY_MESSAGE
-    ) {
-
-        override fun getAsString(): String {
-            return key
-        }
-    }
-}

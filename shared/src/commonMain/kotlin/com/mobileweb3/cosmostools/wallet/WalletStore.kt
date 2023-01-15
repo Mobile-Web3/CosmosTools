@@ -166,7 +166,7 @@ class WalletStore(
         }
 
         launch {
-            currentAccount.address?.let {
+            currentAccount.address.let {
                 val balance = interactor.getAccountBalance(it)
 
                 balance
@@ -339,7 +339,7 @@ class WalletStore(
                 )
             }
             is WalletAction.PasteMnemonicFromClipboard -> {
-                val mnemonicFromText = action.text.split(" ")
+                val mnemonicFromText = action.text.splitMnemonic()
 
                 newState = oldState.copy(
                     restoreMnemonicState = oldState.restoreMnemonicState?.copy(
@@ -393,155 +393,106 @@ class WalletStore(
                 )
             }
             is WalletAction.RestoreFromPrivateKey -> {
-//                val selectedNetworks = resultNetworks.filter { it.selected }.map { it.network }
-//                var privateKey = state.value.restorePrivateKeyState?.enteredPrivateKey
-//                val privateKeyTitle = state.value.restorePrivateKeyState!!.resultPrivateKeyTitle
-//
-//                if (privateKey != null) {
-//                    if (privateKey.lowercase().startsWith("0x")) {
-//                        privateKey = privateKey.substring(2)
-//                    }
-//
-//                    val createAddressMethod = CreateAddressMethod.FromPrivateKey(
-//                        privateKey = privateKey,
-//                        privateKeyTitle = privateKeyTitle
-//                    )
-//
-//                    val allAddresses = interactor.getAllAccounts()
-//                    val addresses = selectedNetworks.map { network ->
-//                        createAddressMethod.create(network, allAddresses)
-//                    }
-//
-//                    newState = oldState.copy(
-//                        deriveWalletState = DeriveWalletState(
-//                            generating = false,
-//                            derivationHDPath = null,
-//                            resultAddresses = addresses,
-//                            title = privateKeyTitle,
-//                            createAddressMethod = createAddressMethod
-//                        )
-//                    )
-//                }
-            }
-            WalletAction.DeriveWallet -> {
-//                val mnemonicTitle = when (walletAction) {
-//                    WalletAction.CreateWallet -> {
-//                        oldState.generatedMnemonicState?.resultMnemonicTitle
-//                    }
-//                    WalletAction.RestoreWalletByMnemonic -> {
-//                        oldState.restoreMnemonicState?.resultMnemonicTitle
-//                    }
-//                    else -> null
-//                }
-//                val mnemonicResult: MnemonicResult? = when (walletAction) {
-//                    WalletAction.CreateWallet -> {
-//                        oldState.generatedMnemonicState?.mnemonicResult
-//                    }
-//                    WalletAction.RestoreWalletByMnemonic -> {
-//                        val enteredMnemonic = oldState.restoreMnemonicState?.enteredMnemonic?.filter { it.isNotEmpty() }
-//                        val entropy = Mnemonic.toEntropy(enteredMnemonic)
-//                        if (entropy != null || enteredMnemonic == null) {
-//                            MnemonicResult(
-//                                entropy = entropy!!,
-//                                mnemonic = enteredMnemonic!!
-//                            )
-//                        } else {
-//                            null
-//                        }
-//                    }
-//                    else -> null
-//                }
-//
-//                mnemonicResult?.let { safeMnemonicResult ->
-//                    val createAddressMethod = CreateAddressMethod.FromMnemonic(
-//                        mnemonicResult = safeMnemonicResult,
-//                        mnemonicTitle = mnemonicTitle!!,
-//                        hdPath = 0
-//                    )
-//
-//                    val createdAddresses = createAddresses(
-//                        networks = resultNetworks.filter { it.selected }.map { it.network },
-//                        createAddressMethod = createAddressMethod
-//                    )
-//
-//                    //todo load balances from addresses
-//                    newState = oldState.copy(
-//                        deriveWalletState = DeriveWalletState(
-//                            generating = false,
-//                            derivationHDPath = 0,
-//                            resultAddresses = createdAddresses,
-//                            title = mnemonicTitle,
-//                            createAddressMethod = createAddressMethod
-//                        )
-//                    )
-//                }
-            }
-            is WalletAction.HDPathChanged -> {
-                newState = oldState.copy(
-                    deriveWalletState = oldState.deriveWalletState?.copy(
-                        generating = true,
-                        derivationHDPath = action.hdPath,
-                        resultAddresses = emptyList()
+                state.value = state.value.copy(
+                    deriveWalletState = DeriveWalletState(
+                        derivationHDPath = null,
+                        accountCreateRequest = RequestStatus.Loading(),
+                        title = state.value.restorePrivateKeyState?.resultPrivateKeyTitle
                     )
                 )
 
-                launch {
-//                    val createAddressMethod = (oldState.deriveWalletState!!.createAddressMethod as CreateAddressMethod.FromMnemonic).copy(
-//                        hdPath = action.hdPath
-//                    )
-//
-//                    val createdAddresses = createAddresses(
-//                        networks = resultNetworks.filter { it.selected }.map { it.network },
-//                        createAddressMethod = createAddressMethod
-//                    )
-//
-//                    state.tryEmit(
-//                        state.value.copy(
-//                            deriveWalletState = oldState.deriveWalletState.copy(
-//                                generating = false,
-//                                derivationHDPath = action.hdPath,
-//                                resultAddresses = createdAddresses
-//                            )
-//                        )
-//                    )
-                }
-            }
-            WalletAction.SaveGeneratedAddressesButtonClicked -> {
-                val createAddressMethod = state.value.deriveWalletState?.createAddressMethod
-                val addressesToSave = state.value.deriveWalletState?.resultAddresses
-                val mnemonicTitleFromState = state.value.deriveWalletState?.title
-
-                if (createAddressMethod == null || addressesToSave == null || mnemonicTitleFromState == null) {
-                    return
+                var privateKey = state.value.restorePrivateKeyState?.enteredPrivateKey
+                if (privateKey != null) {
+                    if (privateKey.lowercase().startsWith("0x")) {
+                        privateKey = privateKey.substring(2)
+                    }
                 }
 
+                val selectedNetworks = state.value.addressSelectionState!!.displayedNetworks.filter {
+                    it.selected
+                }.map { it.network }
+
+                val allAccounts = interactor.getAllAccounts()
+
                 launch {
-                    addressesToSave.forEach { createdAddress ->
-                        if (createdAddress.importedStatus is ImportedStatus.ImportedAddress) {
-                            return@forEach
-                        }
+                    interactor.restoreAddresses(
+                        displayedNetworks = selectedNetworks,
+                        key = privateKey!!
+                    ).fold(
+                        onSuccess = { accountRestoreResponse ->
+                            state.value = state.value.copy(
+                                deriveWalletState = state.value.deriveWalletState?.copy(
+                                    accountCreateRequest = RequestStatus.Data(
+                                        AccountCreateEntity(
+                                            networksWithAddresses = accountRestoreResponse.addresses.mapIndexed { index, address ->
+                                                val network = selectedNetworks[index]
 
-                        val newAccount = createAddressMethod.applyAccount(
-                            createdAddress = createdAddress,
-                            account = Account.newInstance(id = interactor.getIdForNewAccount())
-                        )
-
-                        val addressesFromNetwork = interactor.getAllAccountsByNetwork(createdAddress.network)
-                        if (addressesFromNetwork.isEmpty()) {
-                            interactor.setSelectedAccount(newAccount.id, createdAddress.network)
-                        }
-
-                        interactor.saveAccount(newAccount, createdAddress.network)
-
-                        if (interactor.getCurrentNetwork() == createdAddress.network) {
-                            interactor.setSelectedAccount(newAccount.id, createdAddress.network)
-
-                            state.tryEmit(
-                                state.value.copy(
-                                    currentAccount = interactor.getSelectedAccount()
+                                                NetworkWithAddress(
+                                                    address = address,
+                                                    network = network,
+                                                    fullDerivationPath = null,
+                                                    importedStatus = if (allAccounts.any { it.address == address }) {
+                                                        ImportedStatus.ImportedAddress
+                                                    } else {
+                                                        ImportedStatus.NewAddress
+                                                    }
+                                                )
+                                            },
+                                            key = accountRestoreResponse.key
+                                        )
+                                    )
+                                )
+                            )
+                        },
+                        onFailure = {
+                            state.value = state.value.copy(
+                                deriveWalletState = state.value.deriveWalletState?.copy(
+                                    accountCreateRequest = RequestStatus.Error(it)
                                 )
                             )
                         }
+                    )
+                }
+            }
+            WalletAction.DeriveWallet -> {
+                createAddresses(0)
+            }
+            is WalletAction.HDPathChanged -> {
+                createAddresses(action.hdPath)
+            }
+            WalletAction.SaveGeneratedAddressesButtonClicked -> {
+                launch {
+                    val mnemonic = state.value.generatedMnemonicState?.mnemonic?.dataOrNull
+                    val deriveState = state.value.deriveWalletState!!
+                    deriveState.accountCreateRequest.dataOrNull?.let { accountCreateEntity ->
+                        accountCreateEntity.networksWithAddresses
+                            .filter { it.importedStatus == ImportedStatus.NewAddress }
+                            .forEach { networkWithAddress ->
+                                val newAccount = Account(
+                                    id = interactor.getIdForNewAccount(),
+                                    network = networkWithAddress.network.prettyName,
+                                    key = accountCreateEntity.key,
+                                    mnemonic = mnemonic?.buildMnemonic(),
+                                    sourceTitle = deriveState.title!!,
+                                    address = networkWithAddress.address,
+                                    fullDerivationPath = networkWithAddress.fullDerivationPath
+                                )
+
+                                interactor.saveAccount(
+                                    account = newAccount,
+                                    network = networkWithAddress.network
+                                )
+
+                                if (interactor.getCurrentNetwork() == networkWithAddress.network) {
+                                    interactor.setSelectedAccount(newAccount.id, networkWithAddress.network)
+
+                                    state.tryEmit(
+                                        state.value.copy(
+                                            currentAccount = interactor.getSelectedAccount()
+                                        )
+                                    )
+                                }
+                            }
                     }
                 }
             }
@@ -713,11 +664,7 @@ class WalletStore(
             is WalletAction.RevealAddressSource -> {
                 val account = action.account
 
-                val addressSourceString = if (account.fromMnemonic == true) {
-                    "Mnemonic"
-                } else {
-                    "Private key"
-                }
+                val addressSourceString = "Mnemonic"
 
                 newState = oldState.copy(
                     pinState = oldState.pinState.copy(
@@ -732,8 +679,7 @@ class WalletStore(
                 launch {
                     state.tryEmit(state.value.copy(
                         revealSourceState = RevealSourceState(
-                            account = account,
-                            addressSource = getAddressSource(account)
+                            account = account
                         )
                     ))
                 }
@@ -757,25 +703,6 @@ class WalletStore(
         if (newState != oldState) {
             Napier.d(tag = "WalletStore", message = "NewState: $newState")
             state.value = newState
-        }
-    }
-
-//    private fun createMnemonic(): MnemonicResult {
-//        val entropy = Entropy.getEntropy()
-//        return MnemonicResult(
-//            entropy = entropy,
-//            mnemonic = Mnemonic.getRandomMnemonic(entropy)
-//        )
-//    }
-
-    private fun createAddresses(
-        networks: List<NetworkResponse>,
-        createAddressMethod: CreateAddressMethod
-    ): List<CreatedOrRestoredAddress> {
-        val allAccounts = interactor.getAllAccounts()
-
-        return networks.map { network ->
-            createAddressMethod.create(network, allAccounts)
         }
     }
 
@@ -870,7 +797,7 @@ class WalletStore(
                 onSuccess = { mnemonicString ->
                     state.value = state.value.copy(
                         generatedMnemonicState = state.value.generatedMnemonicState?.copy(
-                            mnemonic = RequestStatus.Data(mnemonicString.split(" "))
+                            mnemonic = RequestStatus.Data(mnemonicString.splitMnemonic())
                         )
                     )
                 },
@@ -882,6 +809,85 @@ class WalletStore(
                     )
                 }
             )
+        }
+    }
+
+    private fun createAddresses(hdPath: Int) {
+        val mnemonic = when (walletAction) {
+            WalletAction.CreateWallet -> {
+                state.value.generatedMnemonicState?.mnemonic?.dataOrNull!!
+            }
+            WalletAction.RestoreWalletByMnemonic -> {
+                state.value.restoreMnemonicState?.enteredMnemonic
+            }
+            else -> null
+        }!!
+
+        state.value = state.value.copy(
+            deriveWalletState = DeriveWalletState(
+                derivationHDPath = hdPath,
+                accountCreateRequest = RequestStatus.Loading(),
+                title = getMnemonicTitle()
+            )
+        )
+
+        launch {
+            val selectedNetworks = state.value.addressSelectionState!!.displayedNetworks.filter {
+                it.selected
+            }.map { it.network }
+
+            val allAccounts = interactor.getAllAccounts()
+
+            interactor.createAddresses(
+                displayedNetworks = selectedNetworks,
+                mnemonic = mnemonic,
+                hdPath = hdPath
+            ).fold(
+                onSuccess = { response ->
+                    state.value = state.value.copy(
+                        deriveWalletState = state.value.deriveWalletState?.copy(
+                            accountCreateRequest = RequestStatus.Data(
+                                AccountCreateEntity(
+                                    networksWithAddresses = response.addresses.mapIndexed { index, address ->
+                                        val network = selectedNetworks[index]
+
+                                        NetworkWithAddress(
+                                            address = address,
+                                            network = network,
+                                            fullDerivationPath = "m/44/${network.slip44}/0/0/$hdPath",
+                                            importedStatus = if (allAccounts.any { it.address == address }) {
+                                                ImportedStatus.ImportedAddress
+                                            } else {
+                                                ImportedStatus.NewAddress
+                                            }
+                                        )
+                                    },
+                                    key = response.key
+                                )
+                            )
+                        )
+                    )
+                },
+                onFailure = {
+                    state.value = state.value.copy(
+                        deriveWalletState = state.value.deriveWalletState?.copy(
+                            accountCreateRequest = RequestStatus.Error(it)
+                        )
+                    )
+                }
+            )
+        }
+    }
+
+    private fun getMnemonicTitle(): String? {
+        return when (walletAction) {
+            WalletAction.CreateWallet -> {
+                state.value.generatedMnemonicState?.resultMnemonicTitle
+            }
+            WalletAction.RestoreWalletByMnemonic -> {
+                state.value.restoreMnemonicState?.resultMnemonicTitle
+            }
+            else -> null
         }
     }
 

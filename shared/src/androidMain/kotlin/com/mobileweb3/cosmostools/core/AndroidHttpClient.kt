@@ -14,7 +14,6 @@ import kotlinx.serialization.json.Json
 internal fun AndroidHttpClient(withLog: Boolean) = HttpClient(OkHttp) {
     engine {
         config {
-            sslSocketFactory(SslSettings.getSslContext()!!.socketFactory, SslSettings.getTrustManager())
             retryOnConnectionFailure(true)
             connectTimeout(5, TimeUnit.SECONDS)
         }

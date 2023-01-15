@@ -1,7 +1,13 @@
 package com.mobileweb3.cosmostools.wallet
 
 import com.mobileweb3.cosmostools.core.entity.Account
+import com.mobileweb3.cosmostools.crypto.buildMnemonic
 import com.mobileweb3.cosmostools.network.Api
+import com.mobileweb3.cosmostools.network.request.AccountCreateRequest
+import com.mobileweb3.cosmostools.network.request.AccountRestoreRequest
+import com.mobileweb3.cosmostools.network.request.MnemonicCreateRequest
+import com.mobileweb3.cosmostools.network.response.AccountCreateResponse
+import com.mobileweb3.cosmostools.network.response.AccountRestoreResponse
 import com.mobileweb3.cosmostools.network.response.GetBalanceResponse
 import com.mobileweb3.cosmostools.network.response.NetworkResponse
 import com.mobileweb3.cosmostools.network.safeCall
@@ -28,7 +34,9 @@ class WalletInteractor internal constructor(
     suspend fun getCurrentNetwork(): NetworkResponse? =
         networksRepository.getNetworks().fold(
             onSuccess = { listOfNetworks ->
-                listOfNetworks?.find { it.prettyName == (walletStorage.currentNetwork ?: "Cosmos Hub") }
+                listOfNetworks?.find {
+                    it.prettyName == (walletStorage.currentNetwork ?: "Cosmos Hub")
+                }
             },
             onFailure = { null }
         )
@@ -54,7 +62,11 @@ class WalletInteractor internal constructor(
     suspend fun getSelectedAccount(network: NetworkResponse? = null): Account? {
         return walletStorage
             .getAllAccounts()
-            .find { it.id == walletStorage.getSelectedAccountInNetwork(network ?: getCurrentNetwork()) }
+            .find {
+                it.id == walletStorage.getSelectedAccountInNetwork(
+                    network ?: getCurrentNetwork()
+                )
+            }
     }
 
     fun setSelectedAccount(accountId: Long, network: NetworkResponse) {
@@ -84,8 +96,42 @@ class WalletInteractor internal constructor(
     }
 
     suspend fun getNewMnemonic(): Result<String> {
-        return safeCall { api.createMnemonic() }
+        return safeCall { api.createMnemonic(MnemonicCreateRequest(MNEMONIC_SIZE)) }
     }
 
-    companion object
+    suspend fun createAddresses(
+        displayedNetworks: List<NetworkResponse>,
+        mnemonic: List<String>,
+        hdPath: Int
+    ): Result<AccountCreateResponse> {
+        return safeCall {
+            api.createAddresses(
+                AccountCreateRequest(
+                    accountPath = 0,
+                    chainPrefixes = displayedNetworks.map { it.bech32Prefix },
+                    coinType = 118,
+                    indexPath = hdPath,
+                    mnemonic = mnemonic.buildMnemonic()
+                )
+            )
+        }
+    }
+
+    suspend fun restoreAddresses(
+        displayedNetworks: List<NetworkResponse>,
+        key: String
+    ): Result<AccountRestoreResponse> {
+        return safeCall {
+            api.restoreAddresses(
+                AccountRestoreRequest(
+                    chainPrefixes = displayedNetworks.map { it.bech32Prefix },
+                    key = key
+                )
+            )
+        }
+    }
+
+    companion object {
+        private const val MNEMONIC_SIZE = 24
+    }
 }

@@ -8,6 +8,7 @@ buildscript {
     }
     dependencies {
         classpath(libs.bundles.plugins)
+        classpath("com.google.gms:google-services:4.3.14")
     }
 }
 

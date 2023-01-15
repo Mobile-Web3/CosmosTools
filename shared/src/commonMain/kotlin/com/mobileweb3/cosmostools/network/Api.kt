@@ -1,14 +1,10 @@
 package com.mobileweb3.cosmostools.network
 
-import com.mobileweb3.cosmostools.network.request.GetBalanceRequest
-import com.mobileweb3.cosmostools.network.request.SimulateTransactionRequest
-import com.mobileweb3.cosmostools.network.response.GetBalanceResponse
-import com.mobileweb3.cosmostools.network.response.NetworkResponse
-import com.mobileweb3.cosmostools.network.response.SimulateTransactionResponse
+import com.mobileweb3.cosmostools.network.request.*
+import com.mobileweb3.cosmostools.network.response.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.http.*
 
 const val BASE_URL = "https://mobileweb3.tech/api/"
 
@@ -30,8 +26,22 @@ class Api(private val httpClient: HttpClient) {
         }
     }
 
-    suspend fun createMnemonic(): BaseResponse<String> {
-        return defaultRequest("account/mnemonic")
+    suspend fun createMnemonic(request: MnemonicCreateRequest): BaseResponse<String> {
+        return defaultRequest("account/mnemonic") {
+            it.setBody(request)
+        }
+    }
+
+    suspend fun createAddresses(request: AccountCreateRequest): BaseResponse<AccountCreateResponse> {
+        return defaultRequest("account/create") {
+            it.setBody(request)
+        }
+    }
+
+    suspend fun restoreAddresses(request: AccountRestoreRequest): BaseResponse<AccountRestoreResponse> {
+        return defaultRequest("account/restore") {
+            it.setBody(request)
+        }
     }
 
     private suspend inline fun <reified T> defaultRequest(

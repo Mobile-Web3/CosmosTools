@@ -1,6 +1,5 @@
 package com.mobileweb3.cosmostools.wallet.transfer
 
-import com.mobileweb3.cosmostools.crypto.getAddressSource
 import com.mobileweb3.cosmostools.network.Api
 import com.mobileweb3.cosmostools.network.request.SimulateTransactionRequest
 import com.mobileweb3.cosmostools.network.response.SimulateTransactionResponse
@@ -14,6 +13,7 @@ class TransferInteractor(
 
     suspend fun simulateTransaction(): Result<SimulateTransactionResponse?> {
         val currentAccount = walletInteractor.getSelectedAccount()
+        val currentNetwork = walletInteractor.getCurrentNetwork()!!
 
         val currentAddress = walletInteractor.getSelectedAccount()?.address
             ?: return Result.failure(Exception("Can not simulateTransaction when current account is null"))
@@ -25,7 +25,8 @@ class TransferInteractor(
                     from = currentAddress,
                     to = currentAddress,
                     memo = "",
-                    mnemonic = getAddressSource(account = currentAccount!!).getAsString()
+                    key = currentAccount!!.key,
+                    chainId = currentNetwork.chainId
                 )
             )
         }

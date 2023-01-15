@@ -20,6 +20,7 @@ import com.mobileweb3.cosmostools.android.ui.composables.*
 import com.mobileweb3.cosmostools.android.utils.copy
 import com.mobileweb3.cosmostools.android.utils.disableScreenshot
 import com.mobileweb3.cosmostools.android.utils.toast
+import com.mobileweb3.cosmostools.crypto.buildMnemonic
 import com.mobileweb3.cosmostools.resources.Routes.DERIVE_WALLET_SCREEN_ROUTE
 import com.mobileweb3.cosmostools.resources.Strings.COPY_MNEMONIC_OPTION
 import com.mobileweb3.cosmostools.resources.Strings.DERIVE_WALLET_OPTION
@@ -95,7 +96,7 @@ private fun ColumnScope.MnemonicContent(
     ButtonsRow(
         onCopyClicked = {
             context.toast(SUCCESS_COPY_MNEMONIC)
-            clipboardManager.copy(mnemonic.joinToString(" "))
+            clipboardManager.copy(mnemonic.buildMnemonic())
         },
         onDeriveClicked = {
             walletStore.dispatch(WalletAction.DeriveWallet)

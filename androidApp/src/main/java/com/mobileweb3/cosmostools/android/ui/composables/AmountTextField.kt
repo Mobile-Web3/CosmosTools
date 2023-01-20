@@ -12,18 +12,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun EditableTextFieldWithoutRemember(
+fun AmountTextField(
     title: String,
     text: String,
-    maxLines: Int,
     readOnly: Boolean = false,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onTextChanged: (String) -> Unit
 ) {
     OutlinedTextField(
@@ -35,27 +32,22 @@ fun EditableTextFieldWithoutRemember(
             ),
         value = text,
         label = { Text(title) },
-        trailingIcon = trailingIcon ?: {
-            if (text.isNotEmpty()) {
-                IconButton(
-                    onClick = {
-                        onTextChanged.invoke("")
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Clear,
-                        contentDescription = "Clear",
-                        tint = MaterialTheme.colors.primary
-                    )
+        trailingIcon = null,
+        onValueChange = {
+            val newText = if (it.isEmpty()){
+                it
+            } else {
+                when (it.toDoubleOrNull()) {
+                    null -> text //old value
+                    else -> it   //new value
                 }
             }
-        },
-        onValueChange = {
-            onTextChanged.invoke(it)
+            onTextChanged.invoke(newText)
         },
         readOnly = readOnly,
-        maxLines = maxLines,
-        visualTransformation = visualTransformation,
-        keyboardOptions = keyboardOptions
+        maxLines = 1,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Decimal
+        )
     )
 }

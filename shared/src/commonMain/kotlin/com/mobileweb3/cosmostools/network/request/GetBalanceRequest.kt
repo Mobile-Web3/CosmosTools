@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetBalanceRequest(
-    val walletAddress: String
+    val address: String,
+    val chainId: String
 )

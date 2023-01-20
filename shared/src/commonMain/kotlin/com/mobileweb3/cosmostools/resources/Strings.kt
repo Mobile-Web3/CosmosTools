@@ -4,6 +4,7 @@ object Strings {
 
     //base
     const val DEFAULT_ERROR = "Server error. Please try again later"
+    const val DEFAULT_ERROR_MESSAGE = "Error"
 
     //bottom navigation
     const val VALIDATORS_SCREEN_TITLE = "Validators"
@@ -82,5 +83,8 @@ object Strings {
 
     //switch network wallet screen
     const val SWITCH_NETWORK_WALLET_SCREEN_TITLE = "Switch Network and Wallet"
+
+    //transfer screen
+    const val SIMULATE_DEFAULT_ERROR = "Fees getting error"
 
 }

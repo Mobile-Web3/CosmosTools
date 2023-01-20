@@ -11,7 +11,7 @@ const val BASE_URL = "https://mobileweb3.tech/api/"
 class Api(private val httpClient: HttpClient) {
 
     suspend fun getBalance(request: GetBalanceRequest): BaseResponse<GetBalanceResponse?> {
-        return defaultRequest("balance/check") {
+        return defaultRequest("account/balance") {
             it.setBody(request)
         }
     }
@@ -22,6 +22,18 @@ class Api(private val httpClient: HttpClient) {
 
     suspend fun simulateTransaction(request: SimulateTransactionRequest): BaseResponse<SimulateTransactionResponse?> {
         return defaultRequest("transaction/simulate") {
+            it.setBody(request)
+        }
+    }
+
+    suspend fun sendTransaction(request: SendTransactionRequest): BaseResponse<SendTransactionResponse?> {
+        return defaultRequest("transaction/send") {
+            it.setBody(request)
+        }
+    }
+
+    suspend fun sendTransactionWithFirebase(request: SendTransactionRequestWithFirebase): BaseResponse<SendTransactionResponse?> {
+        return defaultRequest("transaction/send/firebase") {
             it.setBody(request)
         }
     }

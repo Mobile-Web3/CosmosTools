@@ -3,6 +3,7 @@ plugins {
     kotlin("android")
     id("kotlin-parcelize")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -105,5 +106,8 @@ android {
 
         implementation("com.google.firebase:firebase-bom:31.1.1")
         implementation("com.google.firebase:firebase-messaging:23.1.1")
+
+        implementation("com.google.firebase:firebase-crashlytics-ktx:18.3.3")
+        implementation("com.google.firebase:firebase-analytics-ktx:21.2.0")
     }
 }

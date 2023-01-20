@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.zxing.BarcodeFormat
@@ -79,11 +80,12 @@ private fun ColumnScope.WalletData(
             navController = navController
         )
 
-        VerticalSpacer()
-
-        TransferButton {
-            navController.navigate(Routes.TRANSFER_SCREEN_ROUTE)
-        }
+        TransferButton(
+            paddingValues = 16.dp,
+            onClicked = {
+                navController.navigate(Routes.TRANSFER_SCREEN_ROUTE)
+            }
+        )
     }
 
     FillSpacer()
@@ -128,7 +130,7 @@ fun WalletAccount(
         }
     )
 
-    val accountAddress = currentAccount.address!!
+    val accountAddress = currentAccount.address
     val qrCodeBitMatrix = QRCodeWriter().encode(accountAddress, BarcodeFormat.QR_CODE, 400, 400)
     val qrCodeBitmap = qrCodeBitMatrix.toBitmap()
 
@@ -150,16 +152,22 @@ fun WalletAccount(
 
 @Composable
 fun TransferButton(
+    paddingValues: Dp,
     onClicked: () -> Unit
 ) {
-    Button(
-        onClick = onClicked
+    Row(
+        modifier = Modifier.padding(paddingValues)
     ) {
-        Text(
-            text = Strings.TRANSFER_OPTION,
-            style = MaterialTheme.typography.body1,
-            modifier = Modifier.padding(4.dp)
-        )
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onClicked
+        ) {
+            Text(
+                text = Strings.TRANSFER_OPTION,
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier.padding(4.dp)
+            )
+        }
     }
 }
 

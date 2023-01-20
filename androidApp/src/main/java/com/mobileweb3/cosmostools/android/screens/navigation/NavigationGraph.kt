@@ -72,7 +72,7 @@ fun NavigationGraph(
             RevealSourceScreen(navController, storeHolder.walletStore)
         }
         composable(TRANSFER_SCREEN_ROUTE) {
-            TransferScreen(storeHolder.transferStore) { }
+            TransferScreen(navController, storeHolder.transferStore) { }
         }
     }
 }

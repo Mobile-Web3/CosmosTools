@@ -9,24 +9,28 @@ class BalancesRepository(private val api: Api) {
 
     private val balancesCache = mutableMapOf<String, Cacheable<GetBalanceResponse>>()
 
-    suspend fun getBalance(address: String?, checkCache: Boolean = true): GetBalanceResponse? {
+    suspend fun getBalance(
+        address: String?,
+        chainId: String,
+        checkCache: Boolean = true
+    ): Result<GetBalanceResponse?> {
         if (address == null) {
-            return null
+            return Result.failure(Exception("Wrong address"))
         }
 
         val balanceFromCache = balancesCache[address]
         if (checkCache && balanceFromCache != null) {
             return balanceFromCache.request(true) {
-                safeCall { api.getBalance(GetBalanceRequest(address)) }
-            }.getOrNull()
+                safeCall { api.getBalance(GetBalanceRequest(address, chainId)) }
+            }
         }
 
         balancesCache[address] = Cacheable<GetBalanceResponse>().apply {
             request(false) {
-                safeCall { api.getBalance(GetBalanceRequest(address)) }
+                safeCall { api.getBalance(GetBalanceRequest(address, chainId)) }
             }
         }
 
-        return balancesCache[address]?.cached
+        return Result.success(balancesCache[address]?.cached)
     }
 }

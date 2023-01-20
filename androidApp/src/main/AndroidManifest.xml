@@ -33,6 +33,7 @@
         </provider>
 
         <service
+            android:enabled="true"
             android:name=".firebase.MessagingService"
             android:exported="false">
             <intent-filter>

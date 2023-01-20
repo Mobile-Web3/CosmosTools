@@ -12,7 +12,7 @@ suspend fun <T> safeCall(
             if (callResult.isSuccess && callResult.result != null) {
                 Result.success(callResult.result)
             } else {
-                Result.failure(Exception(callResult.error))
+                Result.failure(Exception(ErrorParser.parse(callResult.error)))
             }
         },
         onFailure = { throwable ->

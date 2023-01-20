@@ -1,6 +1,7 @@
 package com.mobileweb3.cosmostools.android
 
 import android.app.Application
+import com.mobileweb3.cosmostools.android.notifications.NotificationsManager
 import com.mobileweb3.cosmostools.core.create
 import com.mobileweb3.cosmostools.network.api
 import com.mobileweb3.cosmostools.repository.BalancesRepository
@@ -21,7 +22,7 @@ class App : Application() {
         single { BalancesRepository(api) }
         single { NetworksRepository(api) }
         single { WalletInteractor.create(get(), get(), get(), BuildConfig.DEBUG) }
-        single { TransferInteractor(api, get()) }
+        single { TransferInteractor(api, get(), get()) }
         single { WalletStore(interactor = get()) }
         single { TransferStore(walletInteractor = get(), transferInteractor = get()) }
     }
@@ -30,6 +31,7 @@ class App : Application() {
         super.onCreate()
 
         initKoin()
+        NotificationsManager.registerChannels(this)
     }
 
     private fun initKoin() {

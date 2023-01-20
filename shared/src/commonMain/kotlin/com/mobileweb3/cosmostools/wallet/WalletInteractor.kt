@@ -91,8 +91,8 @@ class WalletInteractor internal constructor(
             }
     }
 
-    suspend fun getAccountBalance(address: String): GetBalanceResponse? {
-        return balancesRepository.getBalance(address)
+    suspend fun getAccountBalance(address: String?): Result<GetBalanceResponse?> {
+        return balancesRepository.getBalance(address, getCurrentNetwork()!!.chainId)
     }
 
     suspend fun getNewMnemonic(): Result<String> {

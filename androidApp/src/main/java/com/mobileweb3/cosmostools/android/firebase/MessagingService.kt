@@ -3,11 +3,17 @@ package com.mobileweb3.cosmostools.android.firebase
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.mobileweb3.cosmostools.android.notifications.NotificationsManager
 
 class MessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
+        Log.d("MessagingService", "onMessageReceived")
         super.onMessageReceived(message)
+
+        val txHash = message.data["txHash"]
+        val isSuccess = message.data["isSuccess"]
+        NotificationsManager.showTransactionPush(this, isSuccess.toBoolean(), txHash)
     }
 
     /**

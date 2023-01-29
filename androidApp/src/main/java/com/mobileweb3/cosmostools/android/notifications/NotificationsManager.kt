@@ -1,6 +1,8 @@
 package com.mobileweb3.cosmostools.android.notifications
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -34,11 +36,17 @@ object NotificationsManager {
                 "Hash: $txHash"
             } else null
 
+            val copyIntent = Intent(COPY_TRANSACTION_HASH_ACTION).apply {
+                putExtra(COPY_TRANSACTION_HASH_VALUE, txHash)
+            }
+            val copyPendingIntent = PendingIntent.getBroadcast(context, 0, copyIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+
             val builder = NotificationCompat.Builder(context, transactionsChannelId)
                 .setSmallIcon(R.drawable.ic_bottom_wallet)
                 .setContentTitle(title)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setAutoCancel(true)
+                .addAction(NotificationCompat.Action(R.drawable.ic_push_copy, "Copy", copyPendingIntent))
 
             if (content != null) {
                 builder

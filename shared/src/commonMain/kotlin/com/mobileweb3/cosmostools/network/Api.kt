@@ -7,60 +7,79 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 
 const val BASE_URL = "https://mobileweb3.tech/api/"
+private const val V1 = "v1"
 
 class Api(private val httpClient: HttpClient) {
 
     suspend fun getBalance(request: GetBalanceRequest): BaseResponse<GetBalanceResponse?> {
-        return defaultRequest("account/balance") {
-            it.setBody(request)
+        return defaultGetRequest("${V1}/accounts/balance") {
+            it.parameter("address", request.address)
+            it.parameter("chainId", request.chainId)
         }
     }
 
-    suspend fun getNetworks(): BaseResponse<List<NetworkResponse>?> {
-        return defaultRequest("chains/all")
-    }
-
-    suspend fun simulateTransaction(request: SimulateTransactionRequest): BaseResponse<SimulateTransactionResponse?> {
-        return defaultRequest("transaction/simulate") {
-            it.setBody(request)
-        }
-    }
-
-    suspend fun sendTransaction(request: SendTransactionRequest): BaseResponse<SendTransactionResponse?> {
-        return defaultRequest("transaction/send") {
-            it.setBody(request)
-        }
-    }
-
-    suspend fun sendTransactionWithFirebase(request: SendTransactionRequestWithFirebase): BaseResponse<SendTransactionResponse?> {
-        return defaultRequest("transaction/send/firebase") {
+    suspend fun createAddresses(request: AccountCreateRequest): BaseResponse<AccountCreateResponse> {
+        return defaultPostRequest("${V1}/accounts/create") {
             it.setBody(request)
         }
     }
 
     suspend fun createMnemonic(request: MnemonicCreateRequest): BaseResponse<String> {
-        return defaultRequest("account/mnemonic") {
-            it.setBody(request)
-        }
-    }
-
-    suspend fun createAddresses(request: AccountCreateRequest): BaseResponse<AccountCreateResponse> {
-        return defaultRequest("account/create") {
+        return defaultPostRequest("${V1}/accounts/mnemonic") {
             it.setBody(request)
         }
     }
 
     suspend fun restoreAddresses(request: AccountRestoreRequest): BaseResponse<AccountRestoreResponse> {
-        return defaultRequest("account/restore") {
+        return defaultPostRequest("${V1}/accounts/restore") {
             it.setBody(request)
         }
     }
 
-    private suspend inline fun <reified T> defaultRequest(
+    suspend fun getNetworks(): BaseResponse<List<NetworkResponse>?> {
+        return defaultGetRequest("${V1}/chains")
+    }
+
+    suspend fun getValidators(request: GetValidatorsRequest): BaseResponse<GetValidatorsResponse> {
+        return defaultGetRequest("${V1}/chains/${request.chainId}/validators") {
+            it.parameter("limit", request.limit)
+            it.parameter("offset", request.offset)
+        }
+    }
+
+    suspend fun sendTransaction(request: SendTransactionRequest): BaseResponse<SendTransactionResponse?> {
+        return defaultPostRequest("${V1}/transaction/send") {
+            it.setBody(request)
+        }
+    }
+
+    suspend fun sendTransactionWithFirebase(request: SendTransactionRequestWithFirebase): BaseResponse<SendTransactionResponse?> {
+        return defaultPostRequest("${V1}/transaction/send/firebase") {
+            it.setBody(request)
+        }
+    }
+
+    suspend fun simulateTransaction(request: SimulateTransactionRequest): BaseResponse<SimulateTransactionResponse?> {
+        return defaultPostRequest("${V1}/transaction/simulate") {
+            it.setBody(request)
+        }
+    }
+
+    private suspend inline fun <reified T> defaultPostRequest(
         url: String,
         noinline block: ((HttpRequestBuilder) -> Unit)? = null
     ): BaseResponse<T> {
         return httpClient.post(url) {
+            header("Content-Type", "application/json")
+            block?.invoke(this)
+        }.body()
+    }
+
+    private suspend inline fun <reified T> defaultGetRequest(
+        url: String,
+        noinline block: ((HttpRequestBuilder) -> Unit)? = null
+    ): BaseResponse<T> {
+        return httpClient.get(url) {
             header("Content-Type", "application/json")
             block?.invoke(this)
         }.body()

@@ -218,7 +218,7 @@ fun SendStatusView(
             val clipboardManager = LocalClipboardManager.current
 
             Text(
-                text = "Transaction is successful! Click to copy.\n" +
+                text = "Transaction sent! Click to copy.\n" +
                         "Transaction hash: ${send.data.txHash}",
                 modifier = Modifier.clickable {
                     clipboardManager.copy(send.data.txHash)

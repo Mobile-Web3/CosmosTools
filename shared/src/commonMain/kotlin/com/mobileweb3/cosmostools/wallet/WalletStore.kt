@@ -36,6 +36,7 @@ sealed class WalletAction : Action {
         val createWalletNetwork: NetworkWithSelection,
         val selected: Boolean
     ) : WalletAction()
+
     object SelectAllNetworks : WalletAction()
     object UnselectAllNetworks : WalletAction()
     object ActionAfterNetworksSelected : WalletAction()
@@ -93,7 +94,8 @@ private val initMnemonic = listOf(
 
 class WalletStore(
     private val interactor: WalletInteractor
-) : Store<WalletState, WalletAction, WalletSideEffect>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
+) : Store<WalletState, WalletAction, WalletSideEffect>,
+    CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
     private val state = MutableStateFlow(WalletState(networks = RequestStatus.Loading()))
     private val sideEffect = MutableSharedFlow<WalletSideEffect>()
@@ -147,17 +149,19 @@ class WalletStore(
     private fun refreshPinState(nextRoute: String) {
         val userHasPin = interactor.userHasPin()
 
-        state.tryEmit(state.value.copy(
-            pinState = state.value.pinState.copy(
-                userHasPin = userHasPin,
-                pinPurpose = if (userHasPin) {
-                    PinPurpose.Check(nextRoute = nextRoute)
-                } else {
-                    PinPurpose.Set(nextRoute = nextRoute)
-                },
-                enterState = PinEnterState.WaitingForEnter
+        state.tryEmit(
+            state.value.copy(
+                pinState = state.value.pinState.copy(
+                    userHasPin = userHasPin,
+                    pinPurpose = if (userHasPin) {
+                        PinPurpose.Check(nextRoute = nextRoute)
+                    } else {
+                        PinPurpose.Set(nextRoute = nextRoute)
+                    },
+                    enterState = PinEnterState.WaitingForEnter
+                )
             )
-        ))
+        )
     }
 
     private fun requestWalletInfo(currentAccount: Account?) {
@@ -223,7 +227,8 @@ class WalletStore(
                 )
             }
             is WalletAction.SearchNetworkQueryChanged -> {
-                val networksByQuery = getNetworksByQuery(action.query)
+                val networksByQuery =
+                    getNetworksByQuery(oldState.addressSelectionState?.allNetworks!!, action.query)
 
                 newState = oldState.copy(
                     addressSelectionState = oldState.addressSelectionState?.copy(
@@ -255,7 +260,10 @@ class WalletStore(
 
                 newState = oldState.copy(
                     addressSelectionState = oldState.addressSelectionState?.copy(
-                        displayedNetworks = getNetworksByQuery(oldState.addressSelectionState.searchQuery),
+                        displayedNetworks = getNetworksByQuery(
+                            oldState.addressSelectionState.allNetworks!!,
+                            oldState.addressSelectionState.searchQuery
+                        ),
                         actionButtonEnabled = selectedCount > 0,
                         selectedCount = getSelectedNetworksCount()
                     )
@@ -408,9 +416,10 @@ class WalletStore(
                     }
                 }
 
-                val selectedNetworks = state.value.addressSelectionState!!.displayedNetworks.filter {
-                    it.selected
-                }.map { it.network }
+                val selectedNetworks =
+                    state.value.addressSelectionState!!.displayedNetworks.filter {
+                        it.selected
+                    }.map { it.network }
 
                 val allAccounts = interactor.getAllAccounts()
 
@@ -484,7 +493,10 @@ class WalletStore(
                                 )
 
                                 if (interactor.getCurrentNetwork() == networkWithAddress.network) {
-                                    interactor.setSelectedAccount(newAccount.id, networkWithAddress.network)
+                                    interactor.setSelectedAccount(
+                                        newAccount.id,
+                                        networkWithAddress.network
+                                    )
 
                                     state.tryEmit(
                                         state.value.copy(
@@ -512,7 +524,7 @@ class WalletStore(
                 }
             }
             is WalletAction.SwitchNetwork -> {
-                val newNetworks = state.value.addressSelectionState?.displayedNetworks!!.onEach {
+                val newNetworks = state.value.switchWalletState?.networks!!.onEach {
                     it.selected = it.network == action.network.network
                 }
 
@@ -529,7 +541,10 @@ class WalletStore(
                         currentNetwork = action.network.network,
                         currentAccount = interactor.getSelectedAccount(action.network.network),
                         switchWalletState = oldState.switchWalletState?.copy(
-                            networks = getNetworksByQuery(oldState.switchWalletState.searchQuery),
+                            networks = getNetworksByQuery(
+                                state.value.switchWalletState?.networks!!,
+                                oldState.switchWalletState.searchQuery
+                            ),
                             accounts = emptyList(),
                             scrollToIndex = null
                         )
@@ -575,7 +590,8 @@ class WalletStore(
                 val newPinCodeState = when (val pinPurpose = oldState.pinState.pinPurpose) {
                     is PinPurpose.Set -> {
                         if (pinPurpose.firstPinFilled) {
-                            val newConfirmEnteredPinCode = pinPurpose.confirmPin + action.enteredNumber
+                            val newConfirmEnteredPinCode =
+                                pinPurpose.confirmPin + action.enteredNumber
 
                             if (newConfirmEnteredPinCode.length != PIN_LENGTH) {
                                 oldState.pinState.copy(
@@ -585,7 +601,8 @@ class WalletStore(
                                 )
                             } else {
                                 if (newConfirmEnteredPinCode == pinPurpose.firstPin) {
-                                    val pinToSave = EncryptHelper.encryptPin(newConfirmEnteredPinCode)
+                                    val pinToSave =
+                                        EncryptHelper.encryptPin(newConfirmEnteredPinCode)
                                     interactor.savePinCode(pinToSave)
 
                                     oldState.pinState.copy(
@@ -677,11 +694,13 @@ class WalletStore(
                 )
 
                 launch {
-                    state.tryEmit(state.value.copy(
-                        revealSourceState = RevealSourceState(
-                            account = account
+                    state.tryEmit(
+                        state.value.copy(
+                            revealSourceState = RevealSourceState(
+                                account = account
+                            )
                         )
-                    ))
+                    )
                 }
             }
             is WalletAction.DeleteAddress -> {
@@ -761,10 +780,13 @@ class WalletStore(
         )
     }
 
-    private fun getNetworksByQuery(query: String?): List<NetworkWithSelection> {
-        return state.value.addressSelectionState?.allNetworks?.filter {
+    private fun getNetworksByQuery(
+        networksWithSelection: List<NetworkWithSelection>,
+        query: String?
+    ): List<NetworkWithSelection> {
+        return networksWithSelection.filter {
             it.network.prettyName.startsWith(query ?: "", true)
-        }!!
+        }
     }
 
     private fun getSelectedNetworksCount(): Int {

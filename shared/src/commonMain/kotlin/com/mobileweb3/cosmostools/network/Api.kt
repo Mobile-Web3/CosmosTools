@@ -48,19 +48,19 @@ class Api(private val httpClient: HttpClient) {
     }
 
     suspend fun sendTransaction(request: SendTransactionRequest): BaseResponse<SendTransactionResponse?> {
-        return defaultPostRequest("${V1}/transaction/send") {
+        return defaultPostRequest("${V1}/transactions/send") {
             it.setBody(request)
         }
     }
 
     suspend fun sendTransactionWithFirebase(request: SendTransactionRequestWithFirebase): BaseResponse<SendTransactionResponse?> {
-        return defaultPostRequest("${V1}/transaction/send/firebase") {
+        return defaultPostRequest("${V1}/transactions/send/firebase") {
             it.setBody(request)
         }
     }
 
     suspend fun simulateTransaction(request: SimulateTransactionRequest): BaseResponse<SimulateTransactionResponse?> {
-        return defaultPostRequest("${V1}/transaction/simulate") {
+        return defaultPostRequest("${V1}/transactions/simulate") {
             it.setBody(request)
         }
     }
